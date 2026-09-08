@@ -696,11 +696,9 @@ export class FlomoBoardPanel {
     });
 
     // 编辑模式：日期时间选择器 + 取消 + 发送（默认隐藏）
-    const editWrap = toolbar.createDiv(
-      "flomo-edit-wrap flomo-hidden"
-    );
-    const dateInput = editWrap.createEl("input", {
-      cls: "flomo-edit-datetime",
+    // 日期时间作为 toolbar 直接子项独立成行；×/发送 留在编辑按钮组
+    const dateInput = toolbar.createEl("input", {
+      cls: "flomo-edit-datetime flomo-hidden",
       attr: {
         type: "datetime-local",
         step: "60",
@@ -710,6 +708,9 @@ export class FlomoBoardPanel {
     this.editDateTimeEl = dateInput;
 
     // 编辑模式的取消按钮
+    const editWrap = toolbar.createDiv(
+      "flomo-edit-wrap flomo-hidden"
+    );
     const cancel = editWrap.createEl("button", {
       cls: "flomo-edit-cancel-btn",
       attr: { type: "button", title: "取消编辑" },
@@ -780,6 +781,7 @@ export class FlomoBoardPanel {
     // 显示编辑工具栏（datetime + 取消 + 保存），隐藏默认发送按钮
     const editWrap = card?.querySelector<HTMLElement>(".flomo-edit-wrap");
     editWrap?.removeClass("flomo-hidden");
+    dateInput?.removeClass("flomo-hidden");
     const defaultSubmit = card?.querySelector<HTMLElement>(
       ".flomo-input-toolbar > .flomo-submit-btn"
     );
@@ -799,6 +801,7 @@ export class FlomoBoardPanel {
     card?.removeClass("is-editing");
     const editWrap = card?.querySelector<HTMLElement>(".flomo-edit-wrap");
     editWrap?.addClass("flomo-hidden");
+    dateInput?.addClass("flomo-hidden");
     const defaultSubmit = card?.querySelector<HTMLElement>(
       ".flomo-input-toolbar > .flomo-submit-btn"
     );

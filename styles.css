@@ -3189,6 +3189,7 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   display: flex;
   align-items: center;
   gap: 2px;
+  margin-right: auto;
 }
 .flomo-tool-btn {
   padding: 4px 8px;
@@ -3211,12 +3212,13 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   width: 15px;
   height: 15px;
 }
-/* 编辑模式的取消按钮 */
+/* 编辑模式的取消按钮（桌面端：与工具、时间、发送同排，形成工具左、时间+按钮右） */
 .flomo-edit-wrap {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto;
+  flex: none;
+  margin-left: 8px;
 }
 .flomo-edit-datetime {
   height: 32px;
@@ -3229,6 +3231,13 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   font-family: var(--font-text);
   outline: none;
   transition: border-color 0.12s;
+  flex: none;
+  min-width: 0;
+}
+/* 提升特异性覆盖主题对 input[type=datetime-local] 的大圆角胶囊样式，
+   使其与 ×/发送 保持一致的小圆角（!important 对抗 Obsidian 内置 input 样式） */
+.flomo-edit-datetime[type="datetime-local"] {
+  border-radius: 6px !important;
 }
 .flomo-edit-datetime:hover,
 .flomo-edit-datetime:focus {
@@ -3917,15 +3926,21 @@ body.is-mobile .flomo-shell .flomo-sidebar {
     padding: 5px 10px;
     font-size: 12px;
   }
-  /* 移动端编辑态：datetime 占据整行，取消/保存落到下一行，
-     避免日期控件挤压/遮挡按钮 */
-  .flomo-edit-wrap {
+  /* 移动端编辑态：×/发送 回到工具同一行（居右），时间另起一行占整行 */
+  .flomo-input-toolbar {
     flex-wrap: wrap;
-    gap: 8px 6px;
+  }
+  .flomo-input-tools {
+    order: 0;
+  }
+  .flomo-edit-wrap {
+    order: 1;
   }
   .flomo-edit-datetime {
+    order: 3;
     flex: 1 1 100%;
     width: 100%;
+    margin-top: 4px;
   }
 }
 
