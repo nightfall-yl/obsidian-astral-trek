@@ -9,9 +9,11 @@
 ### 新功能
 
 - **i18n 国际化：支持中文和英文**
-  - 新增 `src/i18n/`（index.ts + zh.ts + en.ts），752 字典 key、283 处 `t()` 调用，覆盖全部用户可见 UI
-  - 自动读取 Obsidian 全局语言设置（`obsidian.json`），启动时缓存，`t(key, vars)` 自动取翻译
+  - 新增 `src/i18n/`（index.ts + zh.ts + en.ts），752 字典 key、283 处 `t()` 调用，覆盖全部用户可见 UI（Dashboard 主视图、设置页、Flomo 面板、项目看板、任务弹窗等）
+  - 语言检测：读取 Obsidian 全局配置 `obsidian.json`（macOS → `~/Library/Application Support/`，Windows → 多候选：`%APPDATA%` → `~/AppData/Roaming/` → `~/.obsidian/`，Linux → `~/.config/`），`Platform.isDesktop` 守卫 Node 模块（移动端自动回退英文），Reload 插件时重新读取
   - 日期/数字按语言格式化：英文模式下 42.1 万 → 421K、星期六 → Saturday
+  - UI 文本全覆盖：Header stats、问候语/相对时间、项目计数、Flomo 导出模板、任务优先级排序、强制视图 placeholder 等
+  - 英文模块标题（Task Progress / Project Status / Daily Phrase）统一标题大小写
   - frontmatter 字段（`状态: 待办` / `优先级: 高`）保持中文不翻译；农历日期双语均显示中文，标签在英文下为 `Lunar`
 
 ### 功能与改进
@@ -21,24 +23,6 @@
   - 移动端（<680px）：取消/发送回到工具行，时间输入框占满整行
   - 时间输入框圆角统一 6px
 - Linter 组「忽略文件夹」→「忽略文件/文件夹」，说明文案更新
-
-### 修复
-
-- Header stats 硬编码中文单位，英文模式下显示中文
-- `moduleLabels` 硬编码中文标签，改为引用字典
-- Flomo 导出模板和统计行模板改为字典参数化
-- settings.ts 强制视图匹配规则 placeholder 硬编码中文，改为字典参数化
-- 问候语 `greeting()` 和相对时间 `relativeTime()` 硬编码 9 处中文，改为 `greet.*` / `time.*` 字典 key
-- 英文模块标题大小写修正：`auto.220` Task Progress、`auto.221` Project Status、`auto.223` Daily Phrase
-- 项目计数模板 `dv.biz.projects.count` 中英文参数名不一致（`{count}/{total}` vs `{filteredLen}/{stageProjectsLen}`），统一为后者
-- `formatCompactNumber` 增加可选 locale 参数，测试改为显式传参，消除对宿主语言的依赖
-- 清理 i18n 新增文件的 lint error（多余 as Dict 断言、JSON.parse any 类型、遗留 console.log）
-- `readObsidianLanguage()` 实现链路修正：
-  - Electron 沙箱不支持 ESM dynamic `import()`，改为 Platform 守卫 + CommonJS `require()`
-  - Windows 单路径 + `process.env.APPDATA \|\| ""` 导致路径拼接为空，改为多候选路径逐个尝试（%APPDATA% → `home/AppData/Roaming/` → `home/.obsidian/`）
-  - `initI18n` 去掉缓存短路，Reload 插件时总是重新读取 obsidian.json
-  - eslint.config.mjs 新增 i18n/index.ts 和 *.test.ts 文件级规则豁免
-- `readObsidianLanguage()` 引入 Platform 使 core 测试连带无法解析 obsidian 包：新建 `vitest.config.ts`，通过 `resolve.alias` 将 obsidian 指向 `src/test/mocks/obsidian.ts`，测试恢复可跑
 
 ## [26.1.2] - 2026-09-06
 
