@@ -338,22 +338,22 @@ export class FlomoBoardPanel {
     const parts: string[] = [];
     if (this.filter.keyword) parts.push(`关键词: ${this.filter.keyword}`);
     const presetLabels: Record<string, string> = {
-      all: "全部笔记",
-      pinned: "置顶",
-      starred: "收藏",
-      today: "今天",
-      week: "本周",
-      todo: "待办",
-      "on-this-day": "回顾",
-      "no-tag": "无标签",
-      "with-image": "有图片",
-      "with-link": "有链接",
+      all: $t("auto.242"),
+      pinned: $t("auto.243"),
+      starred: $t("auto.244"),
+      today: $t("dv.pb.calendar.today"),
+      week: $t("auto.245"),
+      todo: $t("qc.preset.todo"),
+      "on-this-day": $t("auto.251"),
+      "no-tag": $t("qc.preset.noTag"),
+      "with-image": $t("qc.preset.withImage"),
+      "with-link": $t("qc.preset.withLink"),
     };
     if (this.filter.preset !== "all")
       parts.push(presetLabels[this.filter.preset] ?? this.filter.preset);
     if (this.filter.year) parts.push(`年份: ${this.filter.year}`);
     if (this.filter.tag) parts.push(`#${this.filter.tag}`);
-    return parts.length === 0 ? "全部便签" : parts.join(" · ");
+    return parts.length === 0 ? $t("auto.246") : parts.join(" · ");
   }
 
   /* ---- 左侧栏（复刻 obsidian-memoria-main/src/view.ts 的真实筛选功能） ----
@@ -372,9 +372,9 @@ export class FlomoBoardPanel {
       daySet.add(m.date);
       for (const t of m.tags) tagSet.add(t);
     }
-    this.addStat(stats, String(all.length), "笔记");
-    this.addStat(stats, String(tagSet.size), "标签");
-    this.addStat(stats, String(daySet.size), "天数");
+    this.addStat(stats, String(all.length), $t("qc.stats.notes"));
+    this.addStat(stats, String(tagSet.size), $t("qc.stats.tags"));
+    this.addStat(stats, String(daySet.size), $t("qc.stats.days"));
 
     const pinnedCount = all.filter((m) => m.isPinned).length;
     const starredCount = all.filter((m) => m.isStarred).length;
@@ -403,7 +403,7 @@ export class FlomoBoardPanel {
       { key: "starred", icon: "star", text: $t("auto.244"), count: starredCount },
       { key: "today", icon: "calendar", text: $t("dv.pb.calendar.today"), count: todayCount },
       { key: "week", icon: "calendar-days", text: $t("auto.245"), count: weekCount },
-      { key: "todo", icon: "check-square", text: "待办", count: todoCount },
+      { key: "todo", icon: "check-square", text: $t("qc.preset.todo"), count: todoCount },
       {
         key: "on-this-day",
         icon: "rotate-ccw",
@@ -424,9 +424,9 @@ export class FlomoBoardPanel {
     // —— 检索式
     const searchSec = sidebar.createDiv("flomo-sidebar-section");
     searchSec.setText($t("p4.10044"));
-    this.renderNavItem(sidebar, "no-tag", "tag", "无标签", noTagCount);
-    this.renderNavItem(sidebar, "with-image", "image", "有图片", imageCount);
-    this.renderNavItem(sidebar, "with-link", "link-2", "有链接", linkCount);
+    this.renderNavItem(sidebar, "no-tag", "tag", $t("qc.preset.noTag"), noTagCount);
+    this.renderNavItem(sidebar, "with-image", "image", $t("qc.preset.withImage"), imageCount);
+    this.renderNavItem(sidebar, "with-link", "link-2", $t("qc.preset.withLink"), linkCount);
 
     // —— 年份
     const yearCount = new Map<string, number>();
@@ -1222,7 +1222,7 @@ export class FlomoBoardPanel {
       { value: "all", text: $t("auto.283") },
       { value: "pinned", text: $t("auto.243") },
       { value: "starred", text: $t("auto.244") },
-      { value: "todo", text: "待办" },
+      { value: "todo", text: $t("qc.preset.todo") },
       { value: "image", text: $t("auto.286") },
       { value: "link", text: $t("auto.287") },
     ];

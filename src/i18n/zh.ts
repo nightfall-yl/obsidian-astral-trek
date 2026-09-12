@@ -767,5 +767,13 @@ export default {
   "dv.header.lunar": "农历 {date}",
   "dv.taskProgress.weeklyTodos": "本周待办",
   "dv.notes": "篇笔记",
-  "dv.recent.modifiedToday": "{n} 篇今日修改"
+  "dv.recent.modifiedToday": "{n} 篇今日修改",
+  "qc.stats.notes": "笔记",
+  "qc.stats.tags": "标签",
+  "qc.stats.days": "天数",
+  "qc.preset.todo": "待办",
+  "qc.preset.noTag": "无标签",
+  "qc.preset.withImage": "有图片",
+  "qc.preset.withLink": "有链接",
+  "qc.filter.year": "年份"
 };

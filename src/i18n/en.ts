@@ -767,5 +767,13 @@ export default {
   "dv.header.lunar": "Lunar {date}",
   "dv.taskProgress.weeklyTodos": "This week's todos",
   "dv.notes": "",
-  "dv.recent.modifiedToday": "{n} modified today"
+  "dv.recent.modifiedToday": "{n} modified today",
+  "qc.stats.notes": "Notes",
+  "qc.stats.tags": "Tags",
+  "qc.stats.days": "Days",
+  "qc.preset.todo": "To-do",
+  "qc.preset.noTag": "No tags",
+  "qc.preset.withImage": "With images",
+  "qc.preset.withLink": "With links",
+  "qc.filter.year": "Year"
 };
