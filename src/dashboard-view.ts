@@ -2582,19 +2582,19 @@ function noteDetail(note: NoteMetric, badge?: string): DetailItem {
 
 function greeting(now = new Date()): string {
   const hour = now.getHours();
-  if (hour < 6) return "夜深了";
-  if (hour < 11) return "早上好";
-  if (hour < 14) return "中午好";
-  if (hour < 18) return "下午好";
-  return $t("auto.231");
+  if (hour < 6) return $t("greet.lateNight");
+  if (hour < 11) return $t("greet.morning");
+  if (hour < 14) return $t("greet.noon");
+  if (hour < 18) return $t("greet.afternoon");
+  return $t("greet.evening");
 }
 
 function relativeTime(timestamp: number): string {
   const diff = Math.max(0, Date.now() - timestamp);
-  if (diff < 60_000) return "刚刚";
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} 分钟前`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)} 小时前`;
-  if (diff < 604_800_000) return `${Math.floor(diff / 86_400_000)} 天前`;
+  if (diff < 60_000) return $t("time.justNow");
+  if (diff < 3_600_000) return $t("time.minutesAgo", { n: Math.floor(diff / 60_000) });
+  if (diff < 86_400_000) return $t("time.hoursAgo", { n: Math.floor(diff / 3_600_000) });
+  if (diff < 604_800_000) return $t("time.daysAgo", { n: Math.floor(diff / 86_400_000) });
   return new Intl.DateTimeFormat(getLocaleCode(), {
     month: "numeric",
     day: "numeric"
