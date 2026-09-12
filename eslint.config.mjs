@@ -65,5 +65,20 @@ export default tseslint.config(
     rules: {
       "obsidianmd/no-nodejs-modules": "off"
     }
+  },
+  {
+    // i18n/index.ts uses Platform.isDesktop + require() for Node-only modules.
+    files: ["src/i18n/index.ts"],
+    rules: {
+      "obsidianmd/no-nodejs-modules": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "no-undef": "off",
+      "no-console": "off"
+    }
   }
 );

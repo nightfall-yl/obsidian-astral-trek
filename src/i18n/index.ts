@@ -8,20 +8,18 @@ type Dict = Record<string, string>;
 const dicts: Record<string, Dict> = { zh, en };
 let _cachedLang: string = "";
 
-/** Async helper: read Obsidian's global language setting from obsidian.json.
+/** Read Obsidian's global language setting from obsidian.json.
  *  Obsidian does NOT expose app.language — it lives in the global config file.
  *  On mobile (Platform.isDesktop === false) Node.js fs is unavailable; falls back to "en". */
-async function _detectLanguage(): Promise<string> {
+function _detectLanguage(): string {
   if (!Platform.isDesktop) return "en";
   try {
-    const [fs, os, path] = await Promise.all([
-      import("fs"),
-      import("os"),
-      import("path"),
-    ]);
+    const fs = require("fs");
+    const os = require("os");
+    const path = require("path");
+
     const home = os.homedir();
     let configPath = "";
-    /* eslint-disable no-undef -- Platform.isDesktop ensures Node globals exist */
     if (process.platform === "darwin") {
       configPath = path.join(home, "Library/Application Support/obsidian/obsidian.json");
     } else if (process.platform === "win32") {
@@ -29,7 +27,6 @@ async function _detectLanguage(): Promise<string> {
     } else {
       configPath = path.join(home, ".config/obsidian/obsidian.json");
     }
-    /* eslint-enable no-undef -- Node-only globals finished */
     const raw = JSON.parse(fs.readFileSync(configPath, "utf-8")) as {
       language?: unknown;
     };
@@ -45,10 +42,9 @@ function readObsidianLanguage(): string {
   return _cachedLang || "en";
 }
 
-export async function initI18n(_a: App): Promise<void> {
-  if (!_cachedLang) {
-    _cachedLang = await _detectLanguage();
-  }
+export function initI18n(_a: App): void {
+  // Always re-read obsidian.json to pick up language changes after plugin reload.
+  _cachedLang = _detectLanguage();
 }
 
 export function getDictKey(_app?: App | null): keyof typeof dicts {
@@ -58,8 +54,8 @@ export function getDictKey(_app?: App | null): keyof typeof dicts {
 
 export function t(key: string, vars?: Record<string, string | number>): string {
   const dictKey = getDictKey();
-  const dict = (dicts[dictKey] ?? en) as Dict;
-  let result = dict[key] ?? key;
+  const dict = dicts[dictKey] ?? en;
+  let result = (dict as Dict)[key] ?? key;
   if (vars) {
     for (const [k, v] of Object.entries(vars)) {
       result = result.replaceAll(`{${k}}`, String(v));

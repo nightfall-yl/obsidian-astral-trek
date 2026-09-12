@@ -199,7 +199,7 @@ export default {
   "auto.220": "Task Progress",
   "auto.221": "Project Status",
   "auto.222": "Countdown",
-  "auto.223": "Daily phrase",
+  "auto.223": "Daily Phrase",
   "auto.224": "No cards yet. Tap \"+ Add card\" below to start",
   "auto.225": "Add card",
   "auto.226": "All cards shown",
