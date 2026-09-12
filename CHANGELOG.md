@@ -28,6 +28,10 @@
 - `moduleLabels` 硬编码中文标签，改为引用字典
 - Flomo 导出模板和统计行模板改为字典参数化
 - settings.ts 强制视图匹配规则 placeholder 硬编码中文，改为字典参数化
+- `formatCompactNumber` 增加可选 locale 参数，测试改为显式传参，消除对宿主语言的依赖
+- 清理 i18n 新增文件的 lint error（多余 as Dict 断言、JSON.parse any 类型、遗留 console.log）
+- `readObsidianLanguage()` 改用 `Platform.isDesktop` + dynamic `import("fs"/"os"/"path")` 守卫，消除 6 条 no-nodejs-modules 告警；移动端自动回退为英文
+- `readObsidianLanguage()` 依赖 `import { Platform } from "obsidian"` 使 core 测试连带无法解析 obsidian 包：新建 `vitest.config.ts`，通过 `resolve.alias` 将 obsidian 指向 `src/test/mocks/obsidian.ts`（只导出 `Platform.isDesktop/isMobile`），测试恢复可跑
 
 ## [26.1.2] - 2026-09-06
 

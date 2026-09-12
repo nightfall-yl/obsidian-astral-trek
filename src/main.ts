@@ -47,7 +47,7 @@ export default class AstraDashboardPlugin extends Plugin {
   }
 
   async onload(): Promise<void> {
-    initI18n(this.app);
+    await initI18n(this.app);
     await this.loadPluginData();
     this.stats = new StatsService(this.app, this);
 

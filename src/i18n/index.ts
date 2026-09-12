@@ -1,6 +1,4 @@
-import fs from "fs";
-import os from "os";
-import path from "path";
+import { Platform } from "obsidian";
 import type { App } from "obsidian";
 import zh from "./zh";
 import en from "./en";
@@ -8,16 +6,22 @@ import en from "./en";
 type Dict = Record<string, string>;
 
 const dicts: Record<string, Dict> = { zh, en };
-// _app kept for future use when Obsidian exposes App.language
 let _cachedLang: string = "";
 
-/** Read Obsidian's global language setting from obsidian.json.
- *  Obsidian does NOT expose app.language — it lives in the global config file. */
-function readObsidianLanguage(): string {
-  if (_cachedLang) return _cachedLang;
+/** Async helper: read Obsidian's global language setting from obsidian.json.
+ *  Obsidian does NOT expose app.language — it lives in the global config file.
+ *  On mobile (Platform.isDesktop === false) Node.js fs is unavailable; falls back to "en". */
+async function _detectLanguage(): Promise<string> {
+  if (!Platform.isDesktop) return "en";
   try {
+    const [fs, os, path] = await Promise.all([
+      import("fs"),
+      import("os"),
+      import("path"),
+    ]);
     const home = os.homedir();
     let configPath = "";
+    /* eslint-disable no-undef -- Platform.isDesktop ensures Node globals exist */
     if (process.platform === "darwin") {
       configPath = path.join(home, "Library/Application Support/obsidian/obsidian.json");
     } else if (process.platform === "win32") {
@@ -25,19 +29,26 @@ function readObsidianLanguage(): string {
     } else {
       configPath = path.join(home, ".config/obsidian/obsidian.json");
     }
+    /* eslint-enable no-undef -- Node-only globals finished */
     const raw = JSON.parse(fs.readFileSync(configPath, "utf-8")) as {
       language?: unknown;
     };
     const language = typeof raw.language === "string" ? raw.language : "en";
-    _cachedLang = language.toLowerCase();
+    return language.toLowerCase();
   } catch {
-    _cachedLang = "en";
+    return "en";
   }
-  return _cachedLang;
 }
 
-export function initI18n(_a: App): void {
-	_cachedLang = readObsidianLanguage();
+/** Synchronous accessor. Returns cached language (set by initI18n) or "en" as fallback. */
+function readObsidianLanguage(): string {
+  return _cachedLang || "en";
+}
+
+export async function initI18n(_a: App): Promise<void> {
+  if (!_cachedLang) {
+    _cachedLang = await _detectLanguage();
+  }
 }
 
 export function getDictKey(_app?: App | null): keyof typeof dicts {
