@@ -421,7 +421,7 @@ export default {
   "f.1105": "${files.length} notes",
   "f.1119": "${activeCount} active · ${filterLabel}",
   "f.1127": " specificity (0,1,0) below",
-  "p4.10000": "Open project",
+  "p4.10000": "Open Project",
   "p4.10001": "Task already in this project",
   "p4.10002": "Task file not found",
   "p4.10003": "❌ Project deleted:",
