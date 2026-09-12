@@ -58,5 +58,12 @@ export default tseslint.config(
       "@typescript-eslint/no-misused-promises": "off",
       "no-console": "off"
     }
+  },
+  {
+    // Vitest 测试文件跑在 Node.js 上，允许使用 Node.js 内置模块。
+    files: ["src/**/*.test.ts"],
+    rules: {
+      "obsidianmd/no-nodejs-modules": "off"
+    }
   }
 );
