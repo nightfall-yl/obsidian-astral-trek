@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n";
 import {
   Menu,
   Notice,
@@ -171,7 +172,7 @@ export class ProjectBoardPanel {
     } catch {
       this.hostEl.empty();
       this.hostEl.addClass("po-board-view");
-      this.hostEl.createDiv({ cls: "po-empty", text: "暂无数据" });
+      this.hostEl.createDiv({ cls: "po-empty", text: $t("dv.empty") });
     }
   }
 
@@ -186,10 +187,10 @@ export class ProjectBoardPanel {
 
     const tabs = this.poMainEl.createDiv({ cls: "po-tabs" });
     const tabDefs = [
-      { key: "gantt", label: "甘特图", icon: "gantt-chart" },
-      { key: "list", label: "列表", icon: "list" },
-      { key: "calendar", label: "日历", icon: "calendar" },
-      { key: "kanban", label: "看板", icon: "layout-dashboard" }
+      { key: "gantt", label: $t("dv.pb.view.gantt"), icon: "gantt-chart" },
+      { key: "list", label: $t("dv.pb.view.list"), icon: "list" },
+      { key: "calendar", label: $t("set.remaining.757"), icon: "calendar" },
+      { key: "kanban", label: $t("dv.pb.view.kanban"), icon: "layout-dashboard" }
     ] as const;
     const content = this.poMainEl.createDiv({ cls: "po-content" });
     const panels: Record<string, HTMLElement> = {};
@@ -245,7 +246,7 @@ export class ProjectBoardPanel {
       else if (key === "calendar") this.renderCalendarPanel(panel, tasks, this.currentProjects);
       else if (key === "kanban") this.renderKanbanPanel(panel, tasks, this.currentProjects);
     } catch {
-      panel.createDiv({ cls: "po-empty", text: "暂无数据" });
+      panel.createDiv({ cls: "po-empty", text: $t("dv.empty") });
     }
   }
 
@@ -313,7 +314,7 @@ export class ProjectBoardPanel {
       cls: "po-dot",
       attr: { style: "background:var(--astra-accent-blue);color:var(--astra-accent-blue)" }
     });
-    allItem.createSpan({ text: "全部项目" });
+    allItem.createSpan({ text: $t("dv.pb.actions.allProjects") });
     allItem.createSpan({ cls: "po-count", text: totalActive + "/" + totalTasks });
     this.listen(allItem, "click", () => {
       this.selectedProject = null;
@@ -343,13 +344,13 @@ export class ProjectBoardPanel {
         const menu = new Menu();
         menu.addItem((menuItem) =>
           menuItem
-            .setTitle("打开项目")
+            .setTitle($t("p4.10000"))
             .setIcon("file-text")
             .onClick(() => this.openProjectNote(p))
         );
         menu.addItem((menuItem) =>
           menuItem
-            .setTitle("删除项目")
+            .setTitle($t("dv.pb.actions.deleteProject"))
             .setIcon("trash")
             .onClick(() => void this.deleteProject(p))
         );
@@ -396,7 +397,7 @@ export class ProjectBoardPanel {
 
     const addBtn = sidebar.createEl("button", {
       cls: "po-add-btn",
-      text: "+ 新建项目"
+      text: $t("dv.pb.actions.newProject")
     });
     this.listen(addBtn, "click", () => this.createProjectFile());
   }
@@ -409,9 +410,9 @@ export class ProjectBoardPanel {
     const rootPath = this.plugin.data.settings.projectsFolder || "Projects";
     const parts = taskId.split("/");
     const curProj = parts.length > 1 ? parts[1] : "";
-    if (curProj === targetProject) { new Notice("任务已在该项目"); return; }
+    if (curProj === targetProject) { new Notice($t("p4.10001")); return; }
     const file = this.app.vault.getAbstractFileByPath(taskId);
-    if (!(file instanceof TFile)) { new Notice("找不到任务文件"); return; }
+    if (!(file instanceof TFile)) { new Notice($t("p4.10002")); return; }
     const fileName = parts[parts.length - 1] || "";
     const newPath = `${rootPath}/${targetProject}/${fileName}`;
     if (this.app.vault.getAbstractFileByPath(newPath)) {
@@ -434,9 +435,9 @@ export class ProjectBoardPanel {
   /** 删除项目（含所有任务文件）。 */
   private async deleteProject(proj: ProjectInfo): Promise<void> {
     const confirmed = await confirmDialog(this.app, {
-      title: "删除项目",
+      title: $t("dv.pb.actions.deleteProject"),
       message: `确定删除项目 "${proj.name}" 及其所有任务文件？此操作不可撤销。`,
-      confirmText: "删除",
+      confirmText: $t("set.remaining.758"),
       danger: true
     });
     if (!confirmed) return;
@@ -483,7 +484,7 @@ export class ProjectBoardPanel {
       this.renderGanttPanelInner(panel, tasks, projects);
     } catch {
       panel.empty();
-      panel.createDiv({ cls: "po-empty", text: "暂无数据" });
+      panel.createDiv({ cls: "po-empty", text: $t("dv.empty") });
     }
   }
 
@@ -497,7 +498,7 @@ export class ProjectBoardPanel {
     }
     const tasksWithDates = tasks.filter((t) => t.startDate || t.dueDate);
     if (tasks.length === 0) {
-      panel.createDiv({ cls: "po-empty", text: "暂无任务" });
+      panel.createDiv({ cls: "po-empty", text: $t("dv.emptyTask") });
       return;
     }
 
@@ -657,10 +658,10 @@ export class ProjectBoardPanel {
     // ---- DOM 骨架 ----
     const zoomBar = panel.createDiv({ cls: "po-gantt__zoom" });
     const zoomLevels: Array<{ key: GanttZoom; label: string }> = [
-      { key: "day", label: "日" },
-      { key: "week", label: "周" },
-      { key: "month", label: "月" },
-      { key: "quarter", label: "季度" }
+      { key: "day", label: $t("u.20746") },
+      { key: "week", label: $t("dv.pb.kanban.week") },
+      { key: "month", label: $t("dv.pb.kanban.month") },
+      { key: "quarter", label: $t("dv.pb.kanban.quarter") }
     ];
     zoomLevels.forEach((z) => {
       const btn = zoomBar.createEl("button", {
@@ -710,7 +711,7 @@ export class ProjectBoardPanel {
         menu.addSeparator();
         menu.addItem((item) =>
           item
-            .setTitle("清除筛选")
+            .setTitle($t("p4.10004"))
             .onClick(() => {
               this.ganttStatusFilter.length = 0;
               updateFilterLabel();
@@ -729,7 +730,7 @@ export class ProjectBoardPanel {
     const left = wrapper.createDiv({ cls: "po-gantt__left" });
     const leftHeader = left.createDiv({ cls: "po-gantt__left-hd" });
     leftHeader.style.height = HEADER_HEIGHT + "px";
-    leftHeader.createSpan({ text: "任务名称", cls: "po-gantt__left-hd-label" });
+    leftHeader.createSpan({ text: $t("dv.pb.col.taskName"), cls: "po-gantt__left-hd-label" });
     const leftBody = left.createDiv({ cls: "po-gantt__left-body" });
 
     const right = wrapper.createDiv({ cls: "po-gantt__right" });
@@ -982,13 +983,13 @@ export class ProjectBoardPanel {
         const menu = new Menu();
         menu.addItem((item) =>
           item
-            .setTitle("编辑任务")
+            .setTitle($t("p4.10005"))
             .setIcon("pencil")
             .onClick(() => this.openTaskEditModal(t))
         );
         menu.addItem((item) =>
           item
-            .setTitle("删除任务")
+            .setTitle($t("dv.deleteTask"))
             .setIcon("trash")
             .onClick(() => void this.deleteTask(t))
         );
@@ -1300,7 +1301,7 @@ export class ProjectBoardPanel {
   ): { tbody: HTMLElement; rows: (HTMLElement | null)[] } {
     const section = panel.createDiv({ cls: "po-tasklist" });
     const toolbar = section.createDiv({ cls: "po-toolbar" });
-    toolbar.createSpan({ cls: "po-toolbar__label", text: "筛选" });
+    toolbar.createSpan({ cls: "po-toolbar__label", text: $t("dv.pb.filter.label") });
     ["全部", "待办", "进行中", "已阻塞", "已完成"].forEach((f, i) => {
       const key = i === 0 ? "all" : f;
       const chip = toolbar.createEl("button", {
@@ -1316,12 +1317,12 @@ export class ProjectBoardPanel {
     const hr = thead.createEl("tr");
     const colDefs = [
       { key: "", label: "" },
-      { key: "name", label: "任务名称" },
-      { key: "priority", label: "优先级" },
-      { key: "startDate", label: "开始" },
-      { key: "dueDate", label: "截止" },
-      { key: "status", label: "状态" },
-      { key: "project", label: "项目" }
+      { key: "name", label: $t("dv.pb.col.taskName") },
+      { key: "priority", label: $t("dv.pb.col.priority") },
+      { key: "startDate", label: $t("dv.pb.col.start") },
+      { key: "dueDate", label: $t("dv.pb.col.due") },
+      { key: "status", label: $t("dv.pb.col.status") },
+      { key: "project", label: $t("dv.pb.col.project") }
     ];
     const thEls: HTMLElement[] = [];
     colDefs.forEach((col) => {
@@ -1555,19 +1556,19 @@ export class ProjectBoardPanel {
       const menu = new Menu();
       menu.addItem((item) =>
         item
-          .setTitle("编辑任务")
+          .setTitle($t("p4.10005"))
           .setIcon("pencil")
           .onClick(() => this.openTaskEditModal(t))
       );
       menu.addItem((item) =>
         item
-          .setTitle("删除任务")
+          .setTitle($t("dv.deleteTask"))
           .setIcon("trash")
           .onClick(() => void this.deleteTask(t))
       );
       menu.addItem((item) =>
         item
-          .setTitle("打开源笔记")
+          .setTitle($t("p4.10006"))
           .setIcon("file-text")
           .onClick(() => {
             if (t.sourceFile) void this.app.workspace.openLinkText(t.sourceFile, "", true);
@@ -1586,11 +1587,11 @@ export class ProjectBoardPanel {
   ): void {
     const board = panel.createDiv({ cls: "po-kanban" });
     const cols = [
-      { key: "待办", label: "待办" },
-      { key: "进行中", label: "进行中" },
-      { key: "已阻塞", label: "已阻塞" },
-      { key: "已完成", label: "已完成" },
-      { key: "已取消", label: "已取消" }
+      { key: "待办", label: $t("u.20747") },
+      { key: "进行中", label: $t("dv.biz.projects.onTrack") },
+      { key: "已阻塞", label: $t("u.20748") },
+      { key: "已完成", label: $t("dv.biz.projects.completed") },
+      { key: "已取消", label: $t("u.20749") }
     ];
 
     const colorMap: Record<string, string> = {};
@@ -1628,12 +1629,12 @@ export class ProjectBoardPanel {
           const menu = new Menu();
           menu.addItem((item) =>
             item
-              .setTitle("编辑")
+              .setTitle($t("p4.10007"))
               .setIcon("pencil")
               .onClick(() => this.openTaskEditModal(t))
           );
           menu.addItem((item) =>
-            item.setTitle("删除").setIcon("trash").onClick(() => void this.deleteTask(t))
+            item.setTitle($t("set.remaining.758")).setIcon("trash").onClick(() => void this.deleteTask(t))
           );
           menu.addSeparator();
           prioList.forEach((prio) => {
@@ -1724,7 +1725,7 @@ export class ProjectBoardPanel {
       header.createSpan({ cls: "po-cal__title", text: y + "年" + (m + 1) + "月" });
       const nav = header.createDiv({ cls: "po-cal__nav" });
       const prevBtn = nav.createEl("button", { cls: "po-cal__btn", text: "←" });
-      const todayBtn = nav.createEl("button", { cls: "po-cal__btn", text: "今天" });
+      const todayBtn = nav.createEl("button", { cls: "po-cal__btn", text: $t("dv.pb.calendar.today") });
       const nextBtn = nav.createEl("button", { cls: "po-cal__btn", text: "→" });
 
       prevBtn.addEventListener("click", () => {
@@ -1787,7 +1788,7 @@ export class ProjectBoardPanel {
         }
       }
 
-      const preview = grid.createDiv({ cls: "po-cal__preview", text: "点击日期查看当天任务" });
+      const preview = grid.createDiv({ cls: "po-cal__preview", text: $t("dv.pb.calendar.hint") });
 
       grid.addEventListener("click", (e) => {
         const dayEl = (e.target as HTMLElement).closest(".po-cal__day") as HTMLElement;
@@ -1822,7 +1823,7 @@ export class ProjectBoardPanel {
             });
           });
         } else {
-          preview.createSpan({ text: "该日期暂无任务" });
+          preview.createSpan({ text: $t("dv.pb.calendar.empty") });
         }
       });
 
@@ -1869,7 +1870,7 @@ export class ProjectBoardPanel {
 
     task.dueDate = newDate;
     if (task.remindDate) task.remindDate = newDate;
-    new Notice("✨ 任务日期已更新");
+    new Notice($t("p4.10016"));
     this.taskStore.invalidate();
     void this.renderAll(true);
   }
@@ -1957,9 +1958,9 @@ export class ProjectBoardPanel {
   private async deleteTask(task: TaskItem): Promise<void> {
     if (!task.sourceFile) return;
     const confirmed = await confirmDialog(this.app, {
-      title: "删除任务",
+      title: $t("dv.deleteTask"),
       message: `确定删除任务 "${task.content}"？`,
-      confirmText: "删除",
+      confirmText: $t("set.remaining.758"),
       danger: true
     });
     if (!confirmed) return;

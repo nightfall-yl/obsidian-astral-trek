@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n";
 import {
   AbstractInputSuggest,
   Modal,
@@ -275,15 +276,15 @@ function renderSettings(
   const dashboardEl = sectionEls.get("dashboard")!;
 
   // ── 通用 ──
-  const generalGroup = new SettingGroup(dashboardEl).setHeading("通用");
+  const generalGroup = new SettingGroup(dashboardEl).setHeading($t("p4.10064"));
 
   generalGroup.addSetting((setting) => {
     setting
-      .setName("问候名称")
-      .setDesc("可选。留空时首页只显示时段问候。")
+      .setName($t("p4.10065"))
+      .setDesc($t("p4.10066"))
       .addText((text) =>
         text
-          .setPlaceholder("例如 Sean")
+          .setPlaceholder($t("p4.10067"))
           .setValue(plugin.data.settings.displayName)
           .onChange((value) => {
             void (async () => {
@@ -296,8 +297,8 @@ function renderSettings(
 
   generalGroup.addSetting((setting) => {
     setting
-      .setName("启动时打开首页")
-      .setDesc("Obsidian 工作区加载完成后自动显示 Astra。")
+      .setName($t("p4.10068"))
+      .setDesc($t("p4.10069"))
       .addToggle((toggle) =>
         toggle
           .setValue(plugin.data.settings.openOnStartup)
@@ -312,12 +313,12 @@ function renderSettings(
 
   generalGroup.addSetting((setting) => {
     setting
-      .setName("启动方式")
-      .setDesc("替换当前标签更像默认首页；新标签会保留上次打开的笔记。")
+      .setName($t("p4.10070"))
+      .setDesc($t("p4.10071"))
       .addDropdown((dropdown) =>
         dropdown
-          .addOption("replace-active", "替换当前标签")
-          .addOption("new-tab", "在新标签打开")
+          .addOption("replace-active", $t("p4.10072"))
+          .addOption("new-tab", $t("p4.10073"))
           .setValue(plugin.data.settings.startupMode)
           .onChange((value) => {
             void (async () => {
@@ -330,8 +331,8 @@ function renderSettings(
 
   generalGroup.addSetting((setting) => {
     setting
-      .setName("空白或极短阈值")
-      .setDesc("字数小于或等于该值时，归入“空白或极短”。")
+      .setName($t("p4.10074"))
+      .setDesc($t("p4.10075"))
       .addSlider((slider) =>
         slider
           .setLimits(0, 100, 5)
@@ -347,11 +348,11 @@ function renderSettings(
 
   generalGroup.addSetting((setting) => {
     setting
-      .setName("排除文件夹")
-      .setDesc("每行一个仓库相对路径；其子目录也会被排除。")
+      .setName($t("p4.10076"))
+      .setDesc($t("p4.10077"))
       .addTextArea((text) => {
         text
-          .setPlaceholder("模板\n归档/附件")
+          .setPlaceholder($t("p4.10078"))
           .setValue(plugin.data.settings.excludedFolders.join("\n"))
           .onChange((value) => {
             void (async () => {
@@ -364,12 +365,12 @@ function renderSettings(
   });
 
   // ── 主页模块 ──
-  const modulesGroup = new SettingGroup(dashboardEl).setHeading("主页模块");
+  const modulesGroup = new SettingGroup(dashboardEl).setHeading($t("p4.10079"));
 
   modulesGroup.addSetting((setting) => {
     setting
-      .setName("项目文件夹")
-      .setDesc("存放项目与任务的根文件夹。子文件夹中带 project.md 视为项目。")
+      .setName($t("p4.10080"))
+      .setDesc($t("p4.10081"))
       .addText((text) => {
         text
           .setPlaceholder("Projects")
@@ -390,11 +391,11 @@ function renderSettings(
 
   modulesGroup.addSetting((setting) => {
     setting
-      .setName("TODO 扫描文件夹")
-      .setDesc("可选。默认扫描整个仓库；指定后仅扫描该文件夹及子目录。")
+      .setName($t("p4.10082"))
+      .setDesc($t("p4.10083"))
       .addText((text) =>
         text
-          .setPlaceholder("留空 = 整个仓库")
+          .setPlaceholder($t("p4.10084"))
           .setValue(plugin.data.settings.todoSourceFolder)
           .onChange((value) => {
             void (async () => {
@@ -407,8 +408,8 @@ function renderSettings(
 
   modulesGroup.addSetting((setting) => {
     setting
-      .setName("阶段命名")
-      .setDesc("用「英文逗号」分隔的阶段列表，决定项目管道与筛选。")
+      .setName($t("p4.10085"))
+      .setDesc($t("p4.10086"))
       .addText((text) =>
         text
           .setPlaceholder("Charter,PDCP,TR,ADCP,COR")
@@ -427,8 +428,8 @@ function renderSettings(
 
   modulesGroup.addSetting((setting) => {
     setting
-      .setName("项目进度筛选阶段")
-      .setDesc("只显示阶段序号 ≤ 该值的项目（1 = 第一个阶段）。")
+      .setName($t("p4.10087"))
+      .setDesc($t("p4.10088"))
       .addSlider((slider) =>
         slider
           .setLimits(1, Math.max(1, plugin.data.settings.npdpStages.length), 1)
@@ -446,11 +447,11 @@ function renderSettings(
 
   modulesGroup.addSetting((setting) => {
     setting
-      .setName("快速捕获文件")
-      .setDesc("快速捕获统一追加写入的单个笔记文件。输入时联想库内笔记，选中回填路径（不存在会自动创建）。")
+      .setName($t("p4.10089"))
+      .setDesc($t("p4.10090"))
       .addText((text) => {
         text
-          .setPlaceholder("选择或输入一个笔记文件路径，例如 00 inbox/快速捕获.md")
+          .setPlaceholder($t("p4.10091"))
           .setValue(plugin.data.settings.quickCapture.filePath)
           .onChange((value) => {
             void (async () => {
@@ -468,11 +469,11 @@ function renderSettings(
 
   modulesGroup.addSetting((setting) => {
     setting
-      .setName("每日口语来源")
-      .setDesc("每日口语 .md 文件（按 ## 分条 + en:/zh:/scene: 字段解析）。输入时联想库内笔记，选中回填路径。")
+      .setName($t("p4.10092"))
+      .setDesc($t("p4.10093"))
       .addText((text) => {
         text
-          .setPlaceholder("选择或输入一个笔记文件路径，例如 00 inbox/每日口语.md")
+          .setPlaceholder($t("p4.10094"))
           .setValue(plugin.data.settings.dailyPhrase.filePath)
           .onChange((value) => {
             void (async () => {
@@ -488,19 +489,19 @@ function renderSettings(
   });
 
   // ── 移动端模块显隐 ──
-  const mobileGroup = new SettingGroup(dashboardEl).setHeading("移动端模块显隐");
+  const mobileGroup = new SettingGroup(dashboardEl).setHeading($t("p4.10095"));
   mobileGroup.addSetting((setting) => {
-    setting.setDesc("勾选后在移动端显示该模块；未勾选的模块仅桌面端可见。快捷链接与热图始终显示。");
+    setting.setDesc($t("p4.10096"));
   });
 
   const moduleLabels: Record<string, string> = {
-    qc: "快速捕获",
-    dailyPhrase: "每日口语",
+    qc: $t("mod.qc"),
+    dailyPhrase: $t("mod.dailyPhrase"),
     todo: "TODO",
-    weekly: "任务进展",
-    projects: "项目情况",
-    countdown: "倒计时",
-    recent: "最近笔记"
+    weekly: $t("mod.weekly"),
+    projects: $t("mod.projects"),
+    countdown: $t("mod.countdown"),
+    recent: $t("mod.recent")
   };
   for (const id of Object.keys(moduleLabels)) {
     mobileGroup.addSetting((setting) => {
@@ -526,15 +527,15 @@ function renderSettings(
   }
 
   // ── 日历 ──
-  const calendarGroup = new SettingGroup(dashboardEl).setHeading("日历");
+  const calendarGroup = new SettingGroup(dashboardEl).setHeading($t("set.remaining.757"));
 
   calendarGroup.addSetting((setting) => {
     setting
-      .setName("日历位置")
-      .setDesc("选择日历显示在哪个侧边栏")
+      .setName($t("p4.10097"))
+      .setDesc($t("p4.10098"))
       .addDropdown((dd) => {
-        dd.addOption("left", "左侧边栏");
-        dd.addOption("right", "右侧边栏");
+        dd.addOption("left", $t("p4.10099"));
+        dd.addOption("right", $t("p4.10100"));
         dd.setValue(plugin.data.settings.calendar.position);
         dd.onChange((value) => {
           void (async () => {
@@ -547,8 +548,8 @@ function renderSettings(
 
   calendarGroup.addSetting((setting) => {
     setting
-      .setName("创建前确认")
-      .setDesc("创建日记前是否需要确认")
+      .setName($t("p4.10101"))
+      .setDesc($t("p4.10102"))
       .addToggle((toggle) =>
         toggle
           .setValue(plugin.data.settings.calendar.shouldConfirmBeforeCreate)
@@ -570,12 +571,12 @@ function renderSettings(
   // ── 视图模式（存储于 Section2 的 static-data.json，经 StaticStore） ──
   const store = plugin.section2Store;
   const fv = store.settings.forceViewMode;
-  const forceViewGroup = new SettingGroup(markdownEl).setHeading("视图模式");
+  const forceViewGroup = new SettingGroup(markdownEl).setHeading($t("p4.10103"));
 
   forceViewGroup.addSetting((setting) => {
     setting
-      .setName("启用强制视图模式")
-      .setDesc("根据 frontmatter 或文件夹/文件规则自动设置视图模式")
+      .setName($t("p4.10104"))
+      .setDesc($t("p4.10105"))
       .addToggle((toggle) =>
         toggle
           .setValue(fv.enabled)
@@ -590,8 +591,8 @@ function renderSettings(
 
   forceViewGroup.addSetting((setting) => {
     setting
-      .setName("忽略已打开的文件")
-      .setDesc("不要更改已打开笔记的视图模式。")
+      .setName($t("p4.10106"))
+      .setDesc($t("p4.10107"))
       .addToggle((toggle) =>
         toggle
           .setValue(fv.ignoreOpenFiles)
@@ -606,8 +607,8 @@ function renderSettings(
 
   forceViewGroup.addSetting((setting) => {
     setting
-      .setName("未在 frontmatter 中指定时忽略强制视图")
-      .setDesc("不要更改从其他视图模式中打开的笔记的视图模式。")
+      .setName($t("p4.10108"))
+      .setDesc($t("p4.10109"))
       .addToggle((toggle) =>
         toggle
           .setValue(fv.ignoreForceViewAll)
@@ -622,8 +623,8 @@ function renderSettings(
 
   forceViewGroup.addSetting((setting) => {
     setting
-      .setName("启用光标位置")
-      .setDesc("记住每个文件的光标位置和滚动状态")
+      .setName($t("p4.10110"))
+      .setDesc($t("p4.10111"))
       .addToggle((toggle) =>
         toggle
           .setValue(plugin.data.settings.cursorPosition.enabled)
@@ -647,13 +648,13 @@ function renderSettings(
   // 文件夹规则
   forceViewGroup.addSetting((setting) => {
     setting
-      .setName("文件夹规则")
-      .setDesc("为指定文件夹中的笔记设定视图模式。优先级从下到上递增。")
+      .setName($t("p4.10112"))
+      .setDesc($t("p4.10113"))
       .addButton((button) =>
         button
           .setButtonText("+")
           .setCta()
-          .setTooltip("添加文件夹规则")
+          .setTooltip($t("p4.10114"))
           .onClick(() => {
             void (async () => {
               fv.folders.push({ folder: "", viewMode: "" });
@@ -669,7 +670,7 @@ function renderSettings(
       setting
         .addText((text) => {
           text
-            .setPlaceholder("示例：folder1/templates")
+            .setPlaceholder($t("p4.10115"))
             .setValue(folderMode.folder)
             .onChange((newFolder) => {
               void (async () => {
@@ -692,7 +693,7 @@ function renderSettings(
         .addExtraButton((btn) =>
           btn
             .setIcon("cross")
-            .setTooltip("删除")
+            .setTooltip($t("set.remaining.758"))
             .onClick(() => {
               void (async () => {
                 fv.folders.splice(index, 1);
@@ -707,13 +708,13 @@ function renderSettings(
   // 文件规则
   forceViewGroup.addSetting((setting) => {
     setting
-      .setName("文件规则")
-      .setDesc('为匹配特定正则表达式模式的文件设定视图模式。覆盖文件夹规则。')
+      .setName($t("p4.10116"))
+      .setDesc($t("set.fileRules.desc"))
       .addButton((button) =>
         button
           .setButtonText("+")
           .setCta()
-          .setTooltip("添加文件规则")
+          .setTooltip($t("p4.10118"))
           .onClick(() => {
             void (async () => {
               fv.files.push({ filePattern: "", viewMode: "" });
@@ -729,7 +730,7 @@ function renderSettings(
       setting
         .addText((text) => {
           text
-            .setPlaceholder('示例：" - All$" 或 "1900-01"')
+            .setPlaceholder($t("p4.10260"))
             .setValue(fileMode.filePattern)
             .onChange((value) => {
               void (async () => {
@@ -752,7 +753,7 @@ function renderSettings(
         .addExtraButton((btn) =>
           btn
             .setIcon("cross")
-            .setTooltip("删除")
+            .setTooltip($t("set.remaining.758"))
             .onClick(() => {
               void (async () => {
                 fv.files.splice(index, 1);
@@ -815,11 +816,11 @@ function renderMinimalSettings(
   };
 
   // ── Color scheme ──
-  const colorGroup = new SettingGroup(container).setHeading("Minimal 主题");
+  const colorGroup = new SettingGroup(container).setHeading($t("p4.10119"));
   colorGroup.addSetting((setting) => {
     setting
-      .setName("浅色模式配色")
-      .setDesc("浅色模式的预设配色。")
+      .setName($t("p4.10120"))
+      .setDesc($t("p4.10121"))
       .addDropdown((dd) => {
         lightSchemeOptions.forEach(({ value, label }) => {
           dd.addOption(value, label);
@@ -836,8 +837,8 @@ function renderMinimalSettings(
   });
   colorGroup.addSetting((setting) => {
     setting
-      .setName("深色模式配色")
-      .setDesc("深色模式的预设配色。")
+      .setName($t("p4.10122"))
+      .setDesc($t("p4.10123"))
       .addDropdown((dd) => {
         darkSchemeOptions.forEach(({ value, label }) => {
           dd.addOption(value, label);
@@ -855,8 +856,8 @@ function renderMinimalSettings(
 
   colorGroup.addSetting((setting) => {
     setting
-      .setName("图片网格")
-      .setDesc("将连续的图片排成多列。要在图片之间换行，可添加一个空行。")
+      .setName($t("p4.10124"))
+      .setDesc($t("p4.10125"))
       .addToggle((toggle) =>
         toggle
           .setValue(manager.settings.imgGrid)
@@ -871,8 +872,8 @@ function renderMinimalSettings(
   });
   colorGroup.addSetting((setting) => {
     setting
-      .setName("极简状态栏")
-      .setDesc("关闭以使用全宽状态栏。")
+      .setName($t("p4.10126"))
+      .setDesc($t("p4.10127"))
       .addToggle((toggle) =>
         toggle
           .setValue(manager.settings.minimalStatus)
@@ -887,8 +888,8 @@ function renderMinimalSettings(
   });
   colorGroup.addSetting((setting) => {
     setting
-      .setName("专注模式")
-      .setDesc("隐藏标签栏与状态栏，悬停显示。可通过热键切换。")
+      .setName($t("p4.10128"))
+      .setDesc($t("p4.10129"))
       .addToggle((toggle) =>
         toggle
           .setValue(manager.settings.focusMode)
@@ -920,19 +921,19 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("保存时格式化文件")
+      .setName($t("p4.10130"))
       .setDesc(
         (() => {
           const frag = createFragment();
-          frag.append("保存时对当前文件执行格式化（按 ");
+          frag.append($t("set.formatOnSave.p1"));
           const k1 = createEl("code");
           k1.textContent = "Cmd/Ctrl+S";
           frag.append(k1);
-          frag.append("，或在使用 vim 键位时执行 ");
+          frag.append($t("set.formatOnSave.p2"));
           const k2 = createEl("code");
           k2.textContent = ":w";
           frag.append(k2);
-          frag.append("）。");
+          frag.append($t("set.formatOnSave.p3"));
           return frag;
         })()
       )
@@ -950,11 +951,11 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("忽略文件/文件夹")
-      .setDesc("保存时对忽略的文件/文件夹不执行格式化。")
+      .setName($t("p4.10133"))
+      .setDesc($t("p4.10134"))
       .addTextArea((text) => {
         text
-          .setPlaceholder("模板\n归档/附件")
+          .setPlaceholder($t("p4.10078"))
           .setValue(manager.settings.foldersToIgnore.join("\n"))
           .onChange((value) => {
             void (async () => {
@@ -971,8 +972,8 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("YAML 时间戳")
-      .setDesc("在 YAML frontmatter 中维护文件最后编辑的日期。日期取自文件元数据。")
+      .setName($t("p4.10135"))
+      .setDesc($t("p4.10136"))
       .addToggle((toggle) =>
         toggle
           .setValue(manager.settings.yamlTimestamp.enabled)
@@ -987,8 +988,8 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("创建日期")
-      .setDesc("写入文件创建日期")
+      .setName($t("p4.10137"))
+      .setDesc($t("p4.10138"))
       .addToggle((toggle) =>
         toggle
           .setValue(manager.settings.yamlTimestamp.dateCreated)
@@ -1003,8 +1004,8 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("创建日期键名")
-      .setDesc("用于创建日期的 YAML 键名")
+      .setName($t("p4.10139"))
+      .setDesc($t("p4.10140"))
       .addText((text) =>
         text
           .setPlaceholder("date created")
@@ -1020,11 +1021,11 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("创建日期来源")
-      .setDesc("如果 frontmatter 中已有创建日期值，指定从哪里获取该值。")
+      .setName($t("p4.10141"))
+      .setDesc($t("p4.10142"))
       .addDropdown((dd) =>
         dd
-          .addOption("file system", "文件系统")
+          .addOption("file system", $t("p4.10143"))
           .addOption("frontmatter", "YAML frontmatter")
           .setValue(manager.settings.yamlTimestamp.dateCreatedSourceOfTruth)
           .onChange((value) => {
@@ -1040,8 +1041,8 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("修改日期")
-      .setDesc("写入文件最后修改的日期")
+      .setName($t("p4.10144"))
+      .setDesc($t("p4.10145"))
       .addToggle((toggle) =>
         toggle
           .setValue(manager.settings.yamlTimestamp.dateModified)
@@ -1056,8 +1057,8 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("修改日期键名")
-      .setDesc("用于修改日期的 YAML 键名")
+      .setName($t("p4.10146"))
+      .setDesc($t("p4.10147"))
       .addText((text) =>
         text
           .setPlaceholder("date modified")
@@ -1073,12 +1074,12 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("修改日期来源")
-      .setDesc("如果 frontmatter 中已有修改日期，指定决定何时更新它的方式。")
+      .setName($t("p4.10148"))
+      .setDesc($t("p4.10149"))
       .addDropdown((dd) =>
         dd
-          .addOption("file system", "文件系统")
-          .addOption("user or Linter edits", "在 Obsidian 中的更改")
+          .addOption("file system", $t("p4.10143"))
+          .addOption("user or Linter edits", $t("p4.10150"))
           .setValue(manager.settings.yamlTimestamp.dateModifiedSourceOfTruth)
           .onChange((value) => {
             void (async () => {
@@ -1093,19 +1094,19 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("格式")
+      .setName($t("p4.10151"))
       .setDesc(
         (() => {
           const frag = createFragment();
-          frag.append("使用的 Moment 日期格式（参见 ");
+          frag.append($t("set.momentFormat.p1"));
           const a = createEl("a");
           a.href =
             "https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/";
-          a.textContent = "Moment 格式选项";
+          a.textContent = $t("auto.342");
           a.target = "_blank";
           a.rel = "noopener";
           frag.append(a);
-          frag.append("）。");
+          frag.append($t("set.momentFormat.p2"));
           return frag;
         })()
       )
@@ -1124,8 +1125,8 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("本地时间转换为 UTC")
-      .setDesc("保存日期时使用 UTC 时间而非本地时间")
+      .setName($t("p4.10153"))
+      .setDesc($t("p4.10154"))
       .addToggle((toggle) =>
         toggle
           .setValue(manager.settings.yamlTimestamp.convertToUTC)
@@ -1140,8 +1141,8 @@ function renderLinterSettings(
 
   linterGroup.addSetting((setting) => {
     setting
-      .setName("内容行之间的换行")
-      .setDesc("确保在段落、引用块和列表项中，内容延续到下一行的行末添加指定的换行标记。")
+      .setName($t("p4.10155"))
+      .setDesc($t("p4.10156"))
       .addToggle((toggle) =>
         toggle
           .setValue(manager.settings.twoSpaces.enabled)

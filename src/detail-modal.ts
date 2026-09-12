@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n";
 import { Modal, setIcon } from "obsidian";
 import type { App, TFile } from "obsidian";
 
@@ -87,7 +88,7 @@ export class DetailModal extends Modal {
       const empty = list.createDiv("astra-modal-empty");
       const icon = empty.createSpan();
       setIcon(icon, "search-x");
-      empty.createEl("p", { text: "没有匹配结果" });
+      empty.createEl("p", { text: $t("auto.234") });
       return;
     }
 

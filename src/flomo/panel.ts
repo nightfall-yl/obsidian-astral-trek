@@ -3,6 +3,7 @@
 // 不新开标签页，由 Dashboard 视图内嵌渲染，覆盖：瀑布流时间线、按天分组、
 // 搜索（#标签/关键词）、置顶/收藏、长按/双击编辑、卡片右键菜单。
 
+import { t as $t } from "../i18n";
 import {
   Component,
   MarkdownRenderer,
@@ -190,7 +191,7 @@ export class FlomoBoardPanel {
     this.searchEl = searchWrap.createEl("input", {
       cls: "flomo-search",
       attr: {
-        placeholder: "搜索笔记",
+        placeholder: $t("auto.237"),
         type: "text",
       },
     });
@@ -243,19 +244,19 @@ export class FlomoBoardPanel {
       const menu = new Menu();
       menu.addItem((item) =>
         item
-          .setTitle("导出为 Markdown")
+          .setTitle($t("dv.exportMd"))
           .setIcon("file-text")
           .onClick(() => void this.doExport("md"))
       );
       menu.addItem((item) =>
         item
-          .setTitle("导出为 HTML")
+          .setTitle($t("dv.exportHtml"))
           .setIcon("globe")
           .onClick(() => void this.doExport("html"))
       );
       menu.addItem((item) =>
         item
-          .setTitle("导出为 JSON")
+          .setTitle($t("dv.exportJson"))
           .setIcon("braces")
           .onClick(() => void this.doExport("json"))
       );
@@ -305,7 +306,7 @@ export class FlomoBoardPanel {
     try {
       const flomos = this.getFilteredFlomos();
       if (flomos.length === 0) {
-        new Notice("没有可导出的便签");
+        new Notice($t("p4.10040"));
         return;
       }
       const desc = this.describeCurrentFilter();
@@ -390,23 +391,23 @@ export class FlomoBoardPanel {
 
     // —— 视图分组（预设筛选）
     const viewSec = sidebar.createDiv("flomo-sidebar-section");
-    viewSec.setText("视图");
+    viewSec.setText($t("p4.10043"));
     const presets: Array<{
       key: (typeof this.filter)["preset"];
       icon: string;
       text: string;
       count: number;
     }> = [
-      { key: "all", icon: "layout-grid", text: "全部笔记", count: all.length },
-      { key: "pinned", icon: "pin", text: "置顶", count: pinnedCount },
-      { key: "starred", icon: "star", text: "收藏", count: starredCount },
-      { key: "today", icon: "calendar", text: "今天", count: todayCount },
-      { key: "week", icon: "calendar-days", text: "本周", count: weekCount },
+      { key: "all", icon: "layout-grid", text: $t("auto.242"), count: all.length },
+      { key: "pinned", icon: "pin", text: $t("auto.243"), count: pinnedCount },
+      { key: "starred", icon: "star", text: $t("auto.244"), count: starredCount },
+      { key: "today", icon: "calendar", text: $t("dv.pb.calendar.today"), count: todayCount },
+      { key: "week", icon: "calendar-days", text: $t("auto.245"), count: weekCount },
       { key: "todo", icon: "check-square", text: "待办", count: todoCount },
       {
         key: "on-this-day",
         icon: "rotate-ccw",
-        text: "回顾",
+        text: $t("auto.251"),
         count: onThisDayCount,
       },
     ];
@@ -422,7 +423,7 @@ export class FlomoBoardPanel {
 
     // —— 检索式
     const searchSec = sidebar.createDiv("flomo-sidebar-section");
-    searchSec.setText("检索式");
+    searchSec.setText($t("p4.10044"));
     this.renderNavItem(sidebar, "no-tag", "tag", "无标签", noTagCount);
     this.renderNavItem(sidebar, "with-image", "image", "有图片", imageCount);
     this.renderNavItem(sidebar, "with-link", "link-2", "有链接", linkCount);
@@ -435,7 +436,7 @@ export class FlomoBoardPanel {
     }
     if (yearCount.size > 0) {
       const yearSec = sidebar.createDiv("flomo-sidebar-section");
-      yearSec.setText("年份");
+      yearSec.setText($t("auto.279"));
       const years = [...yearCount.entries()].sort((a, b) =>
         a[0] < b[0] ? 1 : -1
       );
@@ -636,7 +637,7 @@ export class FlomoBoardPanel {
       cls: "flomo-input",
       attr: {
         rows: "1",
-        placeholder: "此刻，你在想什么？",
+        placeholder: $t("auto.252"),
       },
     });
     this.inputEl = area;
@@ -713,7 +714,7 @@ export class FlomoBoardPanel {
     );
     const cancel = editWrap.createEl("button", {
       cls: "flomo-edit-cancel-btn",
-      attr: { type: "button", title: "取消编辑" },
+      attr: { type: "button", title: $t("auto.254") },
     });
     setIcon(cancel, "x");
 
@@ -839,7 +840,7 @@ export class FlomoBoardPanel {
         if (timeChanged) {
           const newDate = new Date(dtStr);
           if (isNaN(newDate.getTime())) {
-            new Notice("时间格式无效");
+            new Notice($t("p4.10045"));
             return;
           }
           await this.store.editFlomoDateTime(
@@ -848,21 +849,21 @@ export class FlomoBoardPanel {
             content
           );
           this.exitEditMode();
-          new Notice("已更新时间与内容");
+          new Notice($t("dv.flomo.updated"));
         } else {
           await this.store.editFlomo(this.editingMemo, content);
           this.exitEditMode();
-          new Notice("已保存");
+          new Notice($t("dv.quickCapture.saved"));
         }
       } else {
         await this.store.addMemo(content);
         this.inputEl.value = "";
         this.autoGrow(this.inputEl);
         this.inputCardEl?.removeClass("has-content");
-        new Notice("✨ 已记录");
+        new Notice($t("p4.10046"));
       }
     } catch {
-      new Notice("⚠️ 操作失败");
+      new Notice($t("p4.10047"));
     }
   }
 
@@ -1039,70 +1040,70 @@ export class FlomoBoardPanel {
         empty.createDiv({ cls: "flomo-empty-emoji", text: "🎉" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "没有未完成的待办",
+          text: $t("auto.258"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "所有 `- [ ]` 都勾上了，或者你还没写过任何待办。在笔记里写 `- [ ] 要做的事` 就能在这里看到。",
+          text: $t("auto.259"),
         });
         break;
       case "pinned":
         empty.createDiv({ cls: "flomo-empty-emoji", text: "📌" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "还没有置顶笔记",
+          text: $t("auto.260"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "在任意笔记上点击置顶按钮，就能在这里快速找到。",
+          text: $t("auto.261"),
         });
         break;
       case "starred":
         empty.createDiv({ cls: "flomo-empty-emoji", text: "⭐" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "还没有收藏笔记",
+          text: $t("auto.262"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "在任意笔记上点击收藏按钮，就能在这里快速找到。",
+          text: $t("auto.263"),
         });
         break;
       case "today":
         empty.createDiv({ cls: "flomo-empty-emoji", text: "☀️" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "今天还没有笔记",
+          text: $t("auto.264"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "在顶部输入框写下今天的第一条想法吧~",
+          text: $t("auto.265"),
         });
         break;
       case "week":
         empty.createDiv({ cls: "flomo-empty-emoji", text: "📅" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "本周还没有笔记",
+          text: $t("auto.266"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "在顶部输入框写下本周的第一条想法吧~",
+          text: $t("auto.267"),
         });
         break;
       case "on-this-day": {
         empty.createDiv({ cls: "flomo-empty-emoji", text: "🕰️" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "往年的今天还没有记录",
+          text: $t("auto.268"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "要不看看随机的 5 条旧笔记?",
+          text: $t("auto.269"),
         });
         const randomBtn = empty.createEl("button", {
           cls: "flomo-empty-action-btn",
-          text: " 随机 5 条",
+          text: $t("u.20745"),
         });
         setIcon(randomBtn, "shuffle");
         randomBtn.addEventListener("click", () => {
@@ -1115,44 +1116,44 @@ export class FlomoBoardPanel {
         empty.createDiv({ cls: "flomo-empty-emoji", text: "🏷️" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "所有笔记都带标签",
+          text: $t("auto.271"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "不带标签的笔记会出现在这里。",
+          text: $t("auto.272"),
         });
         break;
       case "with-image":
         empty.createDiv({ cls: "flomo-empty-emoji", text: "🖼️" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "还没有带图片的笔记",
+          text: $t("auto.273"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "在笔记中插入图片后，就能在这里找到。",
+          text: $t("auto.274"),
         });
         break;
       case "with-link":
         empty.createDiv({ cls: "flomo-empty-emoji", text: "🔗" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "还没有带链接的笔记",
+          text: $t("auto.275"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "在笔记中插入链接后，就能在这里找到。",
+          text: $t("auto.276"),
         });
         break;
       default:
         empty.createDiv({ cls: "flomo-empty-emoji", text: "📭" });
         empty.createDiv({
           cls: "flomo-empty-text",
-          text: "这里还没有笔记哦",
+          text: $t("auto.277"),
         });
         empty.createDiv({
           cls: "flomo-empty-sub",
-          text: "在顶部输入框写下你的第一个想法吧~",
+          text: $t("auto.278"),
         });
         break;
     }
@@ -1171,11 +1172,11 @@ export class FlomoBoardPanel {
     const years = this.getOtdAvailableYears();
     if (years.length > 0) {
       const yearWrap = filters.createDiv("flomo-otd-filter-item");
-      yearWrap.createSpan({ cls: "flomo-otd-filter-label", text: "年份" });
+      yearWrap.createSpan({ cls: "flomo-otd-filter-label", text: $t("auto.279") });
       const yearSel = yearWrap.createEl("select", {
         cls: "flomo-otd-select",
       });
-      yearSel.createEl("option", { text: "全部年份", value: "" });
+      yearSel.createEl("option", { text: $t("auto.280"), value: "" });
       for (const y of years) {
         yearSel.createEl("option", {
           text: y,
@@ -1193,11 +1194,11 @@ export class FlomoBoardPanel {
     const tags = this.getOtdAvailableTags();
     if (tags.length > 0) {
       const tagWrap = filters.createDiv("flomo-otd-filter-item");
-      tagWrap.createSpan({ cls: "flomo-otd-filter-label", text: "标签" });
+      tagWrap.createSpan({ cls: "flomo-otd-filter-label", text: $t("auto.281") });
       const tagSel = tagWrap.createEl("select", {
         cls: "flomo-otd-select",
       });
-      tagSel.createEl("option", { text: "全部标签", value: "" });
+      tagSel.createEl("option", { text: $t("auto.282"), value: "" });
       for (const t of tags) {
         tagSel.createEl("option", {
           text: `#${t}`,
@@ -1213,17 +1214,17 @@ export class FlomoBoardPanel {
 
     // 类型下拉框
     const typeWrap = filters.createDiv("flomo-otd-filter-item");
-    typeWrap.createSpan({ cls: "flomo-otd-filter-label", text: "类型" });
+    typeWrap.createSpan({ cls: "flomo-otd-filter-label", text: $t("auto.770") });
     const typeSel = typeWrap.createEl("select", {
       cls: "flomo-otd-select",
     });
     const typeOptions: Array<{ value: string; text: string }> = [
-      { value: "all", text: "全部类型" },
-      { value: "pinned", text: "置顶" },
-      { value: "starred", text: "收藏" },
+      { value: "all", text: $t("auto.283") },
+      { value: "pinned", text: $t("auto.243") },
+      { value: "starred", text: $t("auto.244") },
       { value: "todo", text: "待办" },
-      { value: "image", text: "有图片" },
-      { value: "link", text: "有链接" },
+      { value: "image", text: $t("auto.286") },
+      { value: "link", text: $t("auto.287") },
     ];
     for (const opt of typeOptions) {
       typeSel.createEl("option", {
@@ -1244,7 +1245,7 @@ export class FlomoBoardPanel {
     const searchInput = searchWrap.createEl("input", {
       cls: "flomo-otd-search-input",
       attr: {
-        placeholder: "在回顾里搜索",
+        placeholder: $t("auto.288"),
         type: "text",
         value: this.filter.keyword,
       },
@@ -1265,28 +1266,28 @@ export class FlomoBoardPanel {
     // 换一批
     const shuffleBtn = actions.createEl("button", {
       cls: "flomo-otd-action-btn",
-      attr: { type: "button", title: "换一批" },
+      attr: { type: "button", title: $t("auto.235") },
     });
     setIcon(shuffleBtn, "shuffle");
-    shuffleBtn.createSpan({ text: " 换一批" });
+    shuffleBtn.createSpan({ text: $t("u.20733") });
     shuffleBtn.addEventListener("click", () => this.handleOtdShuffle());
 
     // 重置
     const resetBtn = actions.createEl("button", {
       cls: "flomo-otd-action-btn",
-      attr: { type: "button", title: "重置筛选" },
+      attr: { type: "button", title: $t("auto.291") },
     });
     setIcon(resetBtn, "rotate-cw");
-    resetBtn.createSpan({ text: " 重置" });
+    resetBtn.createSpan({ text: $t("u.20734") });
     resetBtn.addEventListener("click", () => this.handleOtdReset());
 
     // 回到往年今天
     const backBtn = actions.createEl("button", {
       cls: "flomo-otd-action-btn",
-      attr: { type: "button", title: "回到往年今天" },
+      attr: { type: "button", title: $t("auto.293") },
     });
     setIcon(backBtn, "clock");
-    backBtn.createSpan({ text: " 回到往年今天" });
+    backBtn.createSpan({ text: $t("u.20735") });
     backBtn.addEventListener("click", () => this.handleOtdBackToToday());
   }
 
@@ -1768,27 +1769,27 @@ export class FlomoBoardPanel {
     );
     menu.addSeparator();
     menu.addItem((item) =>
-      item.setTitle("编辑").setIcon("pencil").onClick(() => this.enterEditMode(flomo))
+      item.setTitle($t("p4.10007")).setIcon("pencil").onClick(() => this.enterEditMode(flomo))
     );
     menu.addItem((item) =>
       item
-        .setTitle("打开源文件")
+        .setTitle($t("p4.10048"))
         .setIcon("file-text")
         .onClick(() => void this.app.workspace.openLinkText(flomo.file, flomo.file, true))
     );
     menu.addItem((item) =>
       item
-        .setTitle("复制")
+        .setTitle($t("p4.10049"))
         .setIcon("copy")
         .onClick(async () => {
           await navigator.clipboard.writeText(flomo.content);
-          new Notice("已复制");
+          new Notice($t("dv.flomo.copied"));
         })
     );
     menu.addSeparator();
     menu.addItem((item) =>
       item
-        .setTitle("删除")
+        .setTitle($t("set.remaining.758"))
         .setIcon("trash")
         .onClick(() => void this.confirmDelete(flomo))
     );
@@ -1799,11 +1800,11 @@ export class FlomoBoardPanel {
     const body = this.rootEl?.doc?.body ?? document.body;
     const backdrop = body.createDiv("flomo-modal-backdrop");
     const box = backdrop.createDiv("flomo-modal flomo-confirm");
-    box.createDiv({ cls: "flomo-modal-title", text: "确定删除这条便签？" });
+    box.createDiv({ cls: "flomo-modal-title", text: $t("auto.305") });
     const btns = box.createDiv("flomo-modal-btns");
-    const cancel = btns.createEl("button", { text: "取消" });
+    const cancel = btns.createEl("button", { text: $t("dv.cancel") });
     const ok = btns.createEl("button", {
-      text: "删除",
+      text: $t("set.remaining.758"),
       cls: "mod-warning",
     });
     const closeModal = (): void => backdrop.remove();
@@ -1823,9 +1824,9 @@ export class FlomoBoardPanel {
       closeModal();
       void this.store
         .deleteFlomo(flomo)
-        .then(() => new Notice("已删除"))
+        .then(() => new Notice($t("dv.flomo.deleted")))
         .catch(() => {
-          new Notice("⚠️ 删除失败");
+          new Notice($t("p4.10050"));
         });
     });
     // 点击蒙版外层关闭
@@ -2061,7 +2062,7 @@ export class FlomoBoardPanel {
       const files = Array.from(inp.files ?? []);
       this.disposeImagePicker(inp);
       void this.importSelectedImages(files).catch(() => {
-        new Notice("⚠️ 图片导入失败");
+        new Notice($t("p4.10051"));
       });
     }, { once: true });
     inp.addEventListener("cancel", () => {

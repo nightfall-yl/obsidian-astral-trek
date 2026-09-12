@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n";
 import { Modal, Setting } from "obsidian";
 import type { App } from "obsidian";
 import type AstraDashboardPlugin from "./main";
@@ -42,7 +43,7 @@ export class HeatmapSettingsModal extends Modal {
     const actions = this.contentEl.createDiv("astra-settings-actions");
     const done = actions.createEl("button", {
       cls: "mod-cta",
-      text: "完成",
+      text: $t("auto.218"),
       attr: { type: "button" }
     });
     done.addEventListener("click", () => {
@@ -53,12 +54,12 @@ export class HeatmapSettingsModal extends Modal {
   }
 
   private renderBasicSection(parent: HTMLElement): void {
-    const heading = parent.createEl("h3", { text: "基本设置" });
+    const heading = parent.createEl("h3", { text: $t("auto.312") });
     heading.addClass("astra-heatmap-section-heading");
 
     new Setting(parent)
-      .setName("标题")
-      .setDesc("热图标题，留空则不显示")
+      .setName($t("p4.10020"))
+      .setDesc($t("p4.10021"))
       .addText((text) =>
         text
           .setValue(this.settings.title)
@@ -69,7 +70,7 @@ export class HeatmapSettingsModal extends Modal {
   }
 
   private renderDataSourceSection(parent: HTMLElement): void {
-    const heading = parent.createEl("h3", { text: "数据源" });
+    const heading = parent.createEl("h3", { text: $t("auto.313") });
     heading.addClass("astra-heatmap-section-heading");
 
     // 数据源类型固定为"文档"（PAGE），数据源值固定为空（全部文件），不再提供配置。
@@ -77,8 +78,8 @@ export class HeatmapSettingsModal extends Modal {
     this.settings.dataSourceValue = "";
 
     new Setting(parent)
-      .setName("日期字段")
-      .setDesc("按哪个字段取日期")
+      .setName($t("p4.10022"))
+      .setDesc($t("p4.10023"))
       .addDropdown((dd) => {
         const options: Array<[HeatmapDateFieldType, string]> = [
           ["FILE_CTIME", "文件创建时间"],
@@ -98,8 +99,8 @@ export class HeatmapSettingsModal extends Modal {
 
     if (this.settings.dateFieldType === "PAGE_PROPERTY") {
       new Setting(parent)
-        .setName("日期属性名")
-        .setDesc("文档属性的字段名")
+        .setName($t("p4.10028"))
+        .setDesc($t("p4.10029"))
         .addText((text) =>
           text
             .setValue(this.settings.dateFieldValue)
@@ -109,11 +110,11 @@ export class HeatmapSettingsModal extends Modal {
         );
 
       new Setting(parent)
-        .setName("日期格式")
-        .setDesc("留空=自动识别；手动填写 luxon 格式串，如 yyyy-MM-dd")
+        .setName($t("p4.10030"))
+        .setDesc($t("p4.10031"))
         .addDropdown((dd) => {
-          dd.addOption("smart_detect", "自动识别");
-          dd.addOption("manual", "手动");
+          dd.addOption("smart_detect", $t("p4.10032"));
+          dd.addOption("manual", $t("u.20750"));
           dd.setValue(this.settings.dateFormat ? "manual" : "smart_detect");
           dd.onChange((v) => {
             this.settings.dateFormat = v === "manual" ? "yyyy-MM-dd" : "";
@@ -123,8 +124,8 @@ export class HeatmapSettingsModal extends Modal {
 
       if (this.settings.dateFormat) {
         new Setting(parent)
-          .setName("日期格式串")
-          .setDesc("luxon 格式，如 yyyy-MM-dd")
+          .setName($t("p4.10033"))
+          .setDesc($t("p4.10034"))
           .addText((text) =>
             text
               .setValue(this.settings.dateFormat)

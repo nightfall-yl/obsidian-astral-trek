@@ -1,3 +1,4 @@
+import { t as $t, getLocaleCode } from "./i18n";
 import { ItemView, Menu, Notice, Platform, TFile, TFolder, normalizePath, setIcon } from "obsidian";
 import type { WorkspaceLeaf } from "obsidian";
 import { DateTime } from "luxon";
@@ -283,7 +284,7 @@ export class AstraDashboardView extends ItemView {
         text: `${greeting()}${displayName ? `，${displayName}` : ""}`
       });
       const statsEl = copy.createEl("p", {
-        text: `${this.app.vault.getName()} · ${snapshot?.noteCount ?? 0} 篇笔记 · ${formatCompactNumber(snapshot?.totalWords ?? 0)} 字数`,
+        text: $t("dv.header.stats", { vault: this.app.vault.getName(), notes: snapshot?.noteCount ?? 0, words: formatCompactNumber(snapshot?.totalWords ?? 0) }),
       });
       this.headerStatsEl = statsEl;
       const actions = header.createDiv("astra-dashboard-actions");
@@ -301,23 +302,23 @@ export class AstraDashboardView extends ItemView {
       // 实时刷新日期时间/星期/农历
       const updateClock = (): void => {
         const now = new Date();
-        const dateStr = now.toLocaleDateString("zh-CN", {
+        const dateStr = now.toLocaleDateString(getLocaleCode(), {
           timeZone: "Asia/Shanghai",
           year: "numeric",
           month: "2-digit",
           day: "2-digit"
         });
-        const timeStr = now.toLocaleTimeString("zh-CN", {
+        const timeStr = now.toLocaleTimeString(getLocaleCode(), {
           timeZone: "Asia/Shanghai",
           hour: "2-digit",
           minute: "2-digit"
         });
         dateRow.setText(`${dateStr} ${timeStr}`);
         lunarRow.setText(
-          `${now.toLocaleDateString("zh-CN", {
+          `${now.toLocaleDateString(getLocaleCode(), {
             timeZone: "Asia/Shanghai",
             weekday: "long"
-          })} · 农历 ${getLunarDate(now)}`
+          })} · ${$t("dv.header.lunar", { date: getLunarDate(now) })}`
         );
       };
       updateClock();
@@ -327,7 +328,7 @@ export class AstraDashboardView extends ItemView {
     // 每次渲染都刷新 header 统计行（header 只创建一次，不能只写初值）
     if (this.headerStatsEl) {
       this.headerStatsEl.setText(
-        `${this.app.vault.getName()} · ${snapshot?.noteCount ?? 0} 篇笔记 · ${formatCompactNumber(snapshot?.totalWords ?? 0)} 字数`
+        $t("dv.header.stats", { vault: this.app.vault.getName(), notes: snapshot?.noteCount ?? 0, words: formatCompactNumber(snapshot?.totalWords ?? 0) })
       );
     }
     const body = this.dashboardRootEl.createDiv("astra-dashboard-body");
@@ -379,8 +380,8 @@ export class AstraDashboardView extends ItemView {
     body.empty();
     const mark = body.createDiv("astra-loading-mark");
     setIcon(mark, "loader-circle");
-    body.createEl("h2", { text: "正在扫描知识库" });
-    body.createEl("p", { text: "首次统计可能需要几秒钟。" });
+    body.createEl("h2", { text: $t("dv.scanning") });
+    body.createEl("p", { text: $t("dv.scanningTip") });
   }
 
   private renderError(error: unknown): void {
@@ -389,13 +390,13 @@ export class AstraDashboardView extends ItemView {
     body.empty();
     const mark = body.createDiv("astra-error-mark");
     setIcon(mark, "circle-alert");
-    body.createEl("h2", { text: "暂时无法生成首页" });
+    body.createEl("h2", { text: $t("dv.unable") });
     body.createEl("p", {
       text: error instanceof Error ? error.message : "发生未知错误"
     });
     const retry = body.createEl("button", {
       cls: "mod-cta",
-      text: "重新扫描",
+      text: $t("dv.reload"),
       attr: { type: "button" }
     });
     retry.addEventListener("click", () => void this.refresh(true));
@@ -449,7 +450,7 @@ export class AstraDashboardView extends ItemView {
     if (links.length === 0) {
       scroller.createSpan({
         cls: "astra-quick-plugins-empty",
-        text: "添加常用链接入口"
+        text: $t("dv.addLink")
       });
     } else {
       links.forEach((link) => {
@@ -862,7 +863,7 @@ export class AstraDashboardView extends ItemView {
   ): void {
     const list = surface.createDiv("astra-recent-list");
     if (snapshot.recentNotes.length === 0) {
-      list.createDiv({ cls: "astra-empty-state", text: "还没有笔记" });
+      list.createDiv({ cls: "astra-empty-state", text: $t("dv.recent.noNotes") });
       return;
     }
     snapshot.recentNotes.forEach((note) => {
@@ -966,7 +967,7 @@ export class AstraDashboardView extends ItemView {
     const card = qc.createDiv("flomo-input-card qc-input-card");
     const area = card.createEl("textarea", {
       cls: "flomo-input",
-      attr: { rows: "1", placeholder: "记录一闪而过的新鲜想法…" }
+      attr: { rows: "1", placeholder: $t("dv.quickCapture.placeholder") }
     });
     const toolbar = card.createDiv("flomo-input-toolbar qc-toolbar");
     const submit = toolbar.createEl("button", {
@@ -1007,7 +1008,7 @@ export class AstraDashboardView extends ItemView {
         new Notice(`✨ 已写入 ${savedPath}`);
         void this.refresh();
       } catch {
-        new Notice("⚠️ 捕获失败，请检查「快速捕获文件」设置");
+        new Notice($t("p4.10246"));
       } finally {
         window.setTimeout(() => submit.removeClass("is-flashing"), 400);
       }
@@ -1106,7 +1107,7 @@ export class AstraDashboardView extends ItemView {
     if (newName && newName !== oldName) {
       const oldFile = this.app.vault.getAbstractFileByPath(`${oldFolderPath}/project-${oldName}.md`);
       if (!(oldFile instanceof TFile)) {
-        new Notice("找不到项目文件");
+        new Notice($t("p4.10248"));
         return;
       }
       const oldFolder = this.app.vault.getAbstractFileByPath(oldFolderPath);
@@ -1124,7 +1125,7 @@ export class AstraDashboardView extends ItemView {
     } else {
       const f = this.app.vault.getAbstractFileByPath(`${oldFolderPath}/project-${oldName}.md`);
       if (!(f instanceof TFile)) {
-        new Notice("找不到项目文件");
+        new Notice($t("p4.10248"));
         return;
       }
       targetFile = f;
@@ -1141,7 +1142,7 @@ export class AstraDashboardView extends ItemView {
       结束日期: data.endDate,
       阶段: String(data.stage),
     });
-    new Notice("✨ 项目已更新");
+    new Notice($t("p4.10249"));
     this.taskStore.invalidate();
     void this.refresh(true);
   }
@@ -1186,9 +1187,9 @@ export class AstraDashboardView extends ItemView {
   private async deleteTask(task: TaskItem): Promise<void> {
     if (!task.sourceFile) return;
     const confirmed = await confirmDialog(this.app, {
-      title: "删除任务",
+      title: $t("dv.deleteTask"),
       message: `确定删除任务 "${task.content}"？`,
-      confirmText: "删除",
+      confirmText: $t("set.remaining.758"),
       danger: true
     });
     if (!confirmed) return;
@@ -1234,7 +1235,7 @@ export class AstraDashboardView extends ItemView {
         const empty = list.createDiv("ad-todo__empty");
         const iconWrap = empty.createDiv("ad-todo__empty-icon");
         setIcon(iconWrap, "coffee");
-        empty.createDiv({ cls: "ad-todo__empty-text", text: "还没有任何任务" });
+        empty.createDiv({ cls: "ad-todo__empty-text", text: $t("dv.t.none") });
       } else {
         sorted.forEach((task) => {
           const isDone = task.status === "已完成";
@@ -1264,13 +1265,13 @@ export class AstraDashboardView extends ItemView {
             const menu = new Menu();
             menu.addItem((item) =>
               item
-                .setTitle("打开源笔记")
+                .setTitle($t("p4.10006"))
                 .setIcon("file")
                 .onClick(() => this.openTaskSourceFile(task))
             );
             menu.addItem((item) =>
               item
-                .setTitle("删除任务")
+                .setTitle($t("dv.deleteTask"))
                 .setIcon("trash")
                 .onClick(() => void this.deleteTask(task))
             );
@@ -1285,7 +1286,7 @@ export class AstraDashboardView extends ItemView {
       summaryEl?.setText(`${doneCount} / ${totalForSummary} done · 按优先级`);
     } catch {
       summaryEl?.setText("0 / 0 done");
-      list.createDiv({ cls: "ad-todo__empty", text: "暂无数据" });
+      list.createDiv({ cls: "ad-todo__empty", text: $t("dv.empty") });
     }
   }
 
@@ -1363,17 +1364,17 @@ export class AstraDashboardView extends ItemView {
       const wg = list.createDiv("ad-wo__group");
       const wh4 = wg.createEl("h4");
       wh4.createSpan({ cls: "ad-wo__mark", text: "◆" });
-      wh4.appendText("本周待办");
+      wh4.appendText($t("dv.taskProgress.weeklyTodos"));
       const ul = wg.createEl("ul", { cls: "ad-wo__list" });
       if (thisWeek.length === 0 && overdue.length === 0) {
-        list.createDiv({ cls: "ad-wo__empty", text: "🎉 本周暂无待办任务" });
+        list.createDiv({ cls: "ad-wo__empty", text: $t("auto.211") });
       } else {
         thisWeek.forEach((t) => this.renderWeeklyRow(ul, t, false));
       }
       const foot = surface.createDiv("ad-wo__foot");
       foot.textContent = `本周共 ${thisWeek.length} 个任务，逾期 ${overdue.length} 个`;
     } catch {
-      list.createDiv({ cls: "ad-wo__empty", text: "暂无数据" });
+      list.createDiv({ cls: "ad-wo__empty", text: $t("dv.empty") });
     }
   }
 
@@ -1404,13 +1405,13 @@ export class AstraDashboardView extends ItemView {
       const menu = new Menu();
       menu.addItem((item) =>
         item
-          .setTitle("打开源笔记")
+          .setTitle($t("p4.10006"))
           .setIcon("file")
           .onClick(() => this.openTaskSourceFile(task))
       );
       menu.addItem((item) =>
         item
-          .setTitle("删除任务")
+          .setTitle($t("dv.deleteTask"))
           .setIcon("trash")
           .onClick(() => void this.deleteTask(task))
       );
@@ -1461,7 +1462,7 @@ export class AstraDashboardView extends ItemView {
     const proj = surface.createDiv("ad-proj");
     if (filtered.length === 0) {
       this.renderEmpty(proj, {
-        title: "还没有任何项目",
+        title: $t("dv.projects.none"),
         hint: "在「项目文件夹」下新建带 project.md 的文件夹，阶段管道就会显示在这里。"
       });
       return;
@@ -1600,7 +1601,7 @@ export class AstraDashboardView extends ItemView {
         }).open();
       })
       .catch(() => {
-        new Notice("⚠️ 项目数据扫描失败");
+        new Notice($t("p4.10252"));
       });
   }
 
@@ -1678,7 +1679,7 @@ export class AstraDashboardView extends ItemView {
       big.createSpan({ cls: "ad-unit", text: "DAYS" });
       const bottom = cd.createDiv("ad-cd__bottom");
       const row = bottom.createDiv("ad-cd__row");
-      row.createSpan({ text: "剩余周数 " }).createEl("strong", {
+      row.createSpan({ text: $t("u.20731") }).createEl("strong", {
         text: String(Math.ceil(diffDays / 7))
       });
       // 分隔圆点（内联样式，跟随主题文字色，避免新增 CSS 变量依赖）
@@ -1686,19 +1687,19 @@ export class AstraDashboardView extends ItemView {
         cls: "ad-dot",
         attr: { style: "display:inline-block;width:3px;height:3px;background:var(--astra-text);opacity:.4;border-radius:50%;" }
       });
-      row.createSpan({ text: "已完成 " }).createEl("strong", {
+      row.createSpan({ text: $t("u.20732") }).createEl("strong", {
         text: pct.toFixed(1) + "%"
       });
       const barWrap = bottom.createDiv("ad-cd__bar");
       const fill = barWrap.createDiv("ad-fill");
       fill.style.width = pct + "%";
     } else if (diffDays === 0) {
-      cd.createDiv({ cls: "ad-cd__arrived", text: "🎉 此时此刻" });
+      cd.createDiv({ cls: "ad-cd__arrived", text: $t("auto.213") });
       const bottom = cd.createDiv("ad-cd__bottom");
       const barWrap = bottom.createDiv("ad-cd__bar");
       barWrap.createDiv("ad-fill");
     } else {
-      cd.createDiv({ cls: "ad-cd__arrived", text: "🏁 旅程已然到达" });
+      cd.createDiv({ cls: "ad-cd__arrived", text: $t("auto.214") });
       const bottom = cd.createDiv("ad-cd__bottom");
       const barWrap = bottom.createDiv("ad-cd__bar");
       barWrap.createDiv("ad-fill");
@@ -1758,7 +1759,7 @@ export class AstraDashboardView extends ItemView {
     const enEl = content.createDiv("ad-dp__en");
     const zhEl = content.createDiv("ad-dp__zh");
     const sceneEl = content.createDiv("ad-dp__scene");
-    sceneEl.createSpan({ cls: "ad-dp__scene-label", text: "使用场景" });
+    sceneEl.createSpan({ cls: "ad-dp__scene-label", text: $t("auto.215") });
     const sceneText = sceneEl.createSpan("ad-dp__scene-text");
 
     const btns = wrap.createDiv("ad-dp__btns");
@@ -2042,12 +2043,12 @@ export class AstraDashboardView extends ItemView {
     if (this.adEditBar || !this.modulesGridEl) return;
     const bar = this.contentEl.createDiv({ cls: "astra-mod-editbar" });
     this.modulesGridEl.after(bar);
-    const trash = bar.createEl("button", { cls: "astra-mod-editbar__trash", text: "🗑 拖到此处删除" });
+    const trash = bar.createEl("button", { cls: "astra-mod-editbar__trash", text: $t("auto.216") });
     trash.setAttribute("aria-label", "把卡片拖到这里删除（仅从首页隐藏，数据保留）");
     bar.createDiv({ cls: "astra-mod-editbar__spacer" });
-    const add = bar.createEl("button", { cls: "astra-mod-editbar__add", text: "＋ 添加卡片" });
+    const add = bar.createEl("button", { cls: "astra-mod-editbar__add", text: $t("auto.217") });
     add.addEventListener("click", () => this.openModuleAddMenu());
-    const done = bar.createEl("button", { cls: "mod-cta", text: "完成" });
+    const done = bar.createEl("button", { cls: "mod-cta", text: $t("auto.218") });
     done.addEventListener("click", () => this.exitModuleEdit());
     this.adEditBar = bar;
   }
@@ -2150,12 +2151,12 @@ export class AstraDashboardView extends ItemView {
   /** 全部可用的主页模块模板（渲染 + 「添加卡片」菜单共用） */
   private getModuleTemplates(): ModuleTemplate[] {
     return [
-      { id: "qc", title: "快速捕获", subtitle: "闪念胶囊", cls: "astra-qc-surface", build: (s) => this.renderQuickCapture(s) },
+      { id: "qc", title: $t("dv.quickCapture.title"), subtitle: $t("auto.219"), cls: "astra-qc-surface", build: (s) => this.renderQuickCapture(s) },
       { id: "todo", title: "TODO", subtitle: "", cls: "astra-todo-surface", build: (s) => void this.renderTodo(s) },
-      { id: "weekly", title: "任务进展", subtitle: "", cls: "astra-weekly-surface", build: (s) => void this.renderWeekly(s) },
-      { id: "projects", title: "项目情况", subtitle: "", cls: "astra-projects-surface", build: (s) => void this.renderProjects(s) },
-      { id: "countdown", title: "倒计时", subtitle: "Days Left", cls: "astra-countdown-surface", build: (s) => this.renderCountdown(s) },
-      { id: "dailyPhrase", title: "每日口语", subtitle: "Daily Phrase", cls: "astra-daily-phrase-surface", build: (s) => void this.renderDailyPhrase(s) }
+      { id: "weekly", title: $t("auto.220"), subtitle: "", cls: "astra-weekly-surface", build: (s) => void this.renderWeekly(s) },
+      { id: "projects", title: $t("auto.221"), subtitle: "", cls: "astra-projects-surface", build: (s) => void this.renderProjects(s) },
+      { id: "countdown", title: $t("auto.222"), subtitle: "Days Left", cls: "astra-countdown-surface", build: (s) => this.renderCountdown(s) },
+      { id: "dailyPhrase", title: $t("auto.223"), subtitle: "Daily Phrase", cls: "astra-daily-phrase-surface", build: (s) => void this.renderDailyPhrase(s) }
     ];
   }
 
@@ -2177,7 +2178,7 @@ export class AstraDashboardView extends ItemView {
     const templates = new Map(this.getModuleTemplates().map((t) => [t.id, t]));
     const ids = this.visibleModuleIds();
     if (ids.length === 0) {
-      grid.createDiv({ cls: "astra-modules-empty", text: "还没有任何卡片，点下方「＋ 添加卡片」试试" });
+      grid.createDiv({ cls: "astra-modules-empty", text: $t("auto.224") });
     }
     for (const id of ids) {
       const t = templates.get(id);
@@ -2203,8 +2204,8 @@ export class AstraDashboardView extends ItemView {
     const snap = this.lastSnapshot;
     const surface = this.createSurface(
       grid,
-      "最近笔记",
-      snap ? `${snap.modifiedToday} 篇今日修改` : ""
+      $t("dv.recent.title"),
+      snap ? `${$t("dv.recent.modifiedToday", { n: snap.modifiedToday })}` : ""
     );
     surface.addClass("astra-recent-surface");
 
@@ -2464,9 +2465,9 @@ export class AstraDashboardView extends ItemView {
     const disabled = this.getModuleTemplates().filter((t) => !visible.has(t.id));
     const backdrop = grid.createDiv({ cls: "astra-addmenu-backdrop" });
     const menu = backdrop.createDiv({ cls: "astra-addmenu" });
-    menu.createDiv({ cls: "astra-addmenu__title", text: "添加卡片" });
+    menu.createDiv({ cls: "astra-addmenu__title", text: $t("auto.225") });
     if (disabled.length === 0) {
-      menu.createDiv({ cls: "astra-addmenu__empty", text: "所有卡片都已显示" });
+      menu.createDiv({ cls: "astra-addmenu__empty", text: $t("auto.226") });
     }
     for (const t of disabled) {
       const item = menu.createDiv({ cls: "astra-addmenu__item" });
@@ -2585,7 +2586,7 @@ function greeting(now = new Date()): string {
   if (hour < 11) return "早上好";
   if (hour < 14) return "中午好";
   if (hour < 18) return "下午好";
-  return "晚上好";
+  return $t("auto.231");
 }
 
 function relativeTime(timestamp: number): string {
@@ -2594,7 +2595,7 @@ function relativeTime(timestamp: number): string {
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} 分钟前`;
   if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)} 小时前`;
   if (diff < 604_800_000) return `${Math.floor(diff / 86_400_000)} 天前`;
-  return new Intl.DateTimeFormat("zh-CN", {
+  return new Intl.DateTimeFormat(getLocaleCode(), {
     month: "numeric",
     day: "numeric"
   }).format(timestamp);

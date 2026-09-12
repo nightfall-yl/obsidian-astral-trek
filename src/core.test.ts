@@ -52,8 +52,8 @@ describe("date and presentation helpers", () => {
   });
 
   it("formats Chinese compact numbers", () => {
-    expect(formatCompactNumber(369_155)).toBe("36.9 万");
-    expect(formatCompactNumber(368)).toBe("368");
+    expect(formatCompactNumber(369_155, "zh")).toBe("36.9 万");
+    expect(formatCompactNumber(368, "zh")).toBe("368");
   });
 
   it("combines estimated link history with exact daily snapshots", () => {

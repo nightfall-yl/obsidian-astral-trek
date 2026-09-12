@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n";
 import { AbstractInputSuggest, Modal, setIcon } from "obsidian";
 import type { App } from "obsidian";
 import type AstraDashboardPlugin from "./main";
@@ -86,7 +87,7 @@ export class QuickLinkModal extends Modal {
     this.modalEl.addClass("astra-quick-link-modal");
 
     const header = this.contentEl.createDiv("astra-link-editor-header");
-    header.createEl("h2", { text: "管理快捷链接" });
+    header.createEl("h2", { text: $t("auto.331") });
     const intro = header.createEl("p", {
       cls: "setting-item-description"
     });
@@ -105,7 +106,7 @@ export class QuickLinkModal extends Modal {
     if (this.links.length === 0) {
       list.createDiv({
         cls: "astra-link-editor-empty",
-        text: "还没有快捷链接，点击下方新增。"
+        text: $t("auto.332")
       });
     } else {
       this.links.forEach((link, index) => {
@@ -116,18 +117,18 @@ export class QuickLinkModal extends Modal {
     const addBar = this.contentEl.createDiv("astra-link-editor-add");
     const addBtn = addBar.createEl("button", {
       cls: "mod-cta",
-      text: "新增链接",
+      text: $t("auto.333"),
       attr: { type: "button" }
     });
     addBtn.addEventListener("click", () => {
-      this.links.push({ label: "新链接", url: "" });
+      this.links.push({ label: $t("auto.334"), url: "" });
       this.render();
     });
 
     const actions = this.contentEl.createDiv("astra-settings-actions");
     const done = actions.createEl("button", {
       cls: "mod-cta",
-      text: "完成",
+      text: $t("auto.218"),
       attr: { type: "button" }
     });
     done.addEventListener("click", () => {
@@ -194,7 +195,7 @@ export class QuickLinkModal extends Modal {
     const actionField = fields.createDiv("astra-link-editor-field");
     actionField.createSpan({
       cls: "astra-link-editor-label",
-      text: "命令（可选）"
+      text: $t("auto.336")
     });
     const actionInput = actionField.createEl("input", {
       attr: { type: "text" }

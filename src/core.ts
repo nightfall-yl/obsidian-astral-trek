@@ -1,3 +1,4 @@
+import { getLocaleCode } from "./i18n";
 import type { DailyLinkCount } from "./models";
 
 const CJK_PATTERN =
@@ -97,14 +98,25 @@ export function activityLevel(value: number, max: number): number {
   return 5;
 }
 
-export function formatCompactNumber(value: number): string {
-  if (value >= 100_000_000) {
-    return `${trimDecimal(value / 100_000_000)} 亿`;
+export function formatCompactNumber(value: number, locale?: string): string {
+  const isZh = (locale ?? getLocaleCode()).startsWith("zh");
+  if (isZh) {
+    if (value >= 100_000_000) {
+      return `${trimDecimal(value / 100_000_000)} 亿`;
+    }
+    if (value >= 10_000) {
+      return `${trimDecimal(value / 10_000)} 万`;
+    }
+    return new Intl.NumberFormat("zh-CN").format(value);
+  } else {
+    if (value >= 1_000_000) {
+      return `${trimDecimal(value / 1_000_000)}M`;
+    }
+    if (value >= 1_000) {
+      return `${trimDecimal(value / 1_000)}K`;
+    }
+    return new Intl.NumberFormat("en-US").format(value);
   }
-  if (value >= 10_000) {
-    return `${trimDecimal(value / 10_000)} 万`;
-  }
-  return new Intl.NumberFormat("zh-CN").format(value);
 }
 
 function trimDecimal(value: number): string {

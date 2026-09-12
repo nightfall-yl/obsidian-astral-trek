@@ -1,3 +1,4 @@
+import { initI18n } from "./i18n";
 import type { App, PluginManifest} from "obsidian";
 import { Plugin, TFile } from "obsidian";
 import {
@@ -46,6 +47,7 @@ export default class AstraDashboardPlugin extends Plugin {
   }
 
   async onload(): Promise<void> {
+    initI18n(this.app);
     await this.loadPluginData();
     this.stats = new StatsService(this.app, this);
 

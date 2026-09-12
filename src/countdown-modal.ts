@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n";
 import type { App} from "obsidian";
 import { Modal } from "obsidian";
 import type AstraDashboardPlugin from "./main";
@@ -23,18 +24,18 @@ export class CountdownModal extends Modal {
     const cfg = this.opts.plugin.data.settings.countdown;
 
     contentEl.addClass("ad-task-modal");
-    contentEl.createEl("h3", { cls: "ad-modal-title", text: "倒计时设置" });
+    contentEl.createEl("h3", { cls: "ad-modal-title", text: $t("auto.204") });
 
     // 事件名称
-    contentEl.createEl("label", { cls: "ad-modal-label", text: "事件名称 *" });
+    contentEl.createEl("label", { cls: "ad-modal-label", text: $t("auto.205") });
     const nameInput = contentEl.createEl("input", {
       cls: "ad-modal-input",
-      attr: { type: "text", placeholder: "例如 2027、高考、生日…" },
+      attr: { type: "text", placeholder: $t("auto.206") },
     });
     nameInput.value = cfg.eventName || "";
 
     // 目标日期
-    contentEl.createEl("label", { cls: "ad-modal-label", text: "目标日期 *" });
+    contentEl.createEl("label", { cls: "ad-modal-label", text: $t("auto.207") });
     const dateInput = contentEl.createEl("input", {
       cls: "ad-modal-input",
       attr: { type: "date" },
@@ -53,9 +54,9 @@ export class CountdownModal extends Modal {
 
     // 按钮
     const btns = contentEl.createDiv({ cls: "ad-modal-btns" });
-    btns.createEl("button", { cls: "ad-modal-btn", text: "取消" })
+    btns.createEl("button", { cls: "ad-modal-btn", text: $t("dv.cancel") })
       .addEventListener("click", () => this.close());
-    btns.createEl("button", { cls: "ad-modal-btn ad-modal-btn--primary", text: "保存" })
+    btns.createEl("button", { cls: "ad-modal-btn ad-modal-btn--primary", text: $t("dv.save") })
       .addEventListener("click", () => {
         const name = String(nameInput.value || "").trim();
         const date = String(dateInput.value || "").trim();

@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n";
 import type { TFile } from "obsidian";
 
 export type StartupMode = "replace-active" | "new-tab";
@@ -237,7 +238,7 @@ export interface AstraDataStore {
 }
 
 export const DEFAULT_HEATMAP_SETTINGS: HeatmapSettings = {
-  title: "写作活动",
+  title: $t("auto.318"),
   dataSourceType: "PAGE",
   dataSourceValue: "",
   dateFieldType: "FILE_MTIME",

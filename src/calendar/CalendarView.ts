@@ -1,3 +1,4 @@
+import { t as $t } from "../i18n";
 import type { WorkspaceLeaf} from "obsidian";
 import { ItemView, Menu, Notice } from "obsidian";
 import type { Moment } from "moment";
@@ -120,10 +121,10 @@ export class CalendarView extends ItemView {
       new ConfirmCreateModal(
         this.app,
         {
-          title: "新建日记",
+          title: $t("auto.201"),
           message: `文件 ${formattedDate} 不存在。是否要创建它？`,
-          confirmText: "创建",
-          cancelText: "取消",
+          confirmText: $t("auto.202"),
+          cancelText: $t("dv.cancel"),
         },
         () => {
           void this.createAndOpenDailyNote(date, isMetaPressed).then(() => resolve());
@@ -141,7 +142,7 @@ export class CalendarView extends ItemView {
       await this.app.workspace.getLeaf(isMetaPressed).openFile(file!);
       dailyNotes.reindex();
     } catch {
-      new Notice("创建日记失败");
+      new Notice($t("p4.10035"));
     }
   }
 
@@ -172,7 +173,7 @@ export class CalendarView extends ItemView {
 
     if (file) {
       menu.addItem((item) => {
-        item.setTitle("打开");
+        item.setTitle($t("p4.10036"));
         item.setIcon("arrow-up-right");
         item.onClick(() => {
           void this.app.workspace.getLeaf("tab").openFile(file);
@@ -180,7 +181,7 @@ export class CalendarView extends ItemView {
       });
 
       menu.addItem((item) => {
-        item.setTitle("在新面板中打开");
+        item.setTitle($t("p4.10037"));
         item.setIcon("vertical-split");
         item.onClick(() => {
           void this.app.workspace.getLeaf("split").openFile(file);
@@ -188,7 +189,7 @@ export class CalendarView extends ItemView {
       });
 
       menu.addItem((item) => {
-        item.setTitle("删除");
+        item.setTitle($t("set.remaining.758"));
         item.setIcon("trash");
         item.onClick(() => {
           void (async () => {
@@ -199,7 +200,7 @@ export class CalendarView extends ItemView {
       });
     } else {
       menu.addItem((item) => {
-        item.setTitle("新建日记");
+        item.setTitle($t("auto.201"));
         item.setIcon("plus");
         item.onClick(() => {
           void this.createAndOpenDailyNote(momentDate, false);
