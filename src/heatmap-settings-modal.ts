@@ -82,10 +82,10 @@ export class HeatmapSettingsModal extends Modal {
       .setDesc($t("p4.10023"))
       .addDropdown((dd) => {
         const options: Array<[HeatmapDateFieldType, string]> = [
-          ["FILE_CTIME", "文件创建时间"],
-          ["FILE_MTIME", "文件修改时间"],
-          ["FILE_NAME", "文件名"],
-          ["PAGE_PROPERTY", "文档属性"]
+          ["FILE_CTIME", $t("hm.date.fileCtime")],
+          ["FILE_MTIME", $t("hm.date.fileMtime")],
+          ["FILE_NAME", $t("hm.date.fileName")],
+          ["PAGE_PROPERTY", $t("hm.date.pageProperty")]
         ];
         options.forEach(([value, label]) => {
           dd.addOption(value, label);

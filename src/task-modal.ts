@@ -1,5 +1,6 @@
 import type { App} from 'obsidian';
 import { Modal } from 'obsidian';
+import { t as $t, getLocaleCode } from './i18n';
 
 /* ============================================================
    Task Creation Modal — 1:1 fork of
@@ -41,43 +42,43 @@ interface TaskModalOptions {
 }
 
 const PRIORITIES = [
-	{ value: '重要且紧急', label: '🔴 重要且紧急' },
-	{ value: '重要不紧急', label: '🟡 重要不紧急' },
-	{ value: '紧急不重要', label: '🔵 紧急不重要' },
-	{ value: '不重要不紧急', label: '⚪ 不重要不紧急' },
-	{ value: '', label: '未设置' },
+	{ value: '重要且紧急', label: $t('dv.priority.importantUrgent') },
+	{ value: '重要不紧急', label: $t('dv.priority.importantNot') },
+	{ value: '紧急不重要', label: $t('dv.priority.urgentNot') },
+	{ value: '不重要不紧急', label: $t('dv.priority.neither') },
+	{ value: '', label: $t('auto.767') },
 ];
 
 const STATUSES = [
-	{ value: 'todo', label: '待办' },
-	{ value: 'in-progress', label: '进行中' },
-	{ value: 'blocked', label: '已阻塞' },
-	{ value: 'done', label: '已完成' },
-	{ value: 'cancelled', label: '已取消' },
+	{ value: 'todo', label: $t('dv.pb.status.todo') },
+	{ value: 'in-progress', label: $t('dv.pb.status.inProgress') },
+	{ value: 'blocked', label: $t('dv.pb.status.blocked') },
+	{ value: 'done', label: $t('dv.pb.status.done') },
+	{ value: 'cancelled', label: $t('dv.pb.status.cancelled') },
 ];
 
 const TYPES = [
-	{ value: 'task', label: '普通' },
-	{ value: 'recurring', label: '重复' },
+	{ value: 'task', label: $t('dv.t.typeNormal') },
+	{ value: 'recurring', label: $t('dv.t.typeRepeat') },
 ];
 
 // Repeat frequency — "每年" removed per product decision.
 const REPEAT_FREQS = [
-	{ value: '', label: '选择频率' },
-	{ value: 'daily', label: '每天' },
-	{ value: 'weekly', label: '每周' },
-	{ value: 'monthly', label: '每月' },
+	{ value: '', label: $t('dv.t.selectFreq') },
+	{ value: 'daily', label: $t('dv.t.daily') },
+	{ value: 'weekly', label: $t('dv.t.weekly') },
+	{ value: 'monthly', label: $t('dv.t.monthly') },
 ];
 
 // 周一..周日 with internal value 1..7 (1=Mon, 7=Sun)
 const WEEKDAYS = [
-	{ value: 1, label: '周一' },
-	{ value: 2, label: '周二' },
-	{ value: 3, label: '周三' },
-	{ value: 4, label: '周四' },
-	{ value: 5, label: '周五' },
-	{ value: 6, label: '周六' },
-	{ value: 7, label: '周日' },
+	{ value: 1, label: $t('dv.t.monday') },
+	{ value: 2, label: $t('dv.t.tuesday') },
+	{ value: 3, label: $t('dv.t.wednesday') },
+	{ value: 4, label: $t('dv.t.thursday') },
+	{ value: 5, label: $t('dv.t.friday') },
+	{ value: 6, label: $t('dv.t.saturday') },
+	{ value: 7, label: $t('dv.t.sunday') },
 ];
 
 const REMINDER_OPTIONS = [
@@ -98,29 +99,30 @@ const dateToDow = (s: string): number => {
 
 export class TaskModal extends Modal {
 	private opts: TaskModalOptions;
-	private tags: string[] = ['任务'];
+	private tags: string[];
 	private selectedReminders: string[] = [];
 
 	constructor(opts: TaskModalOptions) {
 		super(opts.app);
 		this.opts = opts;
+		this.tags = [$t('dv.t.defaultTag')];
 	}
 
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.addClass('ad-task-modal');
-		contentEl.createEl('h3', { cls: 'ad-modal-title', text: '新建任务' });
+		contentEl.createEl('h3', { cls: 'ad-modal-title', text: $t('dv.t.title') });
 
 		// ---- Title ----
-		this.field('任务名称 *', (wrap) => {
-			wrap.createEl('input', { cls: 'ad-modal-input ad-input-title', attr: { type: 'text', placeholder: '输入任务名称' } });
+		this.field($t('dv.pb.col.taskName') + ' *', (wrap) => {
+			wrap.createEl('input', { cls: 'ad-modal-input ad-input-title', attr: { type: 'text', placeholder: $t('dv.t.inputPlaceholder') } });
 		});
 
 		// ---- Project + Parent (side by side) ----
 		const row1 = contentEl.createDiv({ cls: 'ad-modal-row' });
 
 		const projCol = row1.createDiv({ cls: 'ad-modal-col' });
-		this.label(projCol, '所属项目 *');
+		this.label(projCol, $t('dv.pb.col.projectStar'));
 		const projSel = projCol.createEl('select', { cls: 'ad-modal-input' });
 		for (const p of this.opts.projects) {
 			projSel.createEl('option', { text: p.name, attr: { value: p.name } });
@@ -133,9 +135,9 @@ export class TaskModal extends Modal {
 		}
 
 		const parentCol = row1.createDiv({ cls: 'ad-modal-col' });
-		this.label(parentCol, '父任务');
+		this.label(parentCol, $t('dv.t.parentLabel'));
 		const parentSel = parentCol.createEl('select', { cls: 'ad-modal-input' });
-		parentSel.createEl('option', { text: '无（顶级任务）', attr: { value: '' } });
+		parentSel.createEl('option', { text: $t('auto.348'), attr: { value: '' } });
 
 		const populateParents = (projectName: string): void => {
 			const filtered = (this.opts.allTasks || []).filter((t) => t.projectId === projectName);
@@ -156,13 +158,13 @@ export class TaskModal extends Modal {
 		const row2 = contentEl.createDiv({ cls: 'ad-modal-row' });
 
 		const startCol = row2.createDiv({ cls: 'ad-modal-col' });
-		const startLabel = startCol.createEl('label', { cls: 'ad-modal-label', text: '开始日期 *' });
-		const startInput = startCol.createEl('input', { cls: 'ad-modal-input', attr: { type: 'date' } });
+		const startLabel = startCol.createEl('label', { cls: 'ad-modal-label', text: $t('auto.325') });
+		const startInput = startCol.createEl('input', { cls: 'ad-modal-input', attr: { type: 'date', lang: getLocaleCode() } });
 		startInput.value = getToday();
 
 		const endCol = row2.createDiv({ cls: 'ad-modal-col' });
-		const endLabel = endCol.createEl('label', { cls: 'ad-modal-label', text: '结束日期' });
-		const endInput = endCol.createEl('input', { cls: 'ad-modal-input', attr: { type: 'date' } });
+		const endLabel = endCol.createEl('label', { cls: 'ad-modal-label', text: $t('auto.326') });
+		const endInput = endCol.createEl('input', { cls: 'ad-modal-input', attr: { type: 'date', lang: getLocaleCode() } });
 		endInput.value = getToday();
 
 		// "No end date" — only relevant for recurring tasks
@@ -170,7 +172,7 @@ export class TaskModal extends Modal {
 		const noEndCol = noEndWrap.createDiv({ cls: 'ad-modal-col' });
 		const noEndLbl = noEndCol.createEl('label', { cls: 'ad-rem-item' });
 		const noEndCb = noEndLbl.createEl('input', { attr: { type: 'checkbox' } });
-		noEndLbl.createSpan({ text: '无结束日期（无限重复）' });
+		noEndLbl.createSpan({ text: $t('auto.387') });
 		noEndCb.addEventListener('change', () => {
 			endInput.disabled = noEndCb.checked;
 			if (noEndCb.checked) endInput.value = '';
@@ -180,17 +182,17 @@ export class TaskModal extends Modal {
 		const row3 = contentEl.createDiv({ cls: 'ad-modal-row' });
 
 		const prioCol = row3.createDiv({ cls: 'ad-modal-col' });
-		this.label(prioCol, '优先级');
+		this.label(prioCol, $t('dv.pb.col.priority'));
 		const prioSel = prioCol.createEl('select', { cls: 'ad-modal-input' });
 		for (const p of PRIORITIES) prioSel.createEl('option', { text: p.label, attr: { value: p.value } });
 
 		const statusCol = row3.createDiv({ cls: 'ad-modal-col' });
-		this.label(statusCol, '状态 *');
+		this.label(statusCol, $t('dv.pb.col.status') + ' *');
 		const statusSel = statusCol.createEl('select', { cls: 'ad-modal-input' });
 		for (const s of STATUSES) statusSel.createEl('option', { text: s.label, attr: { value: s.value } });
 
 		const typeCol = row3.createDiv({ cls: 'ad-modal-col' });
-		this.label(typeCol, '类型 *');
+		this.label(typeCol, $t('dv.t.typeLabel'));
 		const typeSel = typeCol.createEl('select', { cls: 'ad-modal-input' });
 		for (const t of TYPES) typeSel.createEl('option', { text: t.label, attr: { value: t.value } });
 
@@ -198,7 +200,7 @@ export class TaskModal extends Modal {
 		const repeatWrap = contentEl.createDiv({ cls: 'ad-modal-row ad-repeat-section ad-hidden' });
 
 		const freqCol = repeatWrap.createDiv({ cls: 'ad-modal-col' });
-		this.label(freqCol, '重复频率');
+		this.label(freqCol, $t('p4.10175'));
 		const freqSel = freqCol.createEl('select', { cls: 'ad-modal-input' });
 		for (const f of REPEAT_FREQS) freqSel.createEl('option', { text: f.label, attr: { value: f.value } });
 
@@ -214,16 +216,16 @@ export class TaskModal extends Modal {
 			if (f === 'daily') {
 				const row = repeatOptsWrap.createDiv({ cls: 'ad-modal-row' });
 				const c1 = row.createDiv({ cls: 'ad-modal-col' });
-				this.label(c1, '每 N 天');
+				this.label(c1, $t('dv.t.everyNDays'));
 				c1.createEl('input', { cls: 'ad-modal-input ad-repeat-interval', attr: { type: 'number', min: '1', value: '1' } });
 				const c2 = row.createDiv({ cls: 'ad-modal-col' });
 				const wdLbl = c2.createEl('label', { cls: 'ad-rem-item' });
 				wdLbl.createEl('input', { cls: 'ad-repeat-workdays', attr: { type: 'checkbox' } });
-				wdLbl.createSpan({ text: '仅工作日' });
+				wdLbl.createSpan({ text: $t('dv.t.workdaysOnly') });
 			} else if (f === 'weekly') {
 				const row = repeatOptsWrap.createDiv({ cls: 'ad-modal-row' });
 				const c = row.createDiv({ cls: 'ad-modal-col' });
-				this.label(c, '重复星期（可多选）');
+				this.label(c, $t('p4.10177'));
 				const wdRow = c.createDiv({ cls: 'ad-repeat-weekdays' });
 				const startDow = dateToDow(startInput.value);
 				for (const wd of WEEKDAYS) {
@@ -235,7 +237,7 @@ export class TaskModal extends Modal {
 			} else if (f === 'monthly') {
 				const row = repeatOptsWrap.createDiv({ cls: 'ad-modal-row' });
 				const c = row.createDiv({ cls: 'ad-modal-col' });
-				this.label(c, '每月几号');
+				this.label(c, $t('dv.t.monthDay'));
 				const mdVal = startInput.value ? new Date(startInput.value + 'T00:00:00').getDate() : 1;
 				c.createEl('input', { cls: 'ad-modal-input ad-repeat-monthday', attr: { type: 'number', min: '1', max: '31', value: String(mdVal) } });
 			}
@@ -250,18 +252,18 @@ export class TaskModal extends Modal {
 			noEndWrap.toggleClass('ad-hidden', !isRecurring);
 			statusCol.toggleClass('ad-hidden', isRecurring); // recurring is always 进行中
 			if (isRecurring) {
-				startLabel.textContent = '首次发生日期 *';
-				endLabel.textContent = '结束日期（界限）';
+				startLabel.textContent = $t('dv.t.firstDate');
+				endLabel.textContent = $t('dv.t.boundaryDate');
 				renderRepeatOpts();
 			} else {
-				startLabel.textContent = '开始日期 *';
-				endLabel.textContent = '结束日期';
+				startLabel.textContent = $t('auto.325');
+				endLabel.textContent = $t('auto.326');
 			}
 		};
 		typeSel.addEventListener('change', applyType);
 
 		// ---- Reminders ----
-		this.label(contentEl, '提醒');
+		this.label(contentEl, $t('dv.t.remindLabel'));
 		const remWrap = contentEl.createDiv({ cls: 'ad-rem-group' });
 		for (const opt of REMINDER_OPTIONS) {
 			const lbl = remWrap.createEl('label', { cls: 'ad-rem-item' });
@@ -274,12 +276,12 @@ export class TaskModal extends Modal {
 		}
 
 		// ---- Tags ----
-		this.label(contentEl, '标签');
+		this.label(contentEl, $t('dv.t.tagsLabel'));
 		const tagWrap = contentEl.createDiv({ cls: 'ad-tag-wrap' });
 		const tagChips = tagWrap.createDiv({ cls: 'ad-tag-chips' });
 		const tagInput = tagWrap.createEl('input', {
 			cls: 'ad-modal-input ad-tag-input',
-			attr: { type: 'text', placeholder: '输入后回车添加' },
+			attr: { type: 'text', placeholder: $t('dv.t.tagPlaceholder') },
 		});
 		tagInput.addEventListener('keydown', (e: KeyboardEvent) => {
 			if (e.key === 'Enter') {
@@ -295,17 +297,17 @@ export class TaskModal extends Modal {
 		this.tags.forEach((tag) => this.renderTagChip(tagChips, tag));
 
 		// ---- Notes ----
-		this.label(contentEl, '备注');
+		this.label(contentEl, $t('dv.t.notesLabel'));
 		const notesArea = contentEl.createEl('textarea', {
 			cls: 'ad-modal-input',
-			attr: { rows: '5', placeholder: '补充说明…' },
+			attr: { rows: '5', placeholder: $t('dv.t.notesPlaceholder') },
 		});
 
 		// ---- Buttons ----
 		const btns = contentEl.createDiv({ cls: 'ad-modal-btns' });
-		btns.createEl('button', { cls: 'ad-modal-btn', text: '取消' })
+		btns.createEl('button', { cls: 'ad-modal-btn', text: $t('dv.cancel') })
 			.addEventListener('click', () => this.close());
-		btns.createEl('button', { cls: 'ad-modal-btn ad-modal-btn--primary', text: '创建任务' })
+		btns.createEl('button', { cls: 'ad-modal-btn ad-modal-btn--primary', text: $t('auto.395') })
 			.addEventListener('click', () => {
 				contentEl.querySelectorAll('.ad-input-error').forEach((el) => el.removeClass('ad-input-error'));
 

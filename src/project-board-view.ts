@@ -1,4 +1,4 @@
-import { t as $t } from "./i18n";
+import { t as $t, getLocaleCode } from "./i18n";
 import {
   Menu,
   Notice,
@@ -436,7 +436,7 @@ export class ProjectBoardPanel {
   private async deleteProject(proj: ProjectInfo): Promise<void> {
     const confirmed = await confirmDialog(this.app, {
       title: $t("dv.pb.actions.deleteProject"),
-      message: `确定删除项目 "${proj.name}" 及其所有任务文件？此操作不可撤销。`,
+      message: $t("dv.confirm.deleteProject", { name: proj.name }),
       confirmText: $t("set.remaining.758"),
       danger: true
     });
@@ -444,7 +444,7 @@ export class ProjectBoardPanel {
     const folder = this.app.vault.getAbstractFileByPath(proj.path);
     if (folder instanceof TFolder) {
       await this.app.fileManager.trashFile(folder);
-      new Notice("❌ 项目已删除: " + proj.name);
+      new Notice($t("auto.774", { projName: proj.name }));
       await this.renderAll(true);
     }
   }
@@ -496,6 +496,86 @@ export class ProjectBoardPanel {
     if (this.ganttStatusFilter.length > 0) {
       tasks = tasks.filter((t) => this.ganttStatusFilter.includes(t.status));
     }
+
+    // ---- 时间轴配置 ----
+    const granularity: GanttZoom = this.ganttZoom || "week";
+
+    // ---- 工具栏（日/周/月/季度/状态筛选）：始终渲染，保证空态下也能清除筛选 ----
+    const zoomBar = panel.createDiv({ cls: "po-gantt__zoom" });
+    const zoomLevels: Array<{ key: GanttZoom; label: string }> = [
+      { key: "day", label: $t("u.20746") },
+      { key: "week", label: $t("dv.pb.kanban.week") },
+      { key: "month", label: $t("dv.pb.kanban.month") },
+      { key: "quarter", label: $t("dv.pb.kanban.quarter") }
+    ];
+    zoomLevels.forEach((z) => {
+      const btn = zoomBar.createEl("button", {
+        cls: "po-gantt__zoom-btn" + (z.key === granularity ? " is-active" : ""),
+        text: z.label
+      });
+      this.listen(btn, "click", () => {
+        this.ganttZoom = z.key;
+        this.plugin.data.settings.poGanttScale = z.key;
+        void this.plugin.saveSettings();
+        this.renderPanels();
+      });
+    });
+
+    zoomBar.createSpan({ cls: "po-gantt__sep" });
+    const filterBtn = zoomBar.createEl("button", {
+      cls: "po-gantt__zoom-btn" + (this.ganttStatusFilter.length ? " is-active" : "")
+    });
+    const updateFilterLabel = (): void => {
+      filterBtn.textContent = this.ganttStatusFilter.length
+        ? $t("auto.775", { n: this.ganttStatusFilter.length })
+        : $t("dv.pb.filter.statusFilter");
+      filterBtn.toggleClass("is-active", this.ganttStatusFilter.length > 0);
+    };
+    updateFilterLabel();
+    this.listen(filterBtn, "click", (e) => {
+      const menu = new Menu();
+      const statusLabels: Record<string, string> = {
+        待办: $t("u.20747"),
+        进行中: $t("dv.biz.projects.onTrack"),
+        已阻塞: $t("u.20748"),
+        已完成: $t("dv.biz.projects.completed"),
+        已取消: $t("u.20749"),
+      };
+      for (const st of STATUS_LIST) {
+        menu.addItem((item) =>
+          item
+            .setTitle(statusLabels[st] ?? st)
+            .setChecked(this.ganttStatusFilter.includes(st))
+            .onClick(() => {
+              const idx = this.ganttStatusFilter.indexOf(st);
+              if (idx >= 0) this.ganttStatusFilter.splice(idx, 1);
+              else this.ganttStatusFilter.push(st);
+              updateFilterLabel();
+              this.plugin.data.settings.poGanttStatusFilter = [
+                ...this.ganttStatusFilter
+              ];
+              void this.plugin.saveSettings();
+              this.renderPanels();
+            })
+        );
+      }
+      if (this.ganttStatusFilter.length) {
+        menu.addSeparator();
+        menu.addItem((item) =>
+          item
+            .setTitle($t("p4.10004"))
+            .onClick(() => {
+              this.ganttStatusFilter.length = 0;
+              updateFilterLabel();
+              this.plugin.data.settings.poGanttStatusFilter = [];
+              void this.plugin.saveSettings();
+              this.renderPanels();
+            })
+        );
+      }
+      menu.showAtMouseEvent(e);
+    });
+
     const tasksWithDates = tasks.filter((t) => t.startDate || t.dueDate);
     if (tasks.length === 0) {
       panel.createDiv({ cls: "po-empty", text: $t("dv.emptyTask") });
@@ -584,7 +664,6 @@ export class ProjectBoardPanel {
     flattenWithLevel(rootTasks, 0);
 
     // ---- 时间轴配置 ----
-    const granularity: GanttZoom = this.ganttZoom || "week";
     const DAY_WIDTH: Record<string, number> = { day: 36, week: 16, month: 7, quarter: 4 };
     const MIN_DAYS: Record<string, number> = { day: 30, week: 90, month: 365, quarter: 365 };
     const dayWidth = DAY_WIDTH[granularity] ?? 16;
@@ -655,75 +734,6 @@ export class ProjectBoardPanel {
       return t;
     };
 
-    // ---- DOM 骨架 ----
-    const zoomBar = panel.createDiv({ cls: "po-gantt__zoom" });
-    const zoomLevels: Array<{ key: GanttZoom; label: string }> = [
-      { key: "day", label: $t("u.20746") },
-      { key: "week", label: $t("dv.pb.kanban.week") },
-      { key: "month", label: $t("dv.pb.kanban.month") },
-      { key: "quarter", label: $t("dv.pb.kanban.quarter") }
-    ];
-    zoomLevels.forEach((z) => {
-      const btn = zoomBar.createEl("button", {
-        cls: "po-gantt__zoom-btn" + (z.key === granularity ? " is-active" : ""),
-        text: z.label
-      });
-      this.listen(btn, "click", () => {
-        this.ganttZoom = z.key;
-        this.plugin.data.settings.poGanttScale = z.key;
-        void this.plugin.saveSettings();
-        this.renderPanels();
-      });
-    });
-
-    zoomBar.createSpan({ cls: "po-gantt__sep" });
-    const filterBtn = zoomBar.createEl("button", {
-      cls: "po-gantt__zoom-btn" + (this.ganttStatusFilter.length ? " is-active" : "")
-    });
-    const updateFilterLabel = (): void => {
-      filterBtn.textContent = this.ganttStatusFilter.length
-        ? `状态: ${this.ganttStatusFilter.length}`
-        : "状态筛选";
-      filterBtn.toggleClass("is-active", this.ganttStatusFilter.length > 0);
-    };
-    updateFilterLabel();
-    this.listen(filterBtn, "click", (e) => {
-      const menu = new Menu();
-      for (const st of STATUS_LIST) {
-        menu.addItem((item) =>
-          item
-            .setTitle(st)
-            .setChecked(this.ganttStatusFilter.includes(st))
-            .onClick(() => {
-              const idx = this.ganttStatusFilter.indexOf(st);
-              if (idx >= 0) this.ganttStatusFilter.splice(idx, 1);
-              else this.ganttStatusFilter.push(st);
-              updateFilterLabel();
-              this.plugin.data.settings.poGanttStatusFilter = [
-                ...this.ganttStatusFilter
-              ];
-              void this.plugin.saveSettings();
-              this.renderPanels();
-            })
-        );
-      }
-      if (this.ganttStatusFilter.length) {
-        menu.addSeparator();
-        menu.addItem((item) =>
-          item
-            .setTitle($t("p4.10004"))
-            .onClick(() => {
-              this.ganttStatusFilter.length = 0;
-              updateFilterLabel();
-              this.plugin.data.settings.poGanttStatusFilter = [];
-              void this.plugin.saveSettings();
-              this.renderPanels();
-            })
-        );
-      }
-      menu.showAtMouseEvent(e);
-    });
-
     const gantt = panel.createDiv({ cls: "po-gantt" });
     const wrapper = gantt.createDiv({ cls: "po-gantt__wrap" });
 
@@ -777,7 +787,7 @@ export class ProjectBoardPanel {
           })
         );
         headerSvg.appendChild(
-          svgText(x1 + 6, y + h - 7, m.getMonth() + 1 + "月", "po-gantt__hdr-month-top")
+          svgText(x1 + 6, y + h - 7, new Intl.DateTimeFormat(getLocaleCode(), { month: "short" }).format(m), "po-gantt__hdr-month-top")
         );
         m = nm;
       }
@@ -864,7 +874,7 @@ export class ProjectBoardPanel {
         const x1 = Math.max(0, dateToX(m));
         const x2 = Math.min(totalWidth, dateToX(nm));
         headerSvg.appendChild(
-          svgText(x1 + (x2 - x1) / 2, 44, m.getMonth() + 1 + "月", "po-gantt__hdr-month")
+          svgText(x1 + (x2 - x1) / 2, 44, new Intl.DateTimeFormat(getLocaleCode(), { month: "short" }).format(m), "po-gantt__hdr-month")
         );
         headerSvg.appendChild(
           svgEl("line", { x1, y1: 24, x2: x1, y2: HEADER_HEIGHT, class: "po-gantt__hdr-tick" })
@@ -1302,13 +1312,19 @@ export class ProjectBoardPanel {
     const section = panel.createDiv({ cls: "po-tasklist" });
     const toolbar = section.createDiv({ cls: "po-toolbar" });
     toolbar.createSpan({ cls: "po-toolbar__label", text: $t("dv.pb.filter.label") });
-    ["全部", "待办", "进行中", "已阻塞", "已完成"].forEach((f, i) => {
-      const key = i === 0 ? "all" : f;
+    const filterChips: Array<{ key: string; label: string }> = [
+      { key: "all", label: $t("dv.pb.filter.all") },
+      { key: "待办", label: $t("u.20747") },
+      { key: "进行中", label: $t("dv.biz.projects.onTrack") },
+      { key: "已阻塞", label: $t("u.20748") },
+      { key: "已完成", label: $t("dv.biz.projects.completed") },
+    ];
+    filterChips.forEach((f) => {
       const chip = toolbar.createEl("button", {
-        cls: "po-chip" + (key === this.taskListFilter ? " is-active" : ""),
-        text: f
+        cls: "po-chip" + (f.key === this.taskListFilter ? " is-active" : ""),
+        text: f.label
       });
-      chip.dataset.filter = key;
+      chip.dataset.filter = f.key;
     });
 
     const wrap = section.createDiv({ cls: "po-table-wrap" });
@@ -1722,7 +1738,7 @@ export class ProjectBoardPanel {
       const adj = fd === 0 ? 6 : fd - 1;
 
       const header = grid.createDiv({ cls: "po-cal__header" });
-      header.createSpan({ cls: "po-cal__title", text: y + "年" + (m + 1) + "月" });
+      header.createSpan({ cls: "po-cal__title", text: new Intl.DateTimeFormat(getLocaleCode(), { year: "numeric", month: "long" }).format(new Date(y, m, 1)) });
       const nav = header.createDiv({ cls: "po-cal__nav" });
       const prevBtn = nav.createEl("button", { cls: "po-cal__btn", text: "←" });
       const todayBtn = nav.createEl("button", { cls: "po-cal__btn", text: $t("dv.pb.calendar.today") });
@@ -1751,9 +1767,8 @@ export class ProjectBoardPanel {
       });
 
       const weekdays = grid.createDiv({ cls: "po-cal__weekdays" });
-      ["一", "二", "三", "四", "五", "六", "日"].forEach((d) =>
-        weekdays.createSpan({ text: d })
-      );
+      new Array(7).fill(0).map((_, i) => new Intl.DateTimeFormat(getLocaleCode(), { weekday: "short" }).format(new Date(2020, 0, 5 + i)))
+        .forEach((d) => weekdays.createSpan({ text: d }));
 
       const days = grid.createDiv({ cls: "po-cal__days" });
       for (let i = 0; i < adj; i++) days.createDiv({ cls: "po-cal__day" });
@@ -1959,7 +1974,7 @@ export class ProjectBoardPanel {
     if (!task.sourceFile) return;
     const confirmed = await confirmDialog(this.app, {
       title: $t("dv.deleteTask"),
-      message: `确定删除任务 "${task.content}"？`,
+      message: $t("dv.confirm.deleteTask", { name: task.content }),
       confirmText: $t("set.remaining.758"),
       danger: true
     });

@@ -76,7 +76,7 @@ function renderMarkdown(flomos: Flomo[], filterDesc: string): string {
     "",
     `# Flomo 导出 · ${filterDesc}`,
     "",
-    `> ${now.toLocaleString()} · 共 ${flomos.length} 条`,
+    `> ${now.toLocaleString()} · ${flomos.length}`,
     "",
   ].join("\n");
 

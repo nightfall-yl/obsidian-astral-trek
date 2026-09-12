@@ -91,15 +91,13 @@ export class QuickLinkModal extends Modal {
     const intro = header.createEl("p", {
       cls: "setting-item-description"
     });
-    intro.appendText(
-      "自定义顶部快捷入口。url 指向笔记（笔记名或路径），action 为命令 ID（填写后优先执行命令）。图标填写 "
-    );
+    intro.appendText($t("ql.intro"));
     intro.createEl("a", {
       text: "Lucide",
       href: "https://lucide.dev/icons/",
       attr: { target: "_blank", rel: "noopener noreferrer" }
     });
-    intro.appendText(" 图标名，如 home。");
+    ;
 
     const list = this.contentEl.createDiv("astra-link-editor-list");
 
@@ -156,28 +154,28 @@ export class QuickLinkModal extends Modal {
     this.createIconButton(
       controls,
       "arrow-up",
-      "上移",
+      $t("ql.moveUp"),
       index === 0,
       () => this.move(index, -1)
     );
     this.createIconButton(
       controls,
       "arrow-down",
-      "下移",
+      $t("ql.moveDown"),
       index === this.links.length - 1,
       () => this.move(index, 1)
     );
-    this.createIconButton(controls, "trash", "删除", false, () =>
+    this.createIconButton(controls, "trash", $t("ql.delete"), false, () =>
       this.remove(index)
     );
 
     const fields = row.createDiv("astra-link-editor-fields");
-    this.createField(fields, "名称", link.label, (value) => {
+    this.createField(fields, $t("ql.label"), link.label, (value) => {
       link.label = value;
     });
     this.createField(
       fields,
-      "图标（可选）",
+      $t("ql.icon"),
       link.icon ?? "",
       (value) => {
         link.icon = value.trim() || undefined;
@@ -185,7 +183,7 @@ export class QuickLinkModal extends Modal {
     );
     this.createField(
       fields,
-      "链接（笔记名或路径）",
+      $t("ql.url"),
       link.url ?? "",
       (value) => {
         link.url = value.trim() || undefined;

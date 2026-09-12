@@ -1,9 +1,9 @@
 {
   "id": "astral-trek",
   "name": "Astra",
-  "version": "26.1.4",
+  "version": "26.1.5",
   "minAppVersion": "1.11.0",
-  "description": "An interactive home dashboard for tasks, knowledge graph, plugins, vault health, and writing activity",
+  "description": "An interactive home dashboard for tasks, knowledge graph, plugins, vault health, and writing activity.",
   "author": "nightfall",
   "isDesktopOnly": false
 }

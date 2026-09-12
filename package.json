@@ -1,7 +1,7 @@
 {
   "name": "astral-trek",
-  "version": "26.1.4",
-  "description": "An interactive home dashboard for tasks, knowledge graph, plugins, vault health, and writing activity",
+  "version": "26.1.5",
+  "description": "An interactive home dashboard for tasks, knowledge graph, plugins, vault health, and writing activity.",
   "main": "main.js",
   "type": "module",
   "scripts": {

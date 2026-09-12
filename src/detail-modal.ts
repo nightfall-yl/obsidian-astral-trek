@@ -47,7 +47,7 @@ export class DetailModal extends Modal {
     header.createEl("p", { text: this.description });
 
     const summary = this.contentEl.createDiv("astra-modal-summary");
-    summary.setText(`共 ${this.items.length} 条`);
+    summary.setText($t("dv.flomo.totalCount", { n: this.items.length }));
     const list = this.contentEl.createDiv("astra-modal-list");
 
     if (this.showSearch) {

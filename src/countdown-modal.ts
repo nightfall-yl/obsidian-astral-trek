@@ -1,4 +1,5 @@
 import { t as $t } from "./i18n";
+import { getLocaleCode } from "./i18n";
 import type { App} from "obsidian";
 import { Modal } from "obsidian";
 import type AstraDashboardPlugin from "./main";
@@ -38,7 +39,7 @@ export class CountdownModal extends Modal {
     contentEl.createEl("label", { cls: "ad-modal-label", text: $t("auto.207") });
     const dateInput = contentEl.createEl("input", {
       cls: "ad-modal-input",
-      attr: { type: "date" },
+      attr: { type: 'date', lang: getLocaleCode() },
     });
     // 将 yyyy-mm-dd 转为 date input 值
     if (cfg.targetDate) {
@@ -49,7 +50,7 @@ export class CountdownModal extends Modal {
     // 进度提示
     contentEl.createEl("p", {
       cls: "ad-modal-hint",
-      text: "倒计时卡片将显示「距离 {事件名} 还有 X 天」，并附带年度进度条。",
+      text: $t("dv.countdown.cardHint"),
     });
 
     // 按钮

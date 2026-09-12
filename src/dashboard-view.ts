@@ -291,11 +291,11 @@ export class AstraDashboardView extends ItemView {
       const dateRow = actions.createDiv("astra-dashboard-date");
       const lunarRow = actions.createDiv("astra-dashboard-lunar");
       const buttons = actions.createDiv("astra-dashboard-tools");
-      const homeBtn = this.createIconButton(buttons, "home", "返回主页");
+      const homeBtn = this.createIconButton(buttons, "home", $t("dv.header.home"));
       // 常驻 header 按钮用 Component 的 registerDomEvent 注册：只在视图关闭时清理，
       // 不会被每次 render 的 clearRenderResources() 清掉监听器
       this.registerDomEvent(homeBtn, "click", () => this.navigateHome());
-      const settingsBtn = this.createIconButton(buttons, "settings", "打开设置");
+      const settingsBtn = this.createIconButton(buttons, "settings", $t("dv.header.openSettings"));
       this.registerDomEvent(settingsBtn, "click", () => {
         new AstraSettingsModal(this.app, this.plugin).open();
       });
@@ -482,7 +482,7 @@ export class AstraDashboardView extends ItemView {
       });
     }
 
-    const manage = this.createIconButton(section, "sliders-horizontal", "管理快捷链接");
+    const manage = this.createIconButton(section, "sliders-horizontal", $t("auto.331"));
     manage.addClass("astra-quick-plugins-manage");
     this.listen(manage, "click", () => {
       new QuickLinkModal(this.app, this.plugin).open();
@@ -571,7 +571,7 @@ export class AstraDashboardView extends ItemView {
   private addHeatmapSettingsButton(surface: HTMLElement): void {
     const header = surface.querySelector<HTMLElement>(".astra-surface-header");
     if (!header) return;
-    const btn = this.createIconButton(header, "sliders-horizontal", "热图设置");
+    const btn = this.createIconButton(header, "sliders-horizontal", $t("dv.header.heatmapSettings"));
     btn.addClass("astra-heatmap-settings-btn");
     this.listen(btn, "click", () => {
       new HeatmapSettingsModal(this.app, this.plugin).open();
@@ -742,10 +742,7 @@ export class AstraDashboardView extends ItemView {
     }
 
     // 月份标签按可见周窗口重建
-    const monthNames = [
-      "1月","2月","3月","4月","5月","6月","7月","8月",
-      "9月","10月","11月","12月"
-    ];
+    const monthNames = Array.from({ length: 12 }, (_, i) => new Intl.DateTimeFormat(getLocaleCode(), { month: "short" }).format(new Date(2020, i, 1)));
     const visible = this.hmWeekMonths.slice(total - weeks);
     monthsRow.empty();
     const unit = hmCell + cgap;
@@ -936,7 +933,7 @@ export class AstraDashboardView extends ItemView {
     const actions = header.createDiv("astra-actions");
     const allBtn = actions.createEl("button", {
       cls: "astra-icon-btn clickable-icon",
-      attr: { type: "button", "aria-label": "全部便签" }
+      attr: { type: "button", "aria-label": $t("auto.246") }
     });
     setIcon(allBtn, "clipboard-list");
     this.listen(allBtn, "click", () => void this.navigateFlomoBoard());
@@ -1213,7 +1210,7 @@ export class AstraDashboardView extends ItemView {
     const actions = header.createDiv("astra-actions");
     const btn = actions.createEl("button", {
       cls: "astra-todo-new-btn astra-icon-btn clickable-icon",
-      attr: { type: "button", "aria-label": "新建任务" }
+      attr: { type: "button", "aria-label": $t("dv.header.newTask") }
     });
     setIcon(btn, "plus");
     this.listen(btn, "click", () => this.createTask());
@@ -1310,7 +1307,7 @@ export class AstraDashboardView extends ItemView {
       cls: "ad-badge ad-badge--danger",
       text: String(count)
     });
-    badge.title = `${count} 个逾期任务`;
+    badge.title = $t("dv.tmpl.overdueCount", { count });
   }
 
   private async renderWeekly(surface: HTMLElement): Promise<void> {
@@ -1356,7 +1353,7 @@ export class AstraDashboardView extends ItemView {
         const og = list.createDiv("ad-wo__group ad-wo--overdue");
         const oh4 = og.createEl("h4");
         oh4.createSpan({ cls: "ad-wo__mark", text: "▲" });
-        oh4.appendText("逾期提醒");
+        oh4.appendText($t("p4.10250"));
         const ul = og.createEl("ul", { cls: "ad-wo__list" });
         overdue.forEach((t) => this.renderWeeklyRow(ul, t, true));
       }
@@ -1372,7 +1369,7 @@ export class AstraDashboardView extends ItemView {
         thisWeek.forEach((t) => this.renderWeeklyRow(ul, t, false));
       }
       const foot = surface.createDiv("ad-wo__foot");
-      foot.textContent = `本周共 ${thisWeek.length} 个任务，逾期 ${overdue.length} 个`;
+      foot.textContent = $t("dv.tmpl.weeklySummary", { thisWeekLen: thisWeek.length, overdueLen: overdue.length });
     } catch {
       list.createDiv({ cls: "ad-wo__empty", text: $t("dv.empty") });
     }
@@ -1385,7 +1382,7 @@ export class AstraDashboardView extends ItemView {
     li.createSpan({ cls: "ad-wo__text", text: task.content });
     if (isOverdue) {
       const days = overdueDays(task.dueDate);
-      li.createSpan({ cls: "ad-wo__over", text: `逾期 ${days}天` });
+      li.createSpan({ cls: "ad-wo__over", text: $t("dv.tmpl.overdueDays", { days }) });
       li.classList.add("is-overdue-row");
     } else {
       const urg = urgencyMeta(task.priority);
@@ -1511,8 +1508,8 @@ export class AstraDashboardView extends ItemView {
     });
     const sum = proj.createDiv("ad-proj__sum");
     const filterLabel =
-      maxStageFilter < stages.length ? `≤ ${stages[maxStageFilter - 1]}` : "全部";
-    sum.createSpan().appendText(`${activeCount} 进行中 · ${filterLabel}`);
+      maxStageFilter < stages.length ? $t("dv.tmpl.progressMinMax", { stages: stages[maxStageFilter - 1] ?? "" }) : $t("dv.pb.filter.all");
+    sum.createSpan().appendText($t("dv.tmpl.projectsSummary", { activeCount, filterLabel }));
   }
 
   /** 「项目情况」头部：标题 + 计数（左上），右上角「新建」按钮 */
@@ -1527,14 +1524,14 @@ export class AstraDashboardView extends ItemView {
     // 「全部项目」图标按钮（仅图标，悬停显示文字）
     const allBtn = actions.createEl("button", {
       cls: "astra-projects-all-btn astra-icon-btn clickable-icon",
-      attr: { type: "button", "aria-label": "全部项目" }
+      attr: { type: "button", "aria-label": $t("dv.pb.actions.allProjects") }
     });
     setIcon(allBtn, "list");
     this.listen(allBtn, "click", () => void this.navigateProjectBoard(null));
     // 「新建」按钮（纯加号图标）
     const btn = actions.createEl("button", {
       cls: "astra-projects-new-btn astra-icon-btn clickable-icon",
-      attr: { type: "button", "aria-label": "新建项目" }
+      attr: { type: "button", "aria-label": $t("auto.320") }
     });
     setIcon(btn, "plus");
     this.listen(btn, "click", () => this.createProjectFile());
@@ -1629,7 +1626,7 @@ export class AstraDashboardView extends ItemView {
     const actions = header.createDiv("astra-actions");
     const btn = actions.createEl("button", {
       cls: "astra-countdown-cal-btn astra-icon-btn clickable-icon",
-      attr: { type: "button", "aria-label": "设置日期" }
+      attr: { type: "button", "aria-label": $t("f.1092") }
     });
     setIcon(btn, "sliders-horizontal");
     this.listen(btn, "click", () => {
@@ -1763,9 +1760,9 @@ export class AstraDashboardView extends ItemView {
     const sceneText = sceneEl.createSpan("ad-dp__scene-text");
 
     const btns = wrap.createDiv("ad-dp__btns");
-    const prev = this.createIconButton(btns, "chevron-left", "上一句");
-    const shuffle = this.createIconButton(btns, "dice", "换一句");
-    const next = this.createIconButton(btns, "chevron-right", "下一句");
+    const prev = this.createIconButton(btns, "chevron-left", $t("p4.10255"));
+    const shuffle = this.createIconButton(btns, "dice", $t("p4.10256"));
+    const next = this.createIconButton(btns, "chevron-right", $t("p4.10257"));
 
     const show = (i: number): void => {
       const idx = ((i % total) + total) % total;

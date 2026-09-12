@@ -221,7 +221,7 @@ export class FlomoBoardPanel {
     // —— 密度切换按钮（最左）——
     const densityBtn = tools.createEl("button", {
       cls: "astra-icon-btn clickable-icon",
-      attr: { "aria-label": "切换视图密度" },
+      attr: { "aria-label": $t("flomo.btn.density") },
     });
     const updateDensityIcon = () => {
       densityBtn.empty();
@@ -237,7 +237,7 @@ export class FlomoBoardPanel {
     // —— 导出按钮（中间）——
     const exportBtn = tools.createEl("button", {
       cls: "astra-icon-btn clickable-icon",
-      attr: { "aria-label": "导出当前筛选结果" },
+      attr: { "aria-label": $t("flomo.btn.exportFilter") },
     });
     setIcon(exportBtn, "download");
     exportBtn.addEventListener("click", (evt) => {
@@ -266,7 +266,7 @@ export class FlomoBoardPanel {
     // —— 侧栏切换按钮（最右）——
     const toggleBtn = tools.createEl("button", {
       cls: "astra-icon-btn clickable-icon",
-      attr: { "aria-label": "切换侧栏" },
+      attr: { "aria-label": $t("flomo.btn.toggleSidebar") },
     });
     const updateToggleIcon = () => {
       toggleBtn.empty();
@@ -648,7 +648,7 @@ export class FlomoBoardPanel {
     // —— 左一：插入标签 # ——
     const addTagBtn = tools.createEl("button", {
       cls: "flomo-tool-btn clickable-icon",
-      attr: { type: "button", "aria-label": "插入标签" },
+      attr: { type: "button", "aria-label": $t("flomo.tool.insertTag") },
     });
     setIcon(addTagBtn, "hash");
     addTagBtn.addEventListener("click", () => this.insertAtCursor("#"));
@@ -656,7 +656,7 @@ export class FlomoBoardPanel {
     // —— 左二：插入图片 ——
     const addImageBtn = tools.createEl("button", {
       cls: "flomo-tool-btn clickable-icon",
-      attr: { type: "button", "aria-label": "插入图片" },
+      attr: { type: "button", "aria-label": $t("flomo.tool.insertImage") },
     });
     setIcon(addImageBtn, "image");
     addImageBtn.addEventListener("click", () => this.pickImageFromDisk());
@@ -664,7 +664,7 @@ export class FlomoBoardPanel {
     // —— 左三：无序列表 ——
     const ulBtn = tools.createEl("button", {
       cls: "flomo-tool-btn clickable-icon",
-      attr: { type: "button", "aria-label": "无序列表" },
+      attr: { type: "button", "aria-label": $t("flomo.tool.ul") },
     });
     setIcon(ulBtn, "list");
     ulBtn.addEventListener("click", () => this.insertListAtCursor("- "));
@@ -672,7 +672,7 @@ export class FlomoBoardPanel {
     // —— 左四：有序列表 ——
     const olBtn = tools.createEl("button", {
       cls: "flomo-tool-btn clickable-icon",
-      attr: { type: "button", "aria-label": "有序列表" },
+      attr: { type: "button", "aria-label": $t("flomo.tool.ol") },
     });
     setIcon(olBtn, "list-ordered");
     olBtn.addEventListener("click", () => this.insertOrderedListAtCursor());
@@ -680,7 +680,7 @@ export class FlomoBoardPanel {
     // —— 左五：任务列表 ——
     const taskBtn = tools.createEl("button", {
       cls: "flomo-tool-btn clickable-icon",
-      attr: { type: "button", "aria-label": "任务列表" },
+      attr: { type: "button", "aria-label": $t("flomo.tool.task") },
     });
     setIcon(taskBtn, "square-check");
     taskBtn.addEventListener("click", () => this.insertListAtCursor("- [ ] "));
@@ -688,7 +688,7 @@ export class FlomoBoardPanel {
     // —— 左六：表格 ——
     const addTableBtn = tools.createEl("button", {
       cls: "flomo-tool-btn clickable-icon",
-      attr: { type: "button", "aria-label": "插入表格" },
+      attr: { type: "button", "aria-label": $t("flomo.tool.table") },
     });
     setIcon(addTableBtn, "table");
     addTableBtn.addEventListener("click", (e) => {
@@ -969,64 +969,64 @@ export class FlomoBoardPanel {
       case "pinned": {
         const ic = head.createSpan("flomo-pin-head-icon");
         setIcon(ic, "pin");
-        head.createSpan({ text: `置顶 · 共 ${count} 条` });
+        head.createSpan({ text: $t("dv.flomo.pinnedCount", { n: count }) });
         break;
       }
       case "starred": {
         const ic = head.createSpan("flomo-preset-head-icon");
         setIcon(ic, "star");
-        head.createSpan({ text: `收藏 · 共 ${count} 条` });
+        head.createSpan({ text: $t("dv.flomo.starredCount", { n: count }) });
         break;
       }
       case "today": {
         const ic = head.createSpan("flomo-preset-head-icon");
         setIcon(ic, "calendar");
-        head.createSpan({ text: `今天 · 共 ${count} 条` });
+        head.createSpan({ text: $t("dv.flomo.todayCount", { n: count }) });
         break;
       }
       case "week": {
         const ic = head.createSpan("flomo-preset-head-icon");
         setIcon(ic, "calendar-days");
-        head.createSpan({ text: `本周 · 共 ${count} 条` });
+        head.createSpan({ text: $t("dv.flomo.weekCount", { n: count }) });
         break;
       }
       case "todo": {
         const ic = head.createSpan("flomo-preset-head-icon");
         setIcon(ic, "check-square");
-        head.createSpan({ text: `待办 · 共 ${count} 条` });
+        head.createSpan({ text: $t("dv.flomo.todoCount", { n: count }) });
         break;
       }
       case "on-this-day": {
         const ic = head.createSpan("flomo-preset-head-icon");
         setIcon(ic, "clock");
-        head.createSpan({ text: `往年的今天 · 共 ${count} 条` });
+        head.createSpan({ text: $t("dv.flomo.otdCount", { n: count }) });
         // 右侧显示筛选池统计
         const poolCount = this.getOtdPoolCount();
         const right = head.createSpan("flomo-preset-head-right");
-        right.createSpan({ text: `筛选池 ${poolCount} 条` });
+        right.createSpan({ text: $t("dv.flomo.poolCount", { n: poolCount }) });
         break;
       }
       case "no-tag": {
         const ic = head.createSpan("flomo-preset-head-icon");
         setIcon(ic, "tag");
-        head.createSpan({ text: `无标签 · 共 ${count} 条` });
+        head.createSpan({ text: $t("dv.flomo.noTagCount", { n: count }) });
         break;
       }
       case "with-image": {
         const ic = head.createSpan("flomo-preset-head-icon");
         setIcon(ic, "image");
-        head.createSpan({ text: `有图片 · 共 ${count} 条` });
+        head.createSpan({ text: $t("dv.flomo.withImageCount", { n: count }) });
         break;
       }
       case "with-link": {
         const ic = head.createSpan("flomo-preset-head-icon");
         setIcon(ic, "link-2");
-        head.createSpan({ text: `有链接 · 共 ${count} 条` });
+        head.createSpan({ text: $t("dv.flomo.withLinkCount", { n: count }) });
         break;
       }
       default:
         // "全部笔记" 及带标签/年份筛选时，显示统计信息
-        head.createSpan({ cls: "flomo-preset-head-count", text: `共 ${count} 条` });
+        head.createSpan({ cls: "flomo-preset-head-count", text: $t("dv.flomo.totalCount", { n: count }) });
     }
   }
 
@@ -1486,10 +1486,10 @@ export class FlomoBoardPanel {
       group.dataset.date = date;
       const head = group.createDiv("flomo-day-head");
       const d = new Date(date + "T00:00:00");
-      const wd = "日一二三四五六"[d.getDay()];
-      let label = `${date} 周${wd}`;
-      if (date === todayStr) label = `今天 周${wd}`;
-      else if (date === yesterdayStr) label = `昨天 周${wd}`;
+      const wd = $t("dv.flomo.weekdaysShort").split(",")[d.getDay()] ?? "";
+      let label = $t("dv.flomo.dayHeader", { date, wd: $t("dv.flomo.weekdayFormat", { wd }) });
+      if (date === todayStr) label = $t("dv.flomo.dayHeaderToday", { wd: $t("dv.flomo.weekdayFormat", { wd }) });
+      else if (date === yesterdayStr) label = $t("dv.flomo.dayHeaderYesterday", { wd: $t("dv.flomo.weekdayFormat", { wd }) });
       head.setText(label);
       for (const m of arr) this.renderFlomoCard(group, m);
     }
@@ -1555,8 +1555,8 @@ export class FlomoBoardPanel {
         group.dataset.date = date;
         const head = group.createDiv("flomo-day-head");
         const d = new Date(date + "T00:00:00");
-        const wd = "日一二三四五六"[d.getDay()];
-        head.setText(`${date} 周${wd}`);
+        const wd = $t("dv.flomo.weekdaysShort").split(",")[d.getDay()] ?? "";
+        head.setText($t("dv.flomo.dayHeader", { date, wd: $t("dv.flomo.weekdayFormat", { wd }) }));
         for (const m of arr) this.renderFlomoCard(group, m);
       }
       first = false;

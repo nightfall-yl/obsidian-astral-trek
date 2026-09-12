@@ -1,5 +1,6 @@
 import type { App } from "obsidian";
 import { Modal } from "obsidian";
+import { t as $t } from "./i18n";
 
 export interface ConfirmOptions {
   title: string;
@@ -50,12 +51,12 @@ class ConfirmModal extends Modal {
     const row = contentEl.createDiv("astra-confirm-modal__buttons");
 
     const cancelBtn = row.createEl("button", {
-      text: this.options.cancelText ?? "取消"
+      text: this.options.cancelText ?? $t("dv.cancel")
     });
     cancelBtn.addEventListener("click", () => this.finish(false));
 
     const confirmBtn = row.createEl("button", {
-      text: this.options.confirmText ?? "确定",
+      text: this.options.confirmText ?? $t("auto.203"),
       cls: this.options.danger ? "mod-cta mod-warning" : "mod-cta"
     });
     confirmBtn.addEventListener("click", () => this.finish(true));
