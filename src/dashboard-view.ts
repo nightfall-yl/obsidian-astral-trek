@@ -1283,7 +1283,7 @@ export class AstraDashboardView extends ItemView {
       const doneCount = universe.filter((t) => isDoneToday(t)).length;
       const skipCount = universe.filter((t) => isSkipToday(t)).length;
       const totalForSummary = universe.length - skipCount;
-      summaryEl?.setText(`${doneCount} / ${totalForSummary} done · 按优先级`);
+      summaryEl?.setText(`${doneCount} / ${totalForSummary} done · ${$t("dv.biz.priorityHint")}`);
     } catch {
       summaryEl?.setText("0 / 0 done");
       list.createDiv({ cls: "ad-todo__empty", text: $t("dv.empty") });
@@ -1457,7 +1457,7 @@ export class AstraDashboardView extends ItemView {
         ? stageProjects.filter((p) => (p.stage ?? 0) <= maxStageFilter)
         : stageProjects;
 
-    summaryEl?.setText(`${filtered.length} / ${stageProjects.length} 个项目`);
+    summaryEl?.setText($t("dv.biz.projects.count", { filteredLen: filtered.length, stageProjectsLen: stageProjects.length }));
 
     const proj = surface.createDiv("ad-proj");
     if (filtered.length === 0) {

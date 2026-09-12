@@ -132,7 +132,7 @@ export default {
   "dv.biz.flomo.yesterdayWeek": "昨天 周{wd}",
   "dv.biz.projects.taskRow": "{taskCount} 任务 · {activeCount}活跃 · {pct}%",
   "dv.biz.projects.summary": "{activeCount} 进行中 · {filterLabel}",
-  "dv.biz.projects.count": "{count} / {total} 个项目",
+  "dv.biz.projects.count": "{filteredLen} / {stageProjectsLen} 个项目",
   "dv.biz.recent.modifiedToday": "{n} 篇今日修改",
   "dv.biz.overdue.tasks": "逾期 {days}天",
   "dv.biz.projects.overBudget": "超出预算",
