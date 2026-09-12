@@ -351,7 +351,7 @@ export class FlomoBoardPanel {
     };
     if (this.filter.preset !== "all")
       parts.push(presetLabels[this.filter.preset] ?? this.filter.preset);
-    if (this.filter.year) parts.push(`年份: ${this.filter.year}`);
+    if (this.filter.year) parts.push($t("qc.filter.year", { y: this.filter.year }));
     if (this.filter.tag) parts.push(`#${this.filter.tag}`);
     return parts.length === 0 ? $t("auto.246") : parts.join(" · ");
   }

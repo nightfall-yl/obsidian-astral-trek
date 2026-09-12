@@ -775,5 +775,5 @@ export default {
   "qc.preset.noTag": "无标签",
   "qc.preset.withImage": "有图片",
   "qc.preset.withLink": "有链接",
-  "qc.filter.year": "年份"
+  "qc.filter.year": "年份: {y}",
 };

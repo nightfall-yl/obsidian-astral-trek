@@ -775,5 +775,5 @@ export default {
   "qc.preset.noTag": "No tags",
   "qc.preset.withImage": "With images",
   "qc.preset.withLink": "With links",
-  "qc.filter.year": "Year"
+  "qc.filter.year": "Year: {y}",
 };
