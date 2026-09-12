@@ -19,19 +19,32 @@ function _detectLanguage(): string {
     const path = require("path");
 
     const home = os.homedir();
-    let configPath = "";
+    const candidates: string[] = [];
+
     if (process.platform === "darwin") {
-      configPath = path.join(home, "Library/Application Support/obsidian/obsidian.json");
+      candidates.push(path.join(home, "Library/Application Support/obsidian/obsidian.json"));
     } else if (process.platform === "win32") {
-      configPath = path.join(process.env.APPDATA || "", "obsidian/obsidian.json");
+      // Primary: %APPDATA%\obsidian\obsidian.json
+      const appdata = process.env.APPDATA;
+      if (appdata) candidates.push(path.join(appdata, "obsidian/obsidian.json"));
+      // Fallback: home\AppData\Roaming\obsidian\obsidian.json (equivalent to APPDATA)
+      candidates.push(path.join(home, "AppData/Roaming/obsidian/obsidian.json"));
+      // Portable Obsidian fallback: home\.obsidian\obsidian.json
+      candidates.push(path.join(home, ".obsidian/obsidian.json"));
     } else {
-      configPath = path.join(home, ".config/obsidian/obsidian.json");
+      candidates.push(path.join(home, ".config/obsidian/obsidian.json"));
     }
-    const raw = JSON.parse(fs.readFileSync(configPath, "utf-8")) as {
-      language?: unknown;
-    };
-    const language = typeof raw.language === "string" ? raw.language : "en";
-    return language.toLowerCase();
+
+    for (const configPath of candidates) {
+      if (fs.existsSync(configPath)) {
+        const raw = JSON.parse(fs.readFileSync(configPath, "utf-8")) as {
+          language?: unknown;
+        };
+        const language = typeof raw.language === "string" ? raw.language : "en";
+        return language.toLowerCase();
+      }
+    }
+    return "en";
   } catch {
     return "en";
   }

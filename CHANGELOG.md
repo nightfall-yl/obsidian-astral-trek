@@ -4,7 +4,7 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
-## [26.1.3] - 2026-09-12
+## [26.1.4] - 2026-09-12
 
 ### 新功能
 
@@ -28,10 +28,17 @@
 - `moduleLabels` 硬编码中文标签，改为引用字典
 - Flomo 导出模板和统计行模板改为字典参数化
 - settings.ts 强制视图匹配规则 placeholder 硬编码中文，改为字典参数化
+- 问候语 `greeting()` 和相对时间 `relativeTime()` 硬编码 9 处中文，改为 `greet.*` / `time.*` 字典 key
+- 英文模块标题大小写修正：`auto.220` Task Progress、`auto.221` Project Status、`auto.223` Daily Phrase
+- 项目计数模板 `dv.biz.projects.count` 中英文参数名不一致（`{count}/{total}` vs `{filteredLen}/{stageProjectsLen}`），统一为后者
 - `formatCompactNumber` 增加可选 locale 参数，测试改为显式传参，消除对宿主语言的依赖
 - 清理 i18n 新增文件的 lint error（多余 as Dict 断言、JSON.parse any 类型、遗留 console.log）
-- `readObsidianLanguage()` 改用 `Platform.isDesktop` + dynamic `import("fs"/"os"/"path")` 守卫，消除 6 条 no-nodejs-modules 告警；移动端自动回退为英文
-- `readObsidianLanguage()` 依赖 `import { Platform } from "obsidian"` 使 core 测试连带无法解析 obsidian 包：新建 `vitest.config.ts`，通过 `resolve.alias` 将 obsidian 指向 `src/test/mocks/obsidian.ts`（只导出 `Platform.isDesktop/isMobile`），测试恢复可跑
+- `readObsidianLanguage()` 实现链路修正：
+  - Electron 沙箱不支持 ESM dynamic `import()`，改为 Platform 守卫 + CommonJS `require()`
+  - Windows 单路径 + `process.env.APPDATA \|\| ""` 导致路径拼接为空，改为多候选路径逐个尝试（%APPDATA% → `home/AppData/Roaming/` → `home/.obsidian/`）
+  - `initI18n` 去掉缓存短路，Reload 插件时总是重新读取 obsidian.json
+  - eslint.config.mjs 新增 i18n/index.ts 和 *.test.ts 文件级规则豁免
+- `readObsidianLanguage()` 引入 Platform 使 core 测试连带无法解析 obsidian 包：新建 `vitest.config.ts`，通过 `resolve.alias` 将 obsidian 指向 `src/test/mocks/obsidian.ts`，测试恢复可跑
 
 ## [26.1.2] - 2026-09-06
 
