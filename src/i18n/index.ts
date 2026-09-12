@@ -12,7 +12,12 @@ let _cachedLang: string = "";
  *  Obsidian does NOT expose app.language — it lives in the global config file.
  *  On mobile (Platform.isDesktop === false) Node.js fs is unavailable; falls back to "en". */
 function _detectLanguage(): string {
-  if (!Platform.isDesktop) return "en";
+  if (!Platform.isDesktop) {
+    // Mobile (iOS/Android): no Node.js fs available — use browser language as best guess.
+    // Obsidian on mobile runs in a WebView where navigator.language reflects the app locale.
+    const lang = (typeof navigator !== "undefined" && navigator.language) || "en";
+    return lang.toLowerCase().startsWith("zh") ? "zh" : "en";
+  }
   try {
     const fs = require("fs");
     const os = require("os");
@@ -24,12 +29,9 @@ function _detectLanguage(): string {
     if (process.platform === "darwin") {
       candidates.push(path.join(home, "Library/Application Support/obsidian/obsidian.json"));
     } else if (process.platform === "win32") {
-      // Primary: %APPDATA%\obsidian\obsidian.json
       const appdata = process.env.APPDATA;
       if (appdata) candidates.push(path.join(appdata, "obsidian/obsidian.json"));
-      // Fallback: home\AppData\Roaming\obsidian\obsidian.json (equivalent to APPDATA)
       candidates.push(path.join(home, "AppData/Roaming/obsidian/obsidian.json"));
-      // Portable Obsidian fallback: home\.obsidian\obsidian.json
       candidates.push(path.join(home, ".obsidian/obsidian.json"));
     } else {
       candidates.push(path.join(home, ".config/obsidian/obsidian.json"));
