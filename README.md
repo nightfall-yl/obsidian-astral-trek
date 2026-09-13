@@ -1,10 +1,6 @@
 # Astra — Obsidian 个人工作台插件
 
-**Astra** is an Obsidian plugin that consolidates quick capture, task & project
-management, note statistics, and a calendar into a single dashboard page. All
-data is stored locally as Markdown files with Chinese frontmatter keys — no
-external service or account required. This README is in Chinese; please file
-issues in English or Chinese.
+**Astra** is an Obsidian plugin that consolidates quick capture, task & project management, note statistics, and a calendar into a single dashboard page. All data is stored locally as Markdown files with Chinese frontmatter keys — no external service or account required. This README is in Chinese; please file issues in English or Chinese.
 
 Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管理 / 笔记统计 / 日历」收进一个页面，数据全部存在本地文件里，不依赖任何外部服务或账号。
 
