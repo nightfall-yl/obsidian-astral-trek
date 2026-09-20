@@ -1,6 +1,6 @@
 # Astra
 
-> Your personal Obsidian workspace — quick capture, task & project management, writing stats, and calendar, all on one page.
+Your personal workspace — quick capture, task & project management, writing stats, and calendar, all on one page.
 
 [![Version](https://img.shields.io/badge/version-26.1.5-blue)](https://github.com/nightfall-yl/obsidian-astral-trek) | [![Obsidian](https://img.shields.io/badge/Obsidian-1.11.0%2B-purple)](https://obsidian.md) | [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
