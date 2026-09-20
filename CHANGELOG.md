@@ -4,6 +4,18 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
+## [26.1.6-preview] - 2026-09-20
+
+### 修复
+
+- **倒计时模块**：已完成 / 到期的 event 无法删除（根本原因：CountdownModal 缺少删除按钮；`parseCountdownDate` 硬编码留空回退下一年 1 月 1 日）。修复：① 倒计时设置弹窗新增红色「删除」按钮（仅当已有配置时显示），点击清空 `eventName` + `targetDate`；② `parseCountdownDate` 返回类型改为 `Date | null`，不再强制回退；③ 卡片正文增加空态（未设置时显示引导文案）
+- **热力图副标题**：「近 xx 周」两处硬编码中文未翻译（初始化 52 周文案、自适应窗口周数文案），改为引用已存在的 `dv.heatmap.subtitle` 字典 key（`近 {n} 周` / `Past {n} weeks`）
+
+### 新增
+
+- **i18n key**：`dv.delete`（通用「删除」按钮文案）、`dv.countdown.emptyHint`（倒计时空态引导文案）
+- **CSS**：`.ad-modal-btn--danger` 红色危险按钮样式、`.astra-modules-grid .ad-cd__empty` 倒计时空态样式
+
 ## [26.1.5] - 2026-09-13
 
 ### 修复

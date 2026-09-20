@@ -1985,6 +1985,13 @@
   color: var(--astra-accent-green);
 }
 
+.astra-modules-grid .ad-cd__empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--astra-text-muted);
+  font-size: 13px;
+}
+
 /* ==================== 全部项目视图（ProjectBoardView）==================== */
 /* 独立 ItemView，容器不在 .astra-dashboard 内，故在此补全 --astra-* 变量。 */
 .po-board-view,
@@ -4234,6 +4241,15 @@ input[type="date"].ad-modal-input { cursor: pointer; }
   font-weight: 600;
 }
 .ad-modal-btn--primary:hover { filter: brightness(1.08); }
+.ad-modal-btn--danger {
+  background: transparent;
+  color: var(--astra-accent-red);
+  border-color: color-mix(in srgb, var(--astra-accent-red) 45%, var(--ad-line));
+}
+.ad-modal-btn--danger:hover {
+  background: color-mix(in srgb, var(--astra-accent-red) 12%, transparent);
+  border-color: var(--astra-accent-red);
+}
 
 /* utility: double-class specificity to beat component display rules */
 .ad-hidden.ad-hidden { display: none; }

@@ -57,6 +57,18 @@ export class CountdownModal extends Modal {
     const btns = contentEl.createDiv({ cls: "ad-modal-btns" });
     btns.createEl("button", { cls: "ad-modal-btn", text: $t("dv.cancel") })
       .addEventListener("click", () => this.close());
+    // 删除按钮：仅当已有倒计时配置时显示
+    if (cfg.eventName || cfg.targetDate) {
+      btns.createEl("button", { cls: "ad-modal-btn ad-modal-btn--danger", text: $t("dv.delete") })
+        .addEventListener("click", () => {
+          this.opts.plugin.data.settings.countdown = { eventName: "", targetDate: "" };
+          void (async () => {
+            await this.opts.plugin.saveData(this.opts.plugin.data);
+            this.opts.onApply?.();
+            this.close();
+          })();
+        });
+    }
     btns.createEl("button", { cls: "ad-modal-btn ad-modal-btn--primary", text: $t("dv.save") })
       .addEventListener("click", () => {
         const name = String(nameInput.value || "").trim();

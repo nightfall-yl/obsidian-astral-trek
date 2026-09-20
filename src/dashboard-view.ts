@@ -421,7 +421,7 @@ export class AstraDashboardView extends ItemView {
     this.hmSubtitleEl = activitySurface.querySelector(
       ".astra-surface-header span"
     );
-    if (this.hmSubtitleEl) this.hmSubtitleEl.setText(`近 52 周`);
+    if (this.hmSubtitleEl) this.hmSubtitleEl.setText($t("dv.heatmap.subtitle", { n: 52 }));
     this.addHeatmapSettingsButton(activitySurface);
     this.renderHeatmap(activitySurface);
 
@@ -766,7 +766,7 @@ export class AstraDashboardView extends ItemView {
 
     // 副标题同步窗口文案（随可见周数变化）
     if (this.hmSubtitleEl) {
-      this.hmSubtitleEl.setText(`近 ${weeks} 周`);
+      this.hmSubtitleEl.setText($t("dv.heatmap.subtitle", { n: weeks }));
     }
   }
 
@@ -1657,14 +1657,32 @@ export class AstraDashboardView extends ItemView {
 
   private renderCountdownBody(surface: HTMLElement): void {
     const cfg = this.plugin.data.settings.countdown;
-    const target = this.parseCountdownDate(cfg.targetDate);
+    const name = (cfg.eventName ?? "").trim();
+    const dateStr = (cfg.targetDate ?? "").trim();
+
+    // 空态：没有有效配置时显示引导
+    if (!name || !dateStr) {
+      const cd = surface.createDiv("ad-cd");
+      const hint = cd.createDiv("ad-cd__empty");
+      hint.setText($t("dv.countdown.emptyHint"));
+      return;
+    }
+
+    const target = this.parseCountdownDate(dateStr);
+    if (!target) {
+      const cd = surface.createDiv("ad-cd");
+      const hint = cd.createDiv("ad-cd__empty");
+      hint.setText($t("dv.countdown.emptyHint"));
+      return;
+    }
+
     const now = new Date();
     const today = this.startOfDay(now);
     const targetDay = this.startOfDay(target);
     const diffDays = Math.round((targetDay.getTime() - today.getTime()) / 86400000);
 
     const cd = surface.createDiv("ad-cd");
-    cd.createDiv({ cls: "ad-cd__sub", text: `距离 ${cfg.eventName}` });
+    cd.createDiv({ cls: "ad-cd__sub", text: `距离 ${name}` });
 
     if (diffDays > 0) {
       const periodStart = new Date(target.getFullYear() - 1, target.getMonth(), target.getDate());
@@ -1788,7 +1806,8 @@ export class AstraDashboardView extends ItemView {
     show(this.dailyPhraseState.index);
   }
 
-  private parseCountdownDate(s: string): Date {
+  /** 解析 ISO yyyy-mm-dd 为目标 Date（当地 0 点）；非法或留空返回 null */
+  private parseCountdownDate(s: string): Date | null {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec((s ?? "").trim());
     if (m) {
       const y = parseInt(m[1]!, 10);
@@ -1797,7 +1816,7 @@ export class AstraDashboardView extends ItemView {
       const dt = new Date(y, mo, d);
       if (!Number.isNaN(dt.getTime()) && dt.getFullYear() === y && dt.getDate() === d) return dt;
     }
-    return new Date(new Date().getFullYear() + 1, 0, 1);
+    return null;
   }
 
   /** 取某日当地 0 点，用于按「天」比较 */

@@ -42,6 +42,7 @@ export default {
   "dv.tab.settings": "Settings",
   "dv.save": "Save",
   "dv.cancel": "Cancel",
+  "dv.delete": "Delete",
   "dv.deleteTask": "Delete Task",
   "dv.deleteConfirm": "Are you sure you want to delete this task?",
   "dv.export": "Export",
@@ -819,7 +820,8 @@ export default {
   "dv.priority.importantNot": "🟡 Important, not urgent",
   "dv.priority.urgentNot": "🔵 Urgent, not important",
   "dv.priority.neither": "⚪ Neither important nor urgent",
-  "dv.countdown.cardHint": "The countdown card shows \"{days} days until {event}\" with a yearly progress bar."
+  "dv.countdown.cardHint": "The countdown card shows \"{days} days until {event}\" with a yearly progress bar.",
+  "dv.countdown.emptyHint": "No countdown set — click the gear icon to add one"
 ,
   "dv.pm.titleNew": "New project",
   "dv.pm.titleEdit": "Edit project",

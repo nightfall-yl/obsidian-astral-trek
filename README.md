@@ -1,110 +1,114 @@
-# Astra — Obsidian 个人工作台插件
+# Astra
 
-**Astra** is an Obsidian plugin that consolidates quick capture, task & project management, note statistics, and a calendar into a single dashboard page. All data is stored locally as Markdown files with Chinese frontmatter keys — no external service or account required. This README is in Chinese; please file issues in English or Chinese.
+> Your personal Obsidian workspace — quick capture, task & project management, writing stats, and calendar, all on one page.
 
-Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管理 / 笔记统计 / 日历」收进一个页面，数据全部存在本地文件里，不依赖任何外部服务或账号。
+[![Version](https://img.shields.io/badge/version-26.1.5-blue)](https://github.com/nightfall-yl/obsidian-astral-trek) | [![Obsidian](https://img.shields.io/badge/Obsidian-1.11.0%2B-purple)](https://obsidian.md) | [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-插件 ID：`astral-trek`（安装目录为 `.obsidian/plugins/astral-trek/`）。
+[简体中文](README_zh-CN.md) | English
 
-## 功能
+Astra is an Obsidian plugin that consolidates quick capture, task & project management, writing statistics, and a calendar into a single dashboard. All data is stored locally as plain Markdown files — no external service or account required.
 
-### 主页
+Plugin ID: `astral-trek` (install directory: `.obsidian/plugins/astral-trek/`).
 
-常驻顶部栏包含：时段问候（可自定义姓名）、`仓库名 · N 篇笔记 · X 字数` 统计、日期 / 时间 / 农历（每 30 秒刷新）、返回主页与打开设置按钮。
+## Features
 
-- **快捷链接**：自定义顶部快捷入口。每条链接支持 `label` + `图标（Lucide 图标名）` + `url`（笔记名或路径）或 `action`（命令 ID，填写后优先执行命令）；空列表时显示「添加常用链接入口」占位
+### Dashboard
 
-- **写作活动热力图**：GitHub 绿配色的 52 周热力图，统计近 52 周写作活动；空格子与四级绿色分级，今天带边缘光晕，点击有笔记的色块可查看当日笔记明细
+A persistent top bar shows: time-of-day greeting (customizable name), `vault · N notes · X words` stats, date/time/lunar date (refreshes every 30s), and home/settings buttons.
 
-- **快速捕获（闪念胶囊）**：输入框 + 发送按钮，`Cmd/Ctrl + Enter` 快捷提交，内容统一追加写入设置中指定的单个笔记文件
+- **Quick Links** — Custom shortcuts in the top bar. Each link supports `label` + `icon` (Lucide icon name) + `url` (note path) or `action` (command ID, takes priority). Shows a placeholder when empty.
 
-- **TODO**：每日任务，逾期置顶 + 优先级排序；右键菜单管理，支持单日延后、单日完成 / 不做；重复任务不切换状态、按规则推进下次提醒日期
+- **Writing Heatmap** — GitHub-green 52-week heatmap tracking recent writing activity. Four-level green gradient, empty cells for inactive days, today highlighted with edge glow. Click any active cell to view that day's notes.
 
-- **任务进展**：本周任务清单 + 逾期任务提醒
+- **Quick Capture (Flomo)** — Input box + send button, `Cmd/Ctrl + Enter` to submit. Content is appended to a single configured note file.
 
-- **项目情况**：阶段管道（阶段名与数量可在设置里自定义，4–6 段），点击项目行跳转到「全部项目」并选中该项目
+- **Tasks (Today)** — Daily tasks with overdue items pinned to top and priority sorting. Right-click menu for postpone/complete/skip; recurring tasks do not toggle status but advance their next reminder date.
 
-- **倒计时**：年度剩余天数 / 周数 / 完成百分比（支持自定义事件名称与目标日期）
+- **Task Progress (Weekly)** — This week's task list + overdue reminders.
 
-- **最近笔记**：模块网格末尾的常驻卡片
+- **Project Stage Pipeline** — Stage columns (names and counts customizable in settings, 4–6 stages). Clicking a project row jumps to the full Project Board with that project selected.
 
-主页模块支持**拖拽排序、拖到编辑条垃圾桶删除、缩放卡片宽高、从「＋添加卡片」菜单新增**，顺序 / 显隐 / 尺寸持久化到插件数据；移动端可通过设置单独隐藏指定模块（快捷链接与热力图始终显示）。
+- **Countdown** — Remaining days / weeks / completion percentage of the year (customizable event name and target date).
 
-### 快速捕获 / 全部便签
+- **Recent Notes** — Persistent card at the end of the module grid.
 
-- 瀑布流时间线，按天分组展示
+Dashboard modules support **drag-to-reorder, drag-to-delete (trash icon in edit bar), card resize, and adding new cards from the "+ Add Card" menu**. Order, visibility, and size are persisted. On mobile, individual modules can be hidden in settings (Quick Links and Heatmap are always visible).
 
-- 顶栏搜索框：支持关键词、排除词、`#标签`、`after:/before:/date:` 日期等检索式（防抖搜索），命中关键词高亮
+### Quick Capture / All Flomos
 
-- 视图密度切换（紧凑 / 宽松）
+- **Waterfall timeline**, grouped by date.
 
-- 左侧栏：笔记 / 标签 / 天数统计 + 预设筛选（全部笔记、置顶、收藏、今天、本周、待办、回顾、无标签、有图片、有链接）+ 层级标签树筛选
+- **Top bar search**: keyword, exclusion terms, `#tags`, `after:/before:/date:` date operators (debounced). Matching keywords highlighted.
 
-- 置顶 / 收藏：通过 `#置顶`、`#收藏` 标签实现
+- **View density toggle** (compact / relaxed).
 
-- 编辑（含日期 / 时间修改）、删除、右键菜单
+- **Left sidebar**: notes / tags / days stats + preset filters (All, Pinned, Favorites, Today, This Week, To-Do, Review, Untagged, Has Images, Has Links) + hierarchical tag tree filter.
 
-- 导出当前筛选结果为 Markdown / HTML / JSON，写入快速捕获文件同级目录下的 `exports/` 子目录，Markdown 结果自动打开预览
+- **Pin / Favorite**: implemented via `#pinned` / `#favorite` tags.
 
-### 全部项目
+- **Edit (incl. date/time modify)**, delete, right-click menu.
 
-左侧项目侧栏（拖拽排序、右键删除、点击阶段快进），主面板四个标签页：
+- **Export** current filtered results as Markdown / HTML / JSON to an `exports/` subdirectory next to the quick-capture file. Markdown export auto-opens preview.
 
-- **甘特图**：SVG 时间轴，日 / 周 / 月 / 季度缩放，今日线居中；拖拽改起止日期、跨项目移动任务、按状态多选筛选；悬浮时间块左右边缘可拖拽调整开始 / 结束时间
+### Project Board
 
-- **列表**：列排序、状态筛选、右键菜单，虚拟列表滚动优化
+Left sidebar (drag-to-reorder, right-click delete, click stage to fast-forward), main panel with four tabs:
 
-- **日历**：月视图，格子内任务条，拖拽改截止日期
+- **Gantt** — SVG timeline with day/week/month/quarter zoom, today line centered. Drag to change start/end dates, move tasks across projects, filter by status with multi-select. Drag the left/right edges of a time block to adjust duration.
 
-- **看板**：待办 / 进行中 / 已阻塞 / 已完成 / 已取消，跨列拖拽即改状态
+- **List** — Column sorting, status filter, right-click menu, virtualized list scrolling.
 
-### 日历
+- **Calendar** — Month view with task bars inside cells, drag to change due date.
 
-侧边栏月视图（可在设置中指定左 / 右侧边栏）：
+- **Kanban** — To Do / In Progress / Blocked / Done / Cancelled, drag across columns to change status.
 
-- **字数点阵**：按每日笔记字数（`wordsPerDot`，默认 250）映射最多 5 个点
+### Calendar
 
-- 点击日期打开对应日记；日记不存在时按设置决定是否确认后创建
+Sidebar month view (position configurable in settings, left or right):
 
-- 日期右键菜单：已有日记可打开 / 删除，无日记时可新建
+- **Word-count dots** — Up to 5 dots per day mapped from daily note word count (`wordsPerDot`, default 250).
 
-- 可高亮今日
+- Click a date to open the daily note; creates one with confirmation if it doesn't exist (configurable).
 
-## 命令
+- Date right-click menu: open / delete existing, or create new if absent.
 
-本插件不注册任何命令。通过左侧边栏的 Ribbon 图标打开：
+- Today highlighting supported.
 
-- **打开 Astra**：打开 Astra 主页
+## Commands
 
-- **打开日历**：在侧边栏打开日历视图
+Astra registers no commands. Open it via the ribbon icon:
 
-## 设置
+- **Open Astra** — Open the Astra dashboard.
 
-设置同时以「插件设置页」和首页右上角「设置」弹窗两种方式提供，内容一致：
+- **Open Calendar** — Open the calendar view in the sidebar.
 
-- **基础**：问候名称、启动时打开首页、启动方式（替换当前标签 / 新标签）、空白或极短阈值、排除文件夹、启用光标位置（记住每个文件的光标位置和滚动状态）
+## Settings
 
-- **主页模块**：项目文件夹、TODO 扫描文件夹（留空 = 整个仓库）、阶段命名、项目进度筛选阶段、快速捕获文件（统一追加写入的笔记文件，输入联想选择，不存在会自动创建）
+Settings are available both as an Obsidian plugin settings tab and via the gear icon in the dashboard header (identical content):
 
-- **移动端模块显隐**：分别开关快速捕获 / TODO / 本周待办 / 项目情况 / 倒计时 / 最近笔记在移动端是否显示
+- **General** — Greeting name, open dashboard on startup, startup behavior (replace current tab / new tab), blank/very-short threshold, excluded folders, enable cursor position (remember each file's cursor position and scroll state).
 
-- **日历**：侧边栏位置、创建日记前是否确认
+- **Dashboard Modules** — Projects folder, TODO scan folder (empty = entire vault), stage names, stage filter for project progress, quick-capture file (the single note to append into; input with autocomplete, auto-created if missing).
 
-- **强制视图**：按文件夹 / 文件规则自动设置视图模式（`obsidianUIMode` / `obsidianEditingMode`），可忽略已打开文件或未指定 frontmatter 的文件
+- **Mobile Module Visibility** — Toggle each module (Quick Capture / Tasks / Weekly / Projects / Countdown / Recent Notes) independently on mobile.
 
-## 数据格式
+- **Calendar** — Sidebar position, confirm before creating daily note.
 
-数据不进数据库，全部是 Vault 里的 Markdown 文件 + 中文 frontmatter 键名。
+- **Forced View** — Auto-set view mode (`obsidianUIMode` / `obsidianEditingMode`) per folder/file rule, with options to skip already-open files or files without frontmatter.
 
-- **快速捕获条目** = 单文件按天分组：`## YYYY-MM-DD 周X` 日期标题，下接 `- HH:MM 内容` 列表项，多行内容通过缩进并入同一条目（追加写入；支持 `#标签`、图片 / 链接自动识别）
+## Data Format
 
-- **项目** = `项目文件夹/` 目录，内含 `project-{项目名}.md` 存项目元信息
+No database — everything is Markdown files in your vault, with Chinese frontmatter keys.
 
-- **任务** = 项目文件夹内的 `.md` 文件（`project-*.md` 除外）
+- **Quick capture entries** — Single file grouped by date: `## YYYY-MM-DD Day` headings, each followed by `- HH:MM content` list items. Multi-line content joins via indentation. Supports `#tags`, image/link auto-detection.
 
-- **每日节点** = 任务正文 `## 每日节点` 列表，格式 `YYYY-MM-DD ✅/📝/⏭️ 备注`（✅ 完成 / 📝 备注 / ⏭️ 跳过）
+- **Projects** — A `projects/` folder containing `project-{name}.md` for project metadata.
 
-任务文件示例：
+- **Tasks** — `.md` files inside the projects folder (except `project-*.md`).
+
+- **Daily nodes** — A `## Daily Nodes` list inside task bodies, format: `YYYY-MM-DD ✅/📝/⏭️ note` (✅ done / 📝 note / ⏭️ skipped).
+
+Example task file:
 
 ```yaml
 ---
@@ -115,11 +119,11 @@ Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管�
 项目: MyProject
 tags: ["任务"]
 类型: 普通            # 普通 / 重复
-# 可选：重复规则、提醒、备注、父任务、完成时间、每日节点
+# Optional: repeat rule, reminder, note, parent task, completion time, daily nodes
 ---
 ```
 
-项目元数据 `project-{项目名}.md`：
+Project metadata `project-{name}.md`:
 
 ```yaml
 ---
@@ -127,20 +131,24 @@ tags: ["任务"]
 项目类型: 阶段项目     # 阶段项目 / 非阶段项目
 颜色: "#3b82f6"
 tags: [配置]
-描述: 项目描述
+描述: Project description
 开始日期: 2026-01-01
 结束日期: 2026-06-30
 ---
 ```
 
-## 开发
+## Installation
+
+Place the build artifacts (`main.js`, `manifest.json`, `styles.css`, or the copies inside `dist/`) into `<your-vault>/.obsidian/plugins/astral-trek/`, then run **Reload app without saving** from the Obsidian command palette (or restart Obsidian).
+
+## Development
 
 ```bash
-npm install      # 安装依赖
-npm run dev      # 监听编译，产物输出到仓库根目录 main.js / styles.css
-npm run build    # 类型检查 + 生产构建，并把 main.js / manifest.json / styles.css 同步到 dist/
+npm install      # install dependencies
+npm run dev      # watch mode, output to repo root main.js / styles.css
+npm run build    # type check + production build, sync main.js / manifest.json / styles.css to dist/
 ```
 
-## 安装
+## License
 
-将构建产物（`main.js`、`manifest.json`、`styles.css`，可直接使用 `dist/` 内的副本）放入 `<你的库>/.obsidian/plugins/astral-trek/` 目录，然后在 Obsidian 命令面板执行 **Reload app without saving**（或重启 Obsidian）即可。
+[MIT](LICENSE)

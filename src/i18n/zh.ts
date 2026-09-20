@@ -42,6 +42,7 @@ export default {
   "dv.tab.settings": "设置",
   "dv.save": "保存",
   "dv.cancel": "取消",
+  "dv.delete": "删除",
   "dv.deleteTask": "删除任务",
   "dv.deleteConfirm": "确定要删除该任务吗？",
   "dv.export": "导出",
@@ -820,7 +821,8 @@ export default {
   "dv.priority.urgentNot": "🔵 紧急不重要",
   "dv.priority.neither": "⚪ 不重要不紧急"
 ,
-  "dv.countdown.cardHint": "倒计时卡片将显示『距离 {event} 还有 {days} 天』，并附带年度进度条。"
+  "dv.countdown.cardHint": "倒计时卡片将显示『距离 {event} 还有 {days} 天』，并附带年度进度条。",
+  "dv.countdown.emptyHint": "未设置倒计时 — 点击右上角齿轮添加"
 ,
   "dv.pm.titleNew": "新建项目",
   "dv.pm.titleEdit": "编辑项目",
