@@ -262,7 +262,8 @@ export class ProjectBoardPanel {
       const stageMinW = Math.max(20, Math.min(36, Math.floor(160 / stages.length)));
       const gap = Math.max(1, Math.floor(4 / (stages.length / 4)));
       bar.style.gap = `${gap}px`;
-      bar.style.setProperty("--pip-w", stageMinW + "px");
+            bar.style.setProperty("--pip-w", stageMinW + "px");
+      bar.style.setProperty("--proj-color", proj.color || "#40c463");
       bar.style.setProperty("--pip-gap", gap + "px");
 
       stages.forEach((label, i) => {
@@ -310,10 +311,9 @@ export class ProjectBoardPanel {
       cls:
         "po-sidebar__item" + (this.selectedProject === null ? " is-active" : "")
     });
-    allItem.createSpan({
-      cls: "po-dot",
-      attr: { style: "background:var(--astra-accent-blue);color:var(--astra-accent-blue)" }
-    });
+    const allIcon = allItem.createDiv();
+    setIcon(allIcon, "folder-kanban");
+    allIcon.addClass("po-tab__icon");
     allItem.createSpan({ text: $t("dv.pb.actions.allProjects") });
     allItem.createSpan({ cls: "po-count", text: totalActive + "/" + totalTasks });
     this.listen(allItem, "click", () => {
@@ -327,10 +327,9 @@ export class ProjectBoardPanel {
         cls:
           "po-sidebar__item" + (this.selectedProject === p.name ? " is-active" : "")
       });
-      item.createSpan({
-        cls: "po-dot",
-        attr: { style: "background:" + p.color + ";color:" + p.color }
-      });
+      const pIcon = item.createDiv();
+      setIcon(pIcon, "folder");
+      pIcon.addClass("po-tab__icon");
       item.createSpan({ text: p.name });
       item.createSpan({ cls: "po-count", text: p.activeCount + "/" + p.taskCount });
       this.listen(item, "click", () => {

@@ -1485,6 +1485,7 @@ export class AstraDashboardView extends ItemView {
       const stageGap = Math.max(1, Math.floor(4 / (projStages.length / 4)));
       stageNodes.style.setProperty("--pip-w", stageMinW + "px");
       stageNodes.style.setProperty("--pip-gap", stageGap + "px");
+      stageNodes.style.setProperty("--proj-color", p.color || "#40c463");
       projStages.forEach((label, i) => {
         // 点击哪个阶段，它及其之前的阶段都算"已完成"（前置圆点高亮）
         const isDone = i <= projStage;

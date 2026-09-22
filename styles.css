@@ -67,6 +67,14 @@
   --astra-accent-red: #ef4444;
   --astra-accent-rose: #ec4899;
   --astra-chart-grid: color-mix(in srgb, var(--text-muted) 20%, transparent);
+  /* Astra Pill Item token：让 Dashboard 主视图内所有组件都能解析，不再硬编码 */
+  --ad-accent: var(--interactive-accent, #7BA7FF);
+  --ad-accent-dim: color-mix(in srgb, var(--ad-accent) 18%, transparent);
+  --ad-h1: var(--background-modifier-hover);
+  --ad-line: var(--background-modifier-border);
+  --ad-text: var(--text-normal);
+  --ad-text-mute: var(--text-muted);
+  --ad-r1: 4px; --ad-r2: 6px; --ad-r3: 8px;
   box-sizing: border-box;
   width: min(100%, 1480px);
   min-height: 100%;
@@ -192,16 +200,18 @@
 .astra-plugin-shortcut {
   display: flex;
   min-width: max-content;
-  height: 36px;
-  padding: 0 11px 0 7px;
   align-items: center;
-  gap: 8px;
+  height: auto;
+  padding: 6px 8px;
+  gap: 7px;
   color: var(--astra-text-muted);
   border: 1px solid var(--astra-border);
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--astra-bg) 35%, transparent);
-  font-size: 11px;
+  border-radius: var(--ad-r3);
+  background: transparent;
+  font-size: 12px;
   text-decoration: none;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
 .astra-plugin-shortcut:hover {
@@ -474,7 +484,7 @@
   min-width: 20px;
   height: 20px;
   padding: 0 7px;
-  border-radius: 999px;
+  border-radius: 12px;
   font-family: var(--font-monospace, monospace);
   font-size: 11px;
   font-weight: 700;
@@ -1731,7 +1741,7 @@
 .astra-modules-grid .ad-wo__over {
   flex: 0 0 auto;
   padding: 1px 7px;
-  border-radius: 999px;
+  border-radius: 12px;
   font-size: 10px;
   color: var(--astra-accent-red);
   background: color-mix(in srgb, var(--astra-accent-red) 16%, transparent);
@@ -1858,7 +1868,7 @@
   display: none;
 }
 .ad-proj__stage.is-done {
-  --proc-line: #40c463; /* 热图第二色阶绿（亮/暗模式一致，见 --ad-hm-2） */
+  --proc-line: var(--proj-color, var(--astra-accent-blue, #40c463));
 }
 .ad-pip {
   position: relative;
@@ -1870,7 +1880,7 @@
   background: var(--astra-border-strong);
 }
 .ad-proj__stage.is-done .ad-pip {
-  background: #40c463; /* 同上 */
+  background: var(--proj-color, var(--astra-accent-blue, #40c463));
 }
 
 /* 主页卡片：阶段管道（复用全局样式 + 主页专属尺寸） */
@@ -1965,14 +1975,14 @@
 .astra-modules-grid .ad-cd__bar {
   width: 100%;
   height: 8px;
-  border-radius: 999px;
+  border-radius: 12px;
   overflow: hidden;
   background: var(--astra-surface-hover);
 }
 .astra-modules-grid .ad-cd .ad-fill {
   width: 100%;
   height: 100%;
-  border-radius: 999px;
+  border-radius: 12px;
   background: var(--astra-accent-blue);
 }
 .astra-modules-grid .ad-cd__arrived {
@@ -2018,12 +2028,13 @@
      的重定向一致），使独立视图与内嵌面板、跨 Win/Mac 表现统一；#7BA7FF 仅作变量缺失时的兜底。 */
   --ad-s1: #16181F;
   --ad-s3: #252934;
-  --ad-h1: #1F232E;
-  --ad-line: rgba(255,255,255,0.08);
-  --ad-line-s: rgba(255,255,255,0.14);
-  --ad-text: #E8E6E0;
-  --ad-text-mute: #92959E;
-  --ad-text-dim: #5E6068;
+  /* Astra Pill Item 核心 token 改为跟随 Obsidian 主题变量（不再硬编码暗色/亮色值） */
+  --ad-h1: var(--background-modifier-hover);
+  --ad-line: var(--background-modifier-border);
+  --ad-line-s: var(--background-modifier-border-hover);
+  --ad-text: var(--text-normal);
+  --ad-text-mute: var(--text-muted);
+  --ad-text-dim: var(--text-faint);
   --ad-accent: var(--interactive-accent, #7BA7FF);
   --ad-accent-dim: color-mix(in srgb, var(--ad-accent) 18%, transparent);
   --ad-accent-2: #A78BFA;
@@ -2052,14 +2063,7 @@
 body.theme-light .ad-task-modal {
   --ad-s1: oklch(1 0 0);
   --ad-s3: oklch(0.94 0 0);
-  --ad-h1: oklch(0.97 0 0);
-  --ad-line: oklch(0.92 0 0);
-  --ad-line-s: oklch(0.86 0 0);
-  --ad-text: oklch(0.13 0 0);
-  --ad-text-mute: oklch(0.44 0 0);
-  --ad-text-dim: oklch(0.56 0 0);
-  /* --ad-accent / --ad-accent-dim 故意不再覆盖：继承基础块的 var(--interactive-accent)，
-     使亮色下同样跟随主题，与嵌入态表现一致（上游近黑强调色会导致亮色下与嵌入态分裂） */
+  /* Astra Pill Item 核心 token 已统一到基础块的 Obsidian 变量，亮色覆盖块不再重复声明 */
   --ad-accent-2: oklch(0.81 0.17 75.35);
   --ad-on-accent: oklch(1 0 0);
   --ad-r1: 4px; --ad-r2: 6px; --ad-r3: 8px;
@@ -2098,31 +2102,42 @@ body.theme-light .ad-task-modal {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   padding: 0 8px;
   overflow-y: auto;
 }
 .po-sidebar__item {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px 10px;
+  gap: 10px;
+  padding: 7px 12px;
+  margin: 1px 2px;
   border-radius: var(--ad-r1);
   cursor: pointer;
   border: 1px solid transparent;
-  font-size: 12px;
+  background: transparent;
+  font-size: 13px;
   color: var(--ad-text-mute);
-  transition: all 0.12s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 .po-sidebar__item:hover {
   background: var(--ad-h1);
+  border-radius: var(--ad-r3);
   border-color: var(--ad-line);
+  color: var(--ad-text);
 }
 .po-sidebar__item.is-active {
   background: var(--ad-accent-dim);
-  border-color: color-mix(in srgb, var(--ad-accent) 25%, transparent);
-  color: var(--ad-text);
+  border-radius: var(--ad-r3);
+  border-color: color-mix(in srgb, var(--ad-accent) 30%, transparent);
+  color: var(--ad-accent);
   font-weight: 500;
+}
+.po-sidebar__item .po-tab__icon {
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 .po-sidebar__item--dragging {
   opacity: 0.4;
@@ -2138,12 +2153,9 @@ body.theme-light .ad-task-modal {
   box-shadow: 0 0 6px currentColor;
 }
 .po-count {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--ad-text-dim);
-  font-family: var(--font-monospace, monospace);
-  background: var(--ad-s3);
-  padding: 2px 7px;
-  border-radius: 8px;
+  font-variant-numeric: tabular-nums;
   margin-left: auto;
 }
 .po-add-btn {
@@ -2152,12 +2164,13 @@ body.theme-light .ad-task-modal {
   gap: 7px;
   padding: 9px 14px;
   margin: 8px 8px 2px;
-  border-radius: var(--ad-r1);
-  border: 1px dashed var(--ad-line);
+  border-radius: var(--ad-r3);
+  border: 1px solid var(--ad-line);
   background: transparent;
   color: var(--ad-text-dim);
   cursor: pointer;
   font-size: 11px;
+  border-color: var(--ad-line);
   transition: all 0.12s ease;
 }
 .po-add-btn:hover {
@@ -2831,9 +2844,7 @@ body.theme-light .ad-task-modal {
    与上游独立视图一致——区域间靠底色层次区分。 */
 .po-board-host.po-board-view .po-gantt__left,
 .po-board-host.po-board-view .po-table th,
-.po-board-host.po-board-view .po-count,
-.po-board-host.po-board-view .po-sidebar__item:hover,
-.po-board-host.po-board-view .po-sidebar__item.is-active {
+.po-board-host.po-board-view .po-count {
   background: transparent;
 }
 /* 嵌入态保留上游「奇偶月交替底色」：band-even 透明、band-odd 一层极淡填充，
@@ -2859,14 +2870,7 @@ body.theme-dark .po-board-host.po-board-view .po-gantt__band-odd {
 .po-board-host.po-board-view .po-gantt__label-row {
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
-/* 保持 hover/active 项的可识别性：用边框代替背景 */
-.po-board-host.po-board-view .po-sidebar__item:hover {
-  border-color: var(--background-modifier-border-hover);
-}
-.po-board-host.po-board-view .po-sidebar__item.is-active {
-  border-color: var(--interactive-accent);
-  color: var(--text-normal);
-}
+
 .po-board-host.po-board-view .po-chip.is-active {
   background: var(--ad-accent-dim);
   border-color: color-mix(in srgb, var(--ad-accent) 30%, transparent);
@@ -3013,13 +3017,15 @@ body.is-mobile .flomo-shell .flomo-sidebar {
 }
 .flomo-nav-item:hover {
   background: var(--ad-h1);
+  border-radius: var(--ad-r3);
   border-color: var(--ad-line);
   color: var(--ad-text);
 }
 .flomo-nav-item.active {
   background: var(--ad-accent-dim);
-  border-color: color-mix(in srgb, var(--ad-accent) 25%, transparent);
-  color: var(--ad-text);
+  border-radius: var(--ad-r3);
+  border-color: color-mix(in srgb, var(--ad-accent) 30%, transparent);
+  color: var(--ad-accent);
   font-weight: 500;
 }
 .flomo-nav-item.active .flomo-nav-count {
@@ -3081,7 +3087,7 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   gap: 4px;
   background: var(--background-modifier-form-field);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 999px;
+  border-radius: 12px;
   padding: 0 8px 0 12px;
   transition: border-color 0.15s;
 }
@@ -3554,7 +3560,7 @@ body.is-mobile .flomo-shell .flomo-sidebar {
 .flomo-tag-pill {
   display: inline-block;
   padding: 1px 8px;
-  border-radius: 999px;
+  border-radius: 12px;
   background: color-mix(in srgb, var(--interactive-accent) 14%, transparent);
   color: var(--interactive-accent);
   font-size: 11px;
