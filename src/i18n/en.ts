@@ -475,8 +475,6 @@ export default {
   "p4.10050": "⚠️ Delete failed",
   "p4.10051": "⚠️ Image import failed",
   "p4.10052": "Exported from Flomo</footer>",
-  "p4.10053": "Custom top quick links. url points to a note (name or path), action is a command ID (executes first if set). Icon: ",
-  "p4.10054": "Icon name, e.g. home.",
   "p4.10055": "Move up",
   "p4.10056": "Move down",
   "p4.10057": "Name",
@@ -835,7 +833,8 @@ export default {
   "dv.pm.descPlaceholder": "Briefly describe the project goal and scope...",
   "dv.pm.stageLabel": "Project stage"
 ,
-  "ql.intro": "Custom quick links in the top bar. url points to a note (name or path); action is a command ID (takes precedence if set). For icons, use a Lucide icon name, e.g. home.",
+  "ql.intro": "Custom quick links in the top bar. url points to a note (name or path); action is a command ID (takes precedence if set). Icon:",
+  "ql.introPost": " icon name, e.g. home.",
   "ql.moveUp": "Move up",
   "ql.moveDown": "Move down",
   "ql.delete": "Delete",

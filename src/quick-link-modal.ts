@@ -97,7 +97,7 @@ export class QuickLinkModal extends Modal {
       href: "https://lucide.dev/icons/",
       attr: { target: "_blank", rel: "noopener noreferrer" }
     });
-    ;
+    intro.appendText($t("ql.introPost"));
 
     const list = this.contentEl.createDiv("astra-link-editor-list");
 

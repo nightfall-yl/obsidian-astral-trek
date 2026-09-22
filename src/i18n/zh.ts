@@ -475,8 +475,6 @@ export default {
   "p4.10050": "⚠️ 删除失败",
   "p4.10051": "⚠️ 图片导入失败",
   "p4.10052": "由 Flomo 导出</footer>",
-  "p4.10053": "自定义顶部快捷入口。url 指向笔记（笔记名或路径），action 为命令 ID（填写后优先执行命令）。图标填写",
-  "p4.10054": "图标名，如 home。",
   "p4.10055": "上移",
   "p4.10056": "下移",
   "p4.10057": "名称",
@@ -836,7 +834,8 @@ export default {
   "dv.pm.descPlaceholder": "简要描述项目目标和范围…",
   "dv.pm.stageLabel": "项目阶段"
 ,
-  "ql.intro": "自定义顶部快捷入口。url 指向笔记（笔记名或路径），action 为命令 ID（填写后优先执行命令）。图标填写 Lucide 图标名，如 home。",
+  "ql.intro": "自定义顶部快捷入口。url 指向笔记（笔记名或路径），action 为命令 ID（填写后优先执行命令）。图标填写",
+  "ql.introPost": " 图标名，如 home。",
   "ql.moveUp": "上移",
   "ql.moveDown": "下移",
   "ql.delete": "删除",
