@@ -1496,16 +1496,18 @@ export class AstraDashboardView extends ItemView {
         s.createSpan("ad-pip");
         s.appendText(label);
       });
-      // 右侧箭头按钮：点击跳转看板；行其余区域：点击打开编辑弹窗
-      const chev = row.createDiv("ad-proj__chev");
-      setIcon(chev, "chevron-right");
+      // 行点击打开编辑弹窗；右侧箭头点击跳转看板（移动端屏蔽箭头入口，弹窗显示不全）
       this.listen(row, "click", () => {
         this.openProjectEditModal(p);
       });
-      chev.addEventListener("click", (e: MouseEvent) => {
-        e.stopPropagation();
-        void this.navigateProjectBoard(p.name);
-      });
+      if (!Platform.isMobile) {
+        const chev = row.createDiv("ad-proj__chev");
+        setIcon(chev, "chevron-right");
+        chev.addEventListener("click", (e: MouseEvent) => {
+          e.stopPropagation();
+          void this.navigateProjectBoard(p.name);
+        });
+      }
     });
     const sum = proj.createDiv("ad-proj__sum");
     const filterLabel =
@@ -1522,13 +1524,15 @@ export class AstraDashboardView extends ItemView {
     if (header.querySelector(".astra-projects-new-btn")) return;
     // 右上角按钮组（居右排列：右1「新建」、右2「全部项目」图标）
     const actions = header.createDiv("astra-actions");
-    // 「全部项目」图标按钮（仅图标，悬停显示文字）
-    const allBtn = actions.createEl("button", {
-      cls: "astra-projects-all-btn astra-icon-btn clickable-icon",
-      attr: { type: "button", "aria-label": $t("dv.pb.actions.allProjects") }
-    });
-    setIcon(allBtn, "list");
-    this.listen(allBtn, "click", () => void this.navigateProjectBoard(null));
+    // 「全部项目」图标按钮：移动端屏蔽（看板面板显示不全）
+    if (!Platform.isMobile) {
+      const allBtn = actions.createEl("button", {
+        cls: "astra-projects-all-btn astra-icon-btn clickable-icon",
+        attr: { type: "button", "aria-label": $t("dv.pb.actions.allProjects") }
+      });
+      setIcon(allBtn, "list");
+      this.listen(allBtn, "click", () => void this.navigateProjectBoard(null));
+    }
     // 「新建」按钮（纯加号图标）
     const btn = actions.createEl("button", {
       cls: "astra-projects-new-btn astra-icon-btn clickable-icon",

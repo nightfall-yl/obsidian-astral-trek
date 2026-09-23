@@ -834,7 +834,7 @@ export default {
   "dv.pm.descPlaceholder": "简要描述项目目标和范围…",
   "dv.pm.stageLabel": "项目阶段"
 ,
-  "ql.intro": "自定义顶部快捷入口。url 指向笔记（笔记名或路径），action 为命令 ID（填写后优先执行命令）。图标填写",
+  "ql.intro": "自定义顶部快捷入口。url 指向笔记（笔记名或路径），action 为命令 ID（填写后优先执行命令）。图标填写 ",
   "ql.introPost": " 图标名，如 home。",
   "ql.moveUp": "上移",
   "ql.moveDown": "下移",
