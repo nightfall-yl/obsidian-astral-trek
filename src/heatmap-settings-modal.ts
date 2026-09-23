@@ -37,20 +37,20 @@ export class HeatmapSettingsModal extends Modal {
     this.settings.countFieldValue = "";
     this.settings.excludeFolders = ""; // 不再排除文件夹
 
-    this.renderBasicSection(this.contentEl);
-    this.renderDataSourceSection(this.contentEl);
-
-    const actions = this.contentEl.createDiv("astra-settings-actions");
-    const done = actions.createEl("button", {
-      cls: "mod-cta",
-      text: $t("auto.218"),
-      attr: { type: "button" }
-    });
-    done.addEventListener("click", () => {
+    const saveAndClose = () => {
       this.plugin.data.settings.heatmap = this.settings;
       void this.plugin.saveDashboardPreferences();
       this.close();
-    });
+    };
+    this.contentEl.addClass("ad-task-modal");
+    this.contentEl.createEl("h3", { cls: "ad-modal-title", text: $t("dv.heatmap.settingsTitle") });
+
+    this.renderBasicSection(this.contentEl);
+    this.renderDataSourceSection(this.contentEl);
+
+    const btns = this.contentEl.createDiv("ad-modal-btns");
+    btns.createEl("button", { cls: "ad-modal-btn", text: $t("dv.cancel") }).addEventListener("click", () => this.close());
+    btns.createEl("button", { cls: "ad-modal-btn ad-modal-btn--primary", text: $t("dv.save") }).addEventListener("click", saveAndClose);
   }
 
   private renderBasicSection(parent: HTMLElement): void {

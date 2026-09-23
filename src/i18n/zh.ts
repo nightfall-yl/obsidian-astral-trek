@@ -13,6 +13,9 @@ export default {
   "dv.flomo.title": "闪念",
   "dv.projects.title": "项目进度",
   "dv.heatmap.title": "活跃度热力图",
+  "dv.modal.confirm": "确认",
+  "dv.modal.close": "关闭",
+  "dv.heatmap.settingsTitle": "热力图设置",
   "dv.modules.title": "模块",
   "dv.settings.autoScan": "启动时自动扫描",
   "dv.settings.scanHint": "开启后每次打开 Dashboard 会重新扫描知识库，关闭则使用上次缓存。",
@@ -198,7 +201,7 @@ export default {
   "auto.218": "完成",
   "auto.219": "闪念胶囊",
   "auto.220": "任务进展",
-  "auto.221": "项目情况",
+  "auto.221": "项目管理",
   "auto.222": "倒计时",
   "auto.223": "每日口语",
   "auto.224": "还没有任何卡片，点下方「＋ 添加卡片」试试",
@@ -753,7 +756,7 @@ export default {
   "mod.qc": "快速捕获",
   "mod.dailyPhrase": "每日口语",
   "mod.weekly": "任务进展",
-  "mod.projects": "项目情况",
+  "mod.projects": "项目管理",
   "mod.countdown": "倒计时",
   "mod.recent": "最近笔记",
   "set.fileRules.desc": "为匹配特定正则表达式模式的文件设定视图模式。覆盖文件夹规则。",
@@ -820,7 +823,7 @@ export default {
   "dv.priority.neither": "⚪ 不重要不紧急"
 ,
   "dv.countdown.cardHint": "倒计时卡片将显示『距离 {event} 还有 {days} 天』，并附带年度进度条。",
-  "dv.countdown.emptyHint": "未设置倒计时 — 点击右上角齿轮添加"
+  "dv.countdown.emptyHint": "未设置倒计时 — 点击右上角编辑"
 ,
   "dv.pm.titleNew": "新建项目",
   "dv.pm.titleEdit": "编辑项目",
@@ -884,7 +887,7 @@ export default {
 ,
   "dv.header.home": "返回主页",
   "dv.header.openSettings": "打开设置",
-  "dv.header.heatmapSettings": "热图设置"
+  "dv.header.heatmapSettings": "设置热图"
 ,
   "dv.te.title": "任务详情",
   "dv.te.taskName": "任务名称 *",

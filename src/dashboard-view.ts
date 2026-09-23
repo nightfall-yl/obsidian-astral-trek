@@ -969,7 +969,7 @@ export class AstraDashboardView extends ItemView {
     const toolbar = card.createDiv("flomo-input-toolbar qc-toolbar");
     const submit = toolbar.createEl("button", {
       cls: "flomo-submit-btn clickable-icon",
-      attr: { type: "button", "aria-label": "捕获" }
+      attr: { type: "button", "aria-label": "发送" }
     });
     setIcon(submit, "send");
 

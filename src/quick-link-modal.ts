@@ -86,55 +86,33 @@ export class QuickLinkModal extends Modal {
     this.contentEl.empty();
     this.modalEl.addClass("astra-quick-link-modal");
 
-    const header = this.contentEl.createDiv("astra-link-editor-header");
-    header.createEl("h2", { text: $t("auto.331") });
-    const intro = header.createEl("p", {
-      cls: "setting-item-description"
-    });
-    intro.appendText($t("ql.intro"));
-    intro.createEl("a", {
-      text: "Lucide",
-      href: "https://lucide.dev/icons/",
-      attr: { target: "_blank", rel: "noopener noreferrer" }
-    });
-    intro.appendText($t("ql.introPost"));
-
-    const list = this.contentEl.createDiv("astra-link-editor-list");
-
-    if (this.links.length === 0) {
-      list.createDiv({
-        cls: "astra-link-editor-empty",
-        text: $t("auto.332")
-      });
-    } else {
-      this.links.forEach((link, index) => {
-        this.renderRow(list, link, index);
-      });
-    }
-
-    const addBar = this.contentEl.createDiv("astra-link-editor-add");
-    const addBtn = addBar.createEl("button", {
-      cls: "mod-cta",
-      text: $t("auto.333"),
-      attr: { type: "button" }
-    });
-    addBtn.addEventListener("click", () => {
-      this.links.push({ label: $t("auto.334"), url: "" });
-      this.render();
-    });
-
-    const actions = this.contentEl.createDiv("astra-settings-actions");
-    const done = actions.createEl("button", {
-      cls: "mod-cta",
-      text: $t("auto.218"),
-      attr: { type: "button" }
-    });
-    done.addEventListener("click", () => {
+    const saveAndClose = () => {
       const cleaned = this.links.filter((link) => link.label.trim() !== "");
       this.dashboardPlugin.data.settings.quickLinks = cleaned;
       void this.dashboardPlugin.saveDashboardPreferences();
       this.close();
-    });
+    };
+    this.contentEl.addClass("ad-task-modal");
+    this.contentEl.createEl("h3", { cls: "ad-modal-title", text: $t("auto.331") });
+
+    const intro = this.contentEl.createDiv("setting-item-description astra-link-editor-intro");
+    intro.appendText($t("ql.intro"));
+    intro.createEl("a", { text: "Lucide", href: "https://lucide.dev/icons/", attr: { target: "_blank", rel: "noopener noreferrer" } });
+    intro.appendText($t("ql.introPost"));
+
+    const list = this.contentEl.createDiv("astra-link-editor-list");
+    if (this.links.length === 0) {
+      list.createDiv({ cls: "astra-link-editor-empty", text: $t("auto.332") });
+    } else {
+      this.links.forEach((link, index) => this.renderRow(list, link, index));
+    }
+    const addBar = this.contentEl.createDiv("astra-link-editor-add");
+    const addBtn = addBar.createEl("button", { cls: "mod-cta", text: $t("auto.333"), attr: { type: "button" } });
+    addBtn.addEventListener("click", () => { this.links.push({ label: $t("auto.334"), url: "" }); this.render(); });
+
+    const btns = this.contentEl.createDiv("ad-modal-btns");
+    btns.createEl("button", { cls: "ad-modal-btn", text: $t("dv.cancel") }).addEventListener("click", () => this.close());
+    btns.createEl("button", { cls: "ad-modal-btn ad-modal-btn--primary", text: $t("dv.save") }).addEventListener("click", saveAndClose);
   }
 
   private renderRow(

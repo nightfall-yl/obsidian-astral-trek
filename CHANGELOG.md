@@ -4,6 +4,29 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
+## [26.1.7] - 2026-09-24
+
+### 修复
+
+- **发送按钮微信风格（Flomo / 主页快速捕获）**
+  - 输入框空 → 按钮灰胶囊（`background: var(--background-modifier-hover); color: var(--text-faint)`）
+  - 有输入 → 实色胶囊（默认 `.flomo-submit-btn` 定义）
+  - hover/active/focus 全部锁死不额外变色（防止 Obsidian 原生 `.modal button:hover { background: transparent }` 覆盖）
+  - `.flomo-submit-btn:hover` 整条规则被 Obsidian 原生压掉；用祖先类提特异性 + 精确 `!important` 修复
+- **保存按钮（`.ad-modal-btn--primary`）hover 高亮消失**
+  - 方案：`.ad-modal-btn--primary:hover` 显式声明 `background: var(--ad-accent); border-color: var(--ad-accent); filter: brightness(1.08)`
+- **textarea hover 背景变（Obsidian 默认主题特有）**
+  - 使用祖先类提特异性到 0,2,1：`.astra-dashboard .flomo-input:hover` 覆盖主页卡片、`.mod-root .flomo-input:hover` 覆盖弹窗面板
+- **Flomo 弹窗面板搜索框双重框**：给 `.flomo-search-wrap input.flomo-search` 加 `border: none; box-shadow: none`，清除 Obsidian 默认主题强加的 inset box-shadow
+- **i18n 文案修正**：`dv.header.heatmapSettings`「热图设置」→「设置热图」；`dv.countdown.emptyHint`「点击右上角齿轮添加」→「点击右上角编辑」
+- **「项目情况」模块改名「项目管理」**：主页卡片标题 `auto.221` 与设置页模块名 `mod.projects` 两处 i18n 键同步更新（zh：项目情况→项目管理；en：Project Status/Projects→Project Management），主页卡片与设置开关联动一致
+- **移动端按钮高度收窄**：`.ad-modal-btn` 移动端上下 padding `7px`→`4px`（桌面端保持 `7px 16px` 不变）。判定用 `body.is-mobile` + `@media (max-width: 680px)` 双保险，与项目其他移动端规则（如 flomo 侧栏显隐）一致
+
+### 重构（设计系统）
+
+- **.ad-task-modal 成为弹窗统一Shell**：所有 Modal 类弹窗（快捷链接 / 热力图 / 倒计时 / 项目编辑）共享同一份 CSS 定义（padding 18px、border-radius 16px、三行跨平台滚动条隐藏），避免双源漂移
+- **CSS 特异性收敛**：只有 Obsidian 原生也带 `!important` 或加载顺序在我们之后的场景才用 `!important`（如 `.flomo-submit-btn` 四种状态）
+
 ## [26.1.6] - 2026-09-23
 
 ### 修复
@@ -45,7 +68,15 @@
 
 ## [26.1.4] - 2026-09-12
 
-### 新功能
+### 修复
+
+- **快速捕获（Flomo）编辑工具栏重排**
+  - 桌面端：时间输入框独立成行与取消/发送居右对齐，间距 8px
+  - 移动端（<680px）：取消/发送回到工具行，时间输入框占满整行
+  - 时间输入框圆角统一 6px
+- Linter 组「忽略文件夹」→「忽略文件/文件夹」，说明文案更新
+
+### 新增
 
 - **i18n 国际化：支持中文和英文**
   - 新增 `src/i18n/`（index.ts + zh.ts + en.ts），752 字典 key、283 处 `t()` 调用，覆盖全部用户可见 UI（Dashboard 主视图、设置页、Flomo 面板、项目看板、任务弹窗等）
@@ -55,17 +86,9 @@
   - 英文模块标题（Task Progress / Project Status / Daily Phrase）统一标题大小写
   - frontmatter 字段（`状态: 待办` / `优先级: 高`）保持中文不翻译；农历日期双语均显示中文，标签在英文下为 `Lunar`
 
-### 功能与改进
-
-- **快速捕获（Flomo）编辑工具栏重排**
-  - 桌面端：时间输入框独立成行与取消/发送居右对齐，间距 8px
-  - 移动端（<680px）：取消/发送回到工具行，时间输入框占满整行
-  - 时间输入框圆角统一 6px
-- Linter 组「忽略文件夹」→「忽略文件/文件夹」，说明文案更新
-
 ## [26.1.2] - 2026-09-06
 
-### 问题修复
+### 修复
 
 - 主页模块拖拽排序时出现向下偏移超过一个模块的高度的错位：根因是 CSS 优先级冲突——`.astra-modules-grid .astra-surface`（`position: relative`，特异性 `0,2,0`）覆盖了 `.astra-card--dragging`（`position: absolute`，特异性 `0,1,0`），导致被拖卡片未能真正脱流，占位符插入后 dense 网格重排又将其挤下一行，叠加相对偏移形成大幅错位。修复：起手时用内联样式 `card.style.position = "absolute"` 强制脱流（内联优先级最高，无法被样式表覆盖）。
 

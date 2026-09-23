@@ -41,26 +41,26 @@ interface TaskModalOptions {
 	onSave: (data: TaskFormData) => void;
 }
 
-const PRIORITIES = [
+// NOTE: PRIORITIES/STATUSES/TYPES/REPEAT_FREQS 改为运行时求值（函数），
+// 避免模块加载时 initI18n 尚未调用导致 $t() 返回英文 key。
+function getPriorities() { return [
 	{ value: '重要且紧急', label: $t('dv.priority.importantUrgent') },
 	{ value: '重要不紧急', label: $t('dv.priority.importantNot') },
 	{ value: '紧急不重要', label: $t('dv.priority.urgentNot') },
 	{ value: '不重要不紧急', label: $t('dv.priority.neither') },
 	{ value: '', label: $t('auto.767') },
-];
-
-const STATUSES = [
+]; }
+function getStatuses() { return [
 	{ value: 'todo', label: $t('dv.pb.status.todo') },
 	{ value: 'in-progress', label: $t('dv.pb.status.inProgress') },
 	{ value: 'blocked', label: $t('dv.pb.status.blocked') },
 	{ value: 'done', label: $t('dv.pb.status.done') },
 	{ value: 'cancelled', label: $t('dv.pb.status.cancelled') },
-];
-
-const TYPES = [
+]; }
+function getTypes() { return [
 	{ value: 'task', label: $t('dv.t.typeNormal') },
 	{ value: 'recurring', label: $t('dv.t.typeRepeat') },
-];
+]; }
 
 // Repeat frequency — "每年" removed per product decision.
 const REPEAT_FREQS = [
@@ -184,17 +184,17 @@ export class TaskModal extends Modal {
 		const prioCol = row3.createDiv({ cls: 'ad-modal-col' });
 		this.label(prioCol, $t('dv.pb.col.priority'));
 		const prioSel = prioCol.createEl('select', { cls: 'ad-modal-input' });
-		for (const p of PRIORITIES) prioSel.createEl('option', { text: p.label, attr: { value: p.value } });
+		for (const p of getPriorities()) prioSel.createEl('option', { text: p.label, attr: { value: p.value } });
 
 		const statusCol = row3.createDiv({ cls: 'ad-modal-col' });
 		this.label(statusCol, $t('dv.pb.col.status') + ' *');
 		const statusSel = statusCol.createEl('select', { cls: 'ad-modal-input' });
-		for (const s of STATUSES) statusSel.createEl('option', { text: s.label, attr: { value: s.value } });
+		for (const s of getStatuses()) statusSel.createEl('option', { text: s.label, attr: { value: s.value } });
 
 		const typeCol = row3.createDiv({ cls: 'ad-modal-col' });
 		this.label(typeCol, $t('dv.t.typeLabel'));
 		const typeSel = typeCol.createEl('select', { cls: 'ad-modal-input' });
-		for (const t of TYPES) typeSel.createEl('option', { text: t.label, attr: { value: t.value } });
+		for (const t of getTypes()) typeSel.createEl('option', { text: t.label, attr: { value: t.value } });
 
 		// ---- Repeat (conditional, structured) ----
 		const repeatWrap = contentEl.createDiv({ cls: 'ad-modal-row ad-repeat-section ad-hidden' });

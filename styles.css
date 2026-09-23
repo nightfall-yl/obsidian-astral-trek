@@ -843,7 +843,7 @@
   border: 0;
   border-bottom: 1px solid var(--background-modifier-border);
   border-radius: 0;
-  background: var(--background-secondary) !important;
+  background: var(--background-secondary);
   box-shadow: none;
   text-align: left;
   cursor: pointer;
@@ -856,7 +856,7 @@
 /* 非聚焦=background-secondary（随主题），聚焦=background-modifier-hover（比之更深）。
    均加 !important 防止 Obsidian .modal button 默认样式覆盖。仅 hover 高亮 */
 .astra-detail-modal .astra-modal-row:hover {
-  background: var(--background-modifier-hover) !important;
+  background: var(--background-modifier-hover);
 }
 
 /* 压掉 Obsidian 对 <button> 的 focus/active 焦点视觉（inset 阴影/描边），
@@ -933,6 +933,7 @@
 }
 
 /* Settings: root */
+
 .astra-settings-root {
   padding-bottom: var(--size-4-6);
 }
@@ -1049,6 +1050,8 @@
     --modal-background: var(--settings-background);
   }
 }
+
+
 
 .astra-settings-intro {
   margin-top: -8px;
@@ -1386,10 +1389,10 @@
 
 .astra-card--resizing {
   user-select: none;
-  outline: 2px solid var(--interactive-accent) !important;
+  outline: 2px solid var(--interactive-accent);
 }
 .astra-modules-grid.astra-mod-edit .astra-surface.is-limit {
-  outline: 2px solid var(--astra-accent-red) !important;
+  outline: 2px solid var(--astra-accent-red);
   animation: astra-limit-shake 0.18s ease-in-out 2;
 }
 @keyframes astra-limit-shake {
@@ -1550,11 +1553,11 @@
 }
 /* 快速捕获模块卡片本身也需要 overflow: visible，否则输入卡的 focus box-shadow 会被裁剪 */
 .astra-modules-grid .astra-qc-surface {
-  /* 特异性 0-2-0 已高于泛型卡片(0-1-0)，无需 !important */
+  /* 特异性 0-2-0 已高于泛型卡片(0-1-0)，无需 */
   overflow: visible;
 }
-.astra-modules-grid .qc-input-card {
-  /* 0-2-0 > .flomo-input-card(0-1-0)，去 !important 后仍能覆盖其 margin/flex */
+.astra-modules-grid .qc-input-card,
+.astra-modules-grid .qc-input-card:hover {
   margin: 0;
   padding: 14px 16px 10px;
   flex: 1 1 auto;
@@ -1563,6 +1566,7 @@
   flex-direction: column;
   box-sizing: border-box;
   width: 100%;
+  background: var(--background-primary);  /* 悬停也保持和 .flomo-input-card 默认态一致 */
 }
 .astra-modules-grid .qc-input-card .flomo-input {
   flex: 1;
@@ -2112,7 +2116,7 @@ body.theme-light .ad-task-modal {
   gap: 10px;
   padding: 7px 12px;
   margin: 1px 2px;
-  border-radius: var(--ad-r1);
+  border-radius: var(--ad-r3);
   cursor: pointer;
   border: 1px solid transparent;
   background: transparent;
@@ -2593,8 +2597,8 @@ body.theme-light .ad-task-modal {
   background: color-mix(in srgb, var(--astra-accent-blue) 16%, transparent);
 }
 .po-spacer-cell {
-  padding: 0 !important;
-  border: none !important;
+  padding: 0;
+  border: none;
 }
 .po-check {
   display: inline-flex;
@@ -3007,7 +3011,7 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   padding: 7px 12px;
   margin: 1px 2px;
   border: 1px solid transparent;
-  border-radius: var(--ad-r1);
+  border-radius: var(--ad-r3);
   font-size: 13px;
   color: var(--ad-text-mute);
   cursor: pointer;
@@ -3106,9 +3110,9 @@ body.is-mobile .flomo-shell .flomo-sidebar {
 .flomo-search {
   width: 200px;
   padding: 6px 4px;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  border: none;
+  background: transparent;
+  box-shadow: none;
   color: var(--text-normal);
   font-size: 13px;
   outline: none;
@@ -3116,10 +3120,17 @@ body.is-mobile .flomo-shell .flomo-sidebar {
 .flomo-search:focus,
 .flomo-search:hover,
 .flomo-search:active {
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  border: none;
+  background: transparent;
+  box-shadow: none;
   outline: none;
+}
+/* 清除 Obsidian / Minimal 对 .modal input 强加的 inset box-shadow 双重框 */
+.flomo-search-wrap input.flomo-search {
+  border: none;
+  box-shadow: none;
+  outline: none;
+  background: transparent;
 }
 .flomo-topbar-tools {
   display: flex;
@@ -3129,11 +3140,12 @@ body.is-mobile .flomo-shell .flomo-sidebar {
 }
 .flomo-no-transition,
 .flomo-no-transition * {
-  transition: none !important;
+  transition: none;
 }
 
 /* 输入卡 */
-.flomo-input-card {
+.flomo-input-card,
+.flomo-input-card:hover {
   margin: 16px 24px 0;
   padding: 14px 16px 10px;
   border: 1px solid var(--background-modifier-border);
@@ -3156,9 +3168,11 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   opacity: 0.55;
   border-top-color: color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
 }
-.flomo-input-card:not(.is-focused):not(.has-content):not(.is-editing):not(.dragging) .flomo-submit-btn {
-  opacity: 0.7;
-  filter: saturate(0.7);
+.flomo-input-card:not(.has-content) .flomo-submit-btn {
+  background: var(--background-modifier-hover);
+  color: var(--text-faint);
+  filter: none;   /* 清掉祖先层可能叠加的 saturate */
+  opacity: 1;
 }
 .flomo-input {
   width: 100%;
@@ -3179,9 +3193,21 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   overflow-y: auto;
   transition: min-height 0.3s ease;
 }
-.flomo-input:focus,
-.flomo-input:hover,
-.flomo-input:active {
+/* 加祖先类提特异性到 0,2,1 —— 压过 Obsidian 默认主题 .workspace textarea:hover 的 0,2,1 */
+.astra-dashboard .flomo-input,
+.astra-dashboard .flomo-input:hover,
+.astra-dashboard .flomo-input:focus,
+.astra-dashboard .flomo-input:active {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+/* 弹窗面板里的 flomo-input（不在 .astra-dashboard 下） */
+.mod-root .flomo-input,
+.mod-root .flomo-input:hover,
+.mod-root .flomo-input:focus,
+.mod-root .flomo-input:active {
   border: none;
   background: transparent;
   box-shadow: none;
@@ -3250,7 +3276,7 @@ body.is-mobile .flomo-shell .flomo-sidebar {
 /* 提升特异性覆盖主题对 input[type=datetime-local] 的大圆角胶囊样式，
    使其与 ×/发送 保持一致的小圆角（!important 对抗 Obsidian 内置 input 样式） */
 .flomo-edit-datetime[type="datetime-local"] {
-  border-radius: 6px !important;
+  border-radius: 6px;
 }
 .flomo-edit-datetime:hover,
 .flomo-edit-datetime:focus {
@@ -3287,7 +3313,7 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   height: 15px;
 }
 .flomo-hidden {
-  display: none !important;
+  display: none;
 }
 /* 编辑态输入卡高亮 */
 .flomo-input-card.is-editing {
@@ -3322,10 +3348,29 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   width: 16px;
   height: 16px;
 }
-.flomo-submit-btn:hover {
-  background: var(--interactive-accent-hover, var(--interactive-accent));
-  filter: brightness(1.05);
+
+/* 有输入时：悬停/聚焦/点击 都保持实色蓝胶囊 */
+.flomo-submit-btn,
+.flomo-submit-btn:hover,
+.flomo-submit-btn:focus,
+.flomo-submit-btn:active {
+  background: var(--interactive-accent) !important;
+  color: var(--text-on-accent) !important;
+  filter: none !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+  transition: none !important;
 }
+
+/* 空输入时：任何状态都灰色 */
+.flomo-input-card:not(.has-content) .flomo-submit-btn,
+.flomo-input-card:not(.has-content) .flomo-submit-btn:hover {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-faint) !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
 
 /* 列表 */
 .flomo-list {
@@ -4044,8 +4089,8 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   background: color-mix(in srgb, var(--astra-accent-red) 8%, var(--ad-s1));
 }
 .po-cal__day--drag-over {
-  background: color-mix(in srgb, var(--astra-accent-blue) 22%, var(--ad-s1)) !important;
-  border-color: var(--astra-accent-blue) !important;
+  background: color-mix(in srgb, var(--astra-accent-blue) 22%, var(--ad-s1));
+  border-color: var(--astra-accent-blue);
 }
 .po-cal__day-num {
   font-size: 11px;
@@ -4173,6 +4218,24 @@ body.is-mobile .flomo-shell .flomo-sidebar {
    ============================================================ */
 /* 弹窗挂在 <body> 下，与上方 .po-board-view 共享同一份 --ad-* 调色板（合并块），此处只放布局 */
 
+
+/* === 修正 Minimal 主题对弹窗圆角/滚动条的全局覆盖 === */
+/* Minimal body 设了 br=0，必须在更明确的层级写回来 */
+.ad-task-modal,
+.ad-task-modal * {
+  border-radius: var(--ad-r2);
+}
+/* 设置面板（PluginSettingTab）走 .vertical-tab-content */
+.vertical-tab-content.plugin-settings-astra-dashboard,
+.vertical-tab-content.plugin-settings-astra-dashboard * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.vertical-tab-content.plugin-settings-astra-dashboard::-webkit-scrollbar,
+.vertical-tab-content.plugin-settings-astra-dashboard *::-webkit-scrollbar {
+  display: none;
+}
+
 .ad-task-modal {
   padding: 18px 20px 20px;
   display: flex;
@@ -4180,6 +4243,24 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   gap: 7px;
   border-radius: var(--ad-r2);
   color: var(--ad-text);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.ad-task-modal::-webkit-scrollbar,
+.ad-task-modal *::-webkit-scrollbar { display: none; }
+.ad-task-modal,
+.ad-task-modal * { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* 仅主页设置弹窗：内容层同时带 ad-task-modal + astra-settings-root 两个类，
+   以此组合精确命中；倒计时/项目/任务编辑等其它 .ad-task-modal 弹窗、以及
+   原生设置页（只有 astra-settings-root 没有 ad-task-modal）都不受影响。
+   卡片自包含：白底 + 圆角 + 限高 + 滚动，内容在圆角卡片内滚动并被裁成圆角，
+   既保住四角圆润又恢复滚动；外层 .modal.astra-settings-modal 已透明化、无内边距。 */
+.ad-task-modal.astra-settings-root {
+  background-color: var(--background-primary);
+  border-radius: var(--radius-m);
+  max-height: 85vh;
+  overflow: auto;
 }
 .ad-modal-title {
   font-size: 16px;
@@ -4209,7 +4290,7 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   color: var(--ad-text);
   background: var(--background-primary);
   border: 1px solid var(--ad-line);
-  border-radius: var(--ad-r1);
+  border-radius: var(--ad-r2);
   outline: none;
   font-family: inherit;
 }
@@ -4231,22 +4312,36 @@ input[type="date"].ad-modal-input { cursor: pointer; }
 .ad-modal-btn {
   padding: 7px 16px;
   font-size: 12.5px;
-  border-radius: var(--ad-r1);
-  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-r2);
+  border: 1px solid transparent;
   background: var(--ad-s1);
   color: var(--ad-text);
   cursor: pointer;
   transition: all 0.12s ease;
   font-family: inherit;
 }
-.ad-modal-btn:hover { border-color: var(--ad-line-s); background: var(--ad-h1); }
+.ad-modal-btn:hover { border-color: var(--ad-line); background: var(--ad-h1); }
+/* 移动端：按钮上下 padding 收窄到 4px，桌面端保持 7px。
+   与项目其他移动端规则一致：body.is-mobile 或 宽 < 680px 双保险 */
+body.is-mobile .ad-modal-btn {
+  padding: 4px 16px;
+}
+@media (max-width: 680px) {
+  .ad-modal-btn {
+    padding: 4px 16px;
+  }
+}
 .ad-modal-btn--primary {
   background: var(--ad-accent);
   color: var(--ad-on-accent);
   border-color: var(--ad-accent);
   font-weight: 600;
 }
-.ad-modal-btn--primary:hover { filter: brightness(1.08); }
+.ad-modal-btn--primary:hover {
+  background: var(--ad-accent);
+  border-color: var(--ad-accent);
+  filter: brightness(1.08);
+}
 .ad-modal-btn--danger {
   background: transparent;
   color: var(--astra-accent-red);
@@ -4283,7 +4378,7 @@ input[type="date"].ad-modal-input { cursor: pointer; }
   font-size: 11px;
   background: var(--ad-accent-dim);
   color: var(--ad-accent);
-  border-radius: var(--ad-r1);
+  border-radius: var(--ad-r2);
   border: 1px solid color-mix(in srgb, var(--ad-accent) 20%, transparent);
 }
 .ad-tag-x { cursor: pointer; font-size: 13px; opacity: 0.7; }
@@ -4504,3 +4599,6 @@ body.theme-light .ad-task-modal .ad-node-cell.is-skip-overdue { border-color: #9
 .astra-heat-cell--clickable {
   cursor: pointer;
 }
+
+
+/* ============================================================

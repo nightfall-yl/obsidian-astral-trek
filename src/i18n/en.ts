@@ -13,6 +13,9 @@ export default {
   "dv.flomo.title": "Flomo",
   "dv.projects.title": "Projects",
   "dv.heatmap.title": "Activity Heatmap",
+  "dv.modal.confirm": "Confirm",
+  "dv.modal.close": "Close",
+  "dv.heatmap.settingsTitle": "Heatmap Settings",
   "dv.modules.title": "Modules",
   "dv.settings.autoScan": "Auto-scan on start",
   "dv.settings.scanHint": "When enabled, Dashboard rescans the vault each time it opens.",
@@ -198,7 +201,7 @@ export default {
   "auto.218": "Done",
   "auto.219": "Quick notes",
   "auto.220": "Task Progress",
-  "auto.221": "Project Status",
+  "auto.221": "Project Management",
   "auto.222": "Countdown",
   "auto.223": "Daily Phrase",
   "auto.224": "No cards yet. Tap \"+ Add card\" below to start",
@@ -753,7 +756,7 @@ export default {
   "mod.qc": "Quick Capture",
   "mod.dailyPhrase": "Daily Phrase",
   "mod.weekly": "Task Progress",
-  "mod.projects": "Projects",
+  "mod.projects": "Project Management",
   "mod.countdown": "Countdown",
   "mod.recent": "Recent Notes",
   "set.fileRules.desc": "Set view modes for files matching specific regex patterns. Overrides folder rules.",
@@ -819,7 +822,7 @@ export default {
   "dv.priority.urgentNot": "🔵 Urgent, not important",
   "dv.priority.neither": "⚪ Neither important nor urgent",
   "dv.countdown.cardHint": "The countdown card shows \"{days} days until {event}\" with a yearly progress bar.",
-  "dv.countdown.emptyHint": "No countdown set — click the gear icon to add one"
+  "dv.countdown.emptyHint": "No countdown set — click the gear icon to edit"
 ,
   "dv.pm.titleNew": "New project",
   "dv.pm.titleEdit": "Edit project",
@@ -883,7 +886,7 @@ export default {
 ,
   "dv.header.home": "Home",
   "dv.header.openSettings": "Settings",
-  "dv.header.heatmapSettings": "Heatmap settings"
+  "dv.header.heatmapSettings": "Configure heatmap"
 ,
   "dv.te.title": "Task details",
   "dv.te.taskName": "Task name *",
