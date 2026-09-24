@@ -152,8 +152,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   color: var(--astra-text-muted);
   border: 1px solid var(--astra-border);
@@ -170,8 +170,8 @@
   background: var(--astra-surface-hover);
 }
 .astra-icon-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
 }
 
 .astra-quick-plugins {
@@ -4587,7 +4587,7 @@ body.theme-light .ad-task-modal .ad-node-cell.is-skip-overdue { border-color: #9
 .ad-dp__scene-text { color: var(--text-faint); }
 .ad-dp__btns {
   display: flex;
-  gap: 6px;
+  gap: 18px;
   margin-top: 10px;
   justify-content: center;
 }
