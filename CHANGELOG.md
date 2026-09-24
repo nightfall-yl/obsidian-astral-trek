@@ -25,8 +25,8 @@
 - **.ad-task-modal 成为弹窗统一Shell**：所有 Modal 类弹窗（快捷链接 / 热力图 / 倒计时 / 项目编辑）共享同一份 CSS 定义（padding 18px、border-radius 16px、三行跨平台滚动条隐藏），避免双源漂移
 - **主页设置弹窗（AstraSettingsModal）滚动条彻底隐藏** ：新增 `.astra-settings-modal`（modalEl 唯一类）的 `scrollbar-width:none` + `::-webkit-scrollbar { display:none }` 规则，覆盖真实滚动容器；
 - **CSS 特异性收敛**：只有 Obsidian 原生也带 `!important` 或加载顺序在我们之后的场景才用 `!important`（如 `.flomo-submit-btn` 四种状态）
-- **Astra 共用方形图标按钮尺寸升级**：容器 26×26px → 28×28px、内部 SVG 14×14px → 18×18px（向 Obsidian 官方 24×24 靠齐但保留 Astra 自感）；作用范围：主页头图齿轮 / 热图设置 / 快捷链接管理 / TODO 刷新设置等共用 `.astra-icon-btn` 的按钮
-- **每日英语卡片按钮组视觉间距**：左右箭头 + 骰子三者之间 `gap` 6px → 18px，改善按钮拥挤感
+- **Astra 共用方形图标按钮尺寸升级**：容器 26×26px、内部 SVG 14×14px → 16×16px（保留 Astra 自感）；作用范围：主页头图齿轮 / 热图设置 / 快捷链接管理 / TODO 刷新设置等共用 `.astra-icon-btn` 的按钮
+- **每日英语卡片按钮组视觉间距**：左右箭头 + 骰子三者之间 `gap` 6px → 14px，改善按钮拥挤感
 - **移动端弹窗按钮适配（.ad-modal-btn）** ：移动端按钮圆角对齐 `var(--button-radius)`（Obsidian 移动端触摸胶囊语言），配色仍走 `--ad-s1/--ad-h1` token；布局沿用并排 `row`，不堆叠，保证两胶囊始终同一行
 
 ## [26.1.6] - 2026-09-23
