@@ -4334,12 +4334,12 @@ body.is-mobile .ad-modal-btn {
 .ad-modal-btn--primary {
   background: var(--ad-accent);
   color: var(--ad-on-accent);
-  border-color: var(--ad-accent);
+  border-color: transparent;
   font-weight: 600;
 }
 .ad-modal-btn--primary:hover {
   background: var(--ad-accent);
-  border-color: var(--ad-accent);
+  border-color: transparent;
   filter: brightness(1.08);
 }
 .ad-modal-btn--danger {

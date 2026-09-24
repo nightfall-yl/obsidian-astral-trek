@@ -43,7 +43,6 @@ export class HeatmapSettingsModal extends Modal {
       this.close();
     };
     this.contentEl.addClass("ad-task-modal");
-    this.contentEl.createEl("h3", { cls: "ad-modal-title", text: $t("dv.heatmap.settingsTitle") });
 
     this.renderBasicSection(this.contentEl);
     this.renderDataSourceSection(this.contentEl);
