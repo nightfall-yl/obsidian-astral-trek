@@ -3312,7 +3312,9 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   width: 15px;
   height: 15px;
 }
-.flomo-hidden {
+/* body 前置提特异性到 0,2,0，稳定覆盖同声明层的单类 display 规则
+   （如 .flomo-submit-btn { display: inline-flex } 在 .flomo-hidden 之后声明会把 hide 覆盖掉） */
+body .flomo-hidden {
   display: none;
 }
 /* 编辑态输入卡高亮 */
@@ -4251,6 +4253,14 @@ body.is-mobile .flomo-shell .flomo-sidebar {
 .ad-task-modal,
 .ad-task-modal * { scrollbar-width: none; -ms-overflow-style: none; }
 
+/* 主页齿轮打开的设置弹窗（AstraSettingsModal）：modalEl 挂 .astra-settings-modal，
+   滚动容器是 .modal-content（只带 .astra-settings-root，不带 .ad-task-modal），
+   覆盖上一组 .ad-task-modal 选择器漏掉的滚动条 */
+.astra-settings-modal,
+.astra-settings-modal * { scrollbar-width: none; -ms-overflow-style: none; }
+.astra-settings-modal::-webkit-scrollbar,
+.astra-settings-modal *::-webkit-scrollbar { display: none; }
+
 /* 仅主页设置弹窗：内容层同时带 ad-task-modal + astra-settings-root 两个类，
    以此组合精确命中；倒计时/项目/任务编辑等其它 .ad-task-modal 弹窗、以及
    原生设置页（只有 astra-settings-root 没有 ad-task-modal）都不受影响。
@@ -4309,6 +4319,8 @@ input[type="date"].ad-modal-input { cursor: pointer; }
   gap: 8px;
   margin-top: 16px;
 }
+/* 首位 ghost 按钮（如快捷链接「新增」）居左，其他保持靠右 */
+.ad-modal-btns > .ad-modal-btn--ghost:first-child { margin-right: auto; }
 .ad-modal-btn {
   padding: 7px 16px;
   font-size: 12.5px;
@@ -4321,16 +4333,12 @@ input[type="date"].ad-modal-input { cursor: pointer; }
   font-family: inherit;
 }
 .ad-modal-btn:hover { border-color: var(--ad-line); background: var(--ad-h1); }
-/* 移动端：按钮上下 padding 收窄到 4px，桌面端保持 7px。
-   与项目其他移动端规则一致：body.is-mobile 或 宽 < 680px 双保险 */
-body.is-mobile .ad-modal-btn {
-  padding: 4px 16px;
-}
-@media (max-width: 680px) {
-  .ad-modal-btn {
-    padding: 4px 16px;
-  }
-}
+/* 仅移动端：圆角对齐 Obsidian 原生按钮语言。
+   body 上 --button-radius: var(--input-radius)，
+   移动端 --input-radius = --touch-radius-m = 44px，配合 44px 高度即胶囊。
+   布局沿用默认 row 并排（与桌面一致）；配色 token 仍走 --ad-s1/--ad-h1；
+   不堆叠，确保两个胶囊按钮始终同一行。 */
+body.is-mobile .ad-modal-btn { border-radius: var(--button-radius); }
 .ad-modal-btn--primary {
   background: var(--ad-accent);
   color: var(--ad-on-accent);

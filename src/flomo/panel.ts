@@ -787,6 +787,7 @@ export class FlomoBoardPanel {
       ".flomo-input-toolbar > .flomo-submit-btn"
     );
     defaultSubmit?.addClass("flomo-hidden");
+
     if (dateInput) {
       dateInput.value = `${flomo.date}T${flomo.time}`;
     }

@@ -106,11 +106,11 @@ export class QuickLinkModal extends Modal {
     } else {
       this.links.forEach((link, index) => this.renderRow(list, link, index));
     }
-    const addBar = this.contentEl.createDiv("astra-link-editor-add");
-    const addBtn = addBar.createEl("button", { cls: "mod-cta", text: $t("auto.333"), attr: { type: "button" } });
-    addBtn.addEventListener("click", () => { this.links.push({ label: $t("auto.334"), url: "" }); this.render(); });
 
+    // 三个按钮合一行：新增（左，ghost 中性）、取消（右，ghost）、保存（右，实色 primary）
     const btns = this.contentEl.createDiv("ad-modal-btns");
+    const addBtn = btns.createEl("button", { cls: "ad-modal-btn ad-modal-btn--ghost", text: $t("auto.333"), attr: { type: "button" } });
+    addBtn.addEventListener("click", () => { this.links.push({ label: $t("auto.334"), url: "" }); this.render(); });
     btns.createEl("button", { cls: "ad-modal-btn", text: $t("dv.cancel") }).addEventListener("click", () => this.close());
     btns.createEl("button", { cls: "ad-modal-btn ad-modal-btn--primary", text: $t("dv.save") }).addEventListener("click", saveAndClose);
   }

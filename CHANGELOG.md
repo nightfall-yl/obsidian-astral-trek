@@ -15,17 +15,17 @@
   - `.flomo-submit-btn:hover` 整条规则被 Obsidian 原生压掉；用祖先类提特异性 + 精确 `!important` 修复
 - **保存按钮（`.ad-modal-btn--primary`）hover 高亮消失**
   - 方案：`.ad-modal-btn--primary:hover` 显式声明 `background: var(--ad-accent); border-color: var(--ad-accent); filter: brightness(1.08)`
-- **textarea hover 背景变（Obsidian 默认主题特有）**
-  - 使用祖先类提特异性到 0,2,1：`.astra-dashboard .flomo-input:hover` 覆盖主页卡片、`.mod-root .flomo-input:hover` 覆盖弹窗面板
+- **textarea hover 背景变（Obsidian 默认主题特有）** ：使用祖先类提特异性到 0,2,1：`.astra-dashboard .flomo-input:hover` 覆盖主页卡片、`.mod-root .flomo-input:hover` 覆盖弹窗面板
 - **Flomo 弹窗面板搜索框双重框**：给 `.flomo-search-wrap input.flomo-search` 加 `border: none; box-shadow: none`，清除 Obsidian 默认主题强加的 inset box-shadow
-- **i18n 文案修正**：`dv.header.heatmapSettings`「热图设置」→「设置热图」；`dv.countdown.emptyHint`「点击右上角齿轮添加」→「点击右上角编辑」
 - **「项目情况」模块改名「项目管理」**：主页卡片标题 `auto.221` 与设置页模块名 `mod.projects` 两处 i18n 键同步更新（zh：项目情况→项目管理；en：Project Status/Projects→Project Management），主页卡片与设置开关联动一致
-- **移动端按钮高度收窄**：`.ad-modal-btn` 移动端上下 padding `7px`→`4px`（桌面端保持 `7px 16px` 不变）。判定用 `body.is-mobile` + `@media (max-width: 680px)` 双保险，与项目其他移动端规则（如 flomo 侧栏显隐）一致
+- **i18n 文案修正**：`dv.header.heatmapSettings`「热图设置」→「设置热图」；`dv.countdown.emptyHint`「点击右上角齿轮添加」→「点击右上角编辑」
 
 ### 重构（设计系统）
 
 - **.ad-task-modal 成为弹窗统一Shell**：所有 Modal 类弹窗（快捷链接 / 热力图 / 倒计时 / 项目编辑）共享同一份 CSS 定义（padding 18px、border-radius 16px、三行跨平台滚动条隐藏），避免双源漂移
+- **主页设置弹窗（AstraSettingsModal）滚动条彻底隐藏** ：新增 `.astra-settings-modal`（modalEl 唯一类）的 `scrollbar-width:none` + `::-webkit-scrollbar { display:none }` 规则，覆盖真实滚动容器；
 - **CSS 特异性收敛**：只有 Obsidian 原生也带 `!important` 或加载顺序在我们之后的场景才用 `!important`（如 `.flomo-submit-btn` 四种状态）
+- **移动端弹窗按钮适配（.ad-modal-btn）** ：移动端按钮圆角对齐 `var(--button-radius)`（Obsidian 移动端触摸胶囊语言），配色仍走 `--ad-s1/--ad-h1` token；布局沿用并排 `row`，不堆叠，保证两胶囊始终同一行
 
 ## [26.1.6] - 2026-09-23
 
