@@ -1,6 +1,6 @@
 {
   "name": "astral-trek",
-  "version": "26.1.7",
+  "version": "26.1.8",
   "description": "An interactive home dashboard for tasks, knowledge graph, plugins, vault health, and writing activity.",
   "main": "main.js",
   "type": "module",
@@ -11,7 +11,9 @@
     "lint": "eslint src",
     "test": "vitest run",
     "check": "npm run lint && npm run test && npm run build",
-    "version": "node version-bump.mjs && git add manifest.json versions.json"
+    "version": "node version-bump.mjs && git add manifest.json versions.json",
+    "audit:prod": "npm audit --omit=dev",
+    "audit:all": "npm audit"
   },
   "keywords": [
     "obsidian",
@@ -45,7 +47,10 @@
     "svelte-preprocess": "^4.10.7",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.59.1",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "obsidian-calendar-ui": "^0.3.12",
+    "svelte": "^3.59.2",
+    "obsidian-daily-notes-interface": "^0.9.5"
   },
   "dependencies": {
     "async-lock": "^1.4.1",
@@ -63,10 +68,7 @@
     "micromark-extension-math": "^3.1.0",
     "micromark-util-combine-extensions": "^2.0.1",
     "moment-parseformat": "^4.0.0",
-    "obsidian-calendar-ui": "^0.3.12",
-    "obsidian-daily-notes-interface": "^0.9.5",
     "quick-lru": "^7.3.0",
-    "svelte": "^3.59.2",
     "ts-dedent": "^2.3.0",
     "unist-util-visit": "^5.1.0",
     "yaml": "^2.9.0"

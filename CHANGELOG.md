@@ -4,6 +4,21 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
+## [26.1.8] - 2026-09-25
+
+### 依赖收敛与安全
+
+- **esbuild-svelte 0.9.5 → 0.7.4**：0.9.5 要求 svelte ≥4.2.1，和 obsidian-calendar-ui 锁的 svelte@3.x 冲突；0.7.4 peer dep 为 `>=3.43.0 <5`，与 svelte 3.59.2 兼容。消除 GHSA-wv8q-r932-8hc7 ReDoS 警告的触发源
+- **纯 type import 依赖归位 devDependencies**：`obsidian-calendar-ui`、`svelte`、`obsidian-daily-notes-interface` 从 dependencies 移到 devDependencies，声明它们仅被 `import type` 使用，不在 Obsidian 用户运行时链路。消除 `npm audit --omit=dev` 剩余漏洞
+- 新增 `npm run audit:prod` / `npm run audit:all` 脚本，明确生产/开发期漏洞扫描边界
+
+### CSS 质量
+
+- **移除全部 `!important` 属性声明**（styles.css 从 12 个 → 0 个）
+  - `.flomo-submit-btn` 锁定微信风格（空=灰、有输入=蓝、hover 不变）改用提特异性方案：选择器从 `.flomo-submit-btn:hover`（0,1,1）提升到 `body .flomo-input-card .flomo-submit-btn:hover`（0,3,1），空输入灰色规则升至 0,4,1
+  - Obsidian 注释中的 `!important` 关键词（L857/L3277）改写措辞，避免 scanner 误报
+- **`.ad-modal-btn--primary` 前景色修复**：`color` 从主题相关的 `--ad-on-accent`（亮黑/暗白）改为 Obsidian 原生 `--text-on-accent`（亮暗主题统一白色），`:hover` 中显式再次声明防止原生覆盖。"取消/保存"组保存按钮在亮色主题下 hover 字体不再变黑色
+
 ## [26.1.7] - 2026-09-24
 
 ### 修复
@@ -25,7 +40,7 @@
 - **.ad-task-modal 成为弹窗统一Shell**：所有 Modal 类弹窗（快捷链接 / 热力图 / 倒计时 / 项目编辑）共享同一份 CSS 定义（padding 18px、border-radius 16px、三行跨平台滚动条隐藏），避免双源漂移
 - **主页设置弹窗（AstraSettingsModal）滚动条彻底隐藏** ：新增 `.astra-settings-modal`（modalEl 唯一类）的 `scrollbar-width:none` + `::-webkit-scrollbar { display:none }` 规则，覆盖真实滚动容器；
 - **CSS 特异性收敛**：只有 Obsidian 原生也带 `!important` 或加载顺序在我们之后的场景才用 `!important`（如 `.flomo-submit-btn` 四种状态）
-- **Astra 共用方形图标按钮尺寸升级**：容器 26×26px、内部 SVG 14×14px → 16×16px（保留 Astra 自感）；作用范围：主页头图齿轮 / 热图设置 / 快捷链接管理 / TODO 刷新设置等共用 `.astra-icon-btn` 的按钮
+- **Astra 共用方形图标按钮尺寸升级**：容器 26×26px、内部 SVG 14×14px → 17×17px（保留 Astra 自感）；作用范围：主页头图齿轮 / 热图设置 / 快捷链接管理 / TODO 刷新设置等共用 `.astra-icon-btn` 的按钮
 - **每日英语卡片按钮组视觉间距**：左右箭头 + 骰子三者之间 `gap` 6px → 14px，改善按钮拥挤感
 - **移动端弹窗按钮适配（.ad-modal-btn）** ：移动端按钮圆角对齐 `var(--button-radius)`（Obsidian 移动端触摸胶囊语言），配色仍走 `--ad-s1/--ad-h1` token；布局沿用并排 `row`，不堆叠，保证两胶囊始终同一行
 

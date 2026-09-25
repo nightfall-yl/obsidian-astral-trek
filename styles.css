@@ -854,7 +854,7 @@
 }
 
 /* 非聚焦=background-secondary（随主题），聚焦=background-modifier-hover（比之更深）。
-   均加 !important 防止 Obsidian .modal button 默认样式覆盖。仅 hover 高亮 */
+   使用显式声明覆盖 Obsidian .modal button 默认样式覆盖。仅 hover 高亮 */
 .astra-detail-modal .astra-modal-row:hover {
   background: var(--background-modifier-hover);
 }
@@ -3274,7 +3274,7 @@ body.is-mobile .flomo-shell .flomo-sidebar {
   min-width: 0;
 }
 /* 提升特异性覆盖主题对 input[type=datetime-local] 的大圆角胶囊样式，
-   使其与 ×/发送 保持一致的小圆角（!important 对抗 Obsidian 内置 input 样式） */
+   使其与 ×/发送 保持一致的小圆角（直接覆盖 Obsidian 内置 input 样式） */
 .flomo-edit-datetime[type="datetime-local"] {
   border-radius: 6px;
 }
@@ -3351,26 +3351,30 @@ body .flomo-hidden {
   height: 16px;
 }
 
-/* 有输入时：悬停/聚焦/点击 都保持实色蓝胶囊 */
-.flomo-submit-btn,
-.flomo-submit-btn:hover,
-.flomo-submit-btn:focus,
-.flomo-submit-btn:active {
-  background: var(--interactive-accent) !important;
-  color: var(--text-on-accent) !important;
-  filter: none !important;
-  opacity: 1 !important;
-  box-shadow: none !important;
-  transition: none !important;
+/* 有输入时：悬停/聚焦/点击 都保持实色蓝胶囊。
+   用 body + .flomo-input-card + button 提特异性（0,3,0 基础），
+   覆盖 Obsidian 原生 .modal button:hover / .workspace button:hover 规则。 */
+body .flomo-input-card .flomo-submit-btn,
+body .flomo-input-card .flomo-submit-btn:hover,
+body .flomo-input-card .flomo-submit-btn:focus,
+body .flomo-input-card .flomo-submit-btn:active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  filter: none;
+  opacity: 1;
+  box-shadow: none;
+  transition: none;
 }
 
-/* 空输入时：任何状态都灰色 */
-.flomo-input-card:not(.has-content) .flomo-submit-btn,
-.flomo-input-card:not(.has-content) .flomo-submit-btn:hover {
-  background: var(--background-modifier-hover) !important;
-  color: var(--text-faint) !important;
-  filter: none !important;
-  opacity: 1 !important;
+/* 空输入时：任何状态都灰色。特异性 0,4,0 压过上面 0,3,0 */
+body .flomo-input-card:not(.has-content) .flomo-submit-btn,
+body .flomo-input-card:not(.has-content) .flomo-submit-btn:hover,
+body .flomo-input-card:not(.has-content) .flomo-submit-btn:focus,
+body .flomo-input-card:not(.has-content) .flomo-submit-btn:active {
+  background: var(--background-modifier-hover);
+  color: var(--text-faint);
+  filter: none;
+  opacity: 1;
 }
 
 
@@ -4341,12 +4345,14 @@ input[type="date"].ad-modal-input { cursor: pointer; }
 body.is-mobile .ad-modal-btn { border-radius: var(--button-radius); }
 .ad-modal-btn--primary {
   background: var(--ad-accent);
-  color: var(--ad-on-accent);
+  /* 固定白色前景，用 Obsidian 原生 --text-on-accent 保证亮/暗主题下都是白色 */
+  color: var(--text-on-accent);
   border-color: transparent;
   font-weight: 600;
 }
 .ad-modal-btn--primary:hover {
   background: var(--ad-accent);
+  color: var(--text-on-accent);
   border-color: transparent;
   filter: brightness(1.08);
 }
