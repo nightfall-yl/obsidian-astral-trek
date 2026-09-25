@@ -170,8 +170,8 @@
   background: var(--astra-surface-hover);
 }
 .astra-icon-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
 }
 
 .astra-quick-plugins {
@@ -4609,4 +4609,4 @@ body.theme-light .ad-task-modal .ad-node-cell.is-skip-overdue { border-color: #9
 }
 
 
-/* ============================================================
+/* ============================================================ */
