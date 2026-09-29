@@ -192,6 +192,8 @@ export class AstraDashboardView extends ItemView {
   private headerStatsEl: HTMLElement | null = null;
   /** 可替换内容区（与 dashboardRootEl 配合使用） */
   private dashboardBodyEl: HTMLElement | null = null;
+  private greetingTimer: number | null = null;
+  private headingEl: HTMLElement | null = null;
   private heatmapObs: ResizeObserver | null = null;
   private heatmapObsTarget: HTMLElement | null = null;
   private heatmapCard: HTMLElement | null = null;
@@ -280,9 +282,12 @@ export class AstraDashboardView extends ItemView {
       const header = root.createDiv("astra-dashboard-header");
       const copy = header.createDiv("astra-dashboard-heading");
       const displayName = this.plugin.data.settings.displayName;
-      copy.createEl("h1", {
+      const h1 = copy.createEl("h1", {
+        cls: "astra-dashboard-greeting",
         text: `${greeting()}${displayName ? `，${displayName}` : ""}`
       });
+      this.headingEl = h1;
+      this.scheduleNextGreeting();
       const statsEl = copy.createEl("p", {
         text: $t("dv.header.stats", { vault: this.app.vault.getName(), notes: snapshot?.noteCount ?? 0, words: formatCompactNumber(snapshot?.totalWords ?? 0) }),
       });
@@ -349,7 +354,41 @@ export class AstraDashboardView extends ItemView {
       window.clearTimeout(this.refreshTimer);
       this.refreshTimer = null;
     }
+    if (this.greetingTimer !== null) {
+      window.clearTimeout(this.greetingTimer);
+      this.greetingTimer = null;
+    }
     return Promise.resolve();
+  }
+
+  /** 问候语段边界（小时）：0 / 6 / 11 / 14 / 18
+   *  只在段边界那一秒触发一次 DOM 局部更新（setTimeout 到点，不是 setInterval 轮询）。
+   *  浏览器 throttle 切后台 setTimeout 可能延后数秒，但对问候语这种低频 UI 可接受。 */
+  private scheduleNextGreeting(): void {
+    if (this.greetingTimer !== null) {
+      window.clearTimeout(this.greetingTimer);
+      this.greetingTimer = null;
+    }
+    const now = new Date();
+    const hours = now.getHours();
+    // 找到下一个段边界小时（0 点次日单独处理）
+    const boundaries = [6, 11, 14, 18];
+    let nextHour = boundaries.find(b => b > hours) ?? 0;
+    const next = new Date(now);
+    next.setHours(nextHour, 0, 0, 0);
+    if (nextHour === 0) next.setDate(next.getDate() + 1);
+    const ms = next.getTime() - now.getTime();
+    this.greetingTimer = window.setTimeout(() => {
+      this.updateGreeting();
+      this.scheduleNextGreeting();
+    }, ms);
+  }
+
+  /** 只改 header 里问候语那一行，不重建整个 Dashboard */
+  private updateGreeting(): void {
+    if (!this.headingEl) return;
+    const name = this.plugin.data.settings.displayName;
+    this.headingEl.textContent = `${greeting()}${name ? `，${name}` : ""}`;
   }
 
   requestRefresh(): void {

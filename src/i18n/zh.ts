@@ -857,7 +857,7 @@ export default {
   "flomo.tool.task": "任务列表",
   "flomo.tool.table": "插入表格"
 ,
-  "dv.flomo.weekdayFormat": "周{wd}",
+  "dv.flomo.weekdayFormat": "{wd}",
   "dv.flomo.dayHeader": "{date} 周{wd}",
   "dv.flomo.dayHeaderToday": "今天 周{wd}",
   "dv.flomo.dayHeaderYesterday": "昨天 周{wd}",

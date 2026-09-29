@@ -4,6 +4,22 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
+## [26.2.1] - 2026-09-29
+
+### 交互优化
+
+- **主页问候语自动更新**：Dashboard 打开时只算一次段边界（0 / 6 / 11 / 14 / 18），setTimeout 睡到下一个整点触发局部 DOM 更新，不再需要手动重载 Dashboard。Dashboard 生命周期内最多 setTimeout 5 次，零主动轮询
+  - 实现：`scheduleNextGreeting()` 排下一次、`updateGreeting()` 只改 h1 的 textContent（不重建整个 Dashboard）、`onClose()` 清理 timer
+  - 已知限制：浏览器 throttle 切后台 setTimeout 可能延后数秒，但对问候语这种低频 UI 可接受
+
+### 缺陷修复
+
+- **Flomo 弹窗面板日期重复"周"字**：zh.ts 的 `dv.flomo.weekdayFormat` 原本硬写 `"周{wd}"`，与 `dayHeader "{date} 周{wd}"` 叠加，JS 两层 `$t()` 嵌套后输出变成 "2026-09-29 周周日"
+  - 修复：`weekdayFormat` 改为纯 `"{wd}"`，让"周"字只由 `dayHeader` 系列模板单一负责
+  - 零风险：en.ts 本来就是 `"{wd}"` 没问题；grep 确认该键只在 flomo/panel.ts 4 处使用；不改 JS/CSS，不引入新 bug
+
+---
+
 ## [26.1.8] - 2026-09-25
 
 ### 依赖收敛与安全
