@@ -2,7 +2,7 @@
 
 个人工作台插件 — 快速捕获 · 任务管理 · 项目管理 · 写作统计 · 日历，一页尽收。
 
-[![Version](https://img.shields.io/badge/version-26.1.5-blue)](https://github.com/nightfall-yl/obsidian-astral-trek) | [![Obsidian](https://img.shields.io/badge/Obsidian-1.11.0%2B-purple)](https://obsidian.md) | [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/nightfall-yl/obsidian-astral-trek?label=version)](https://github.com/nightfall-yl/obsidian-astral-trek) | [![Obsidian](https://img.shields.io/badge/Obsidian-1.11.0%2B-purple)](https://obsidian.md) | [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 简体中文 | [English](README.md)
 
