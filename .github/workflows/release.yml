@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -24,6 +26,13 @@ jobs:
       - name: Verify tag matches manifest
         run: |
           node -e "const m=require('./manifest.json'); if (m.version !== process.env.GITHUB_REF_NAME) { throw new Error('Tag must exactly match manifest version without a v prefix'); }"
+      - name: Find previous tag for release notes
+        id: prev
+        run: |
+          # List all tags sorted ascending by semver, keep only those < current tag, take the last one
+          PREV=$(git tag --sort=version:refname | grep -Fxv "$GITHUB_REF_NAME" | awk -v cur="$GITHUB_REF_NAME" 'BEGIN{p=""} {if ($0 < cur) p=$0} END{print p}')
+          echo "previous_tag=${PREV}" >> "$GITHUB_OUTPUT"
+          echo "Previous tag resolved to: ${PREV:-<none>}"
       - name: Attest release assets
         uses: actions/attest-build-provenance@v2
         with:
@@ -34,6 +43,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          previous_tag: ${{ steps.prev.outputs.previous_tag }}
           files: |
             main.js
             manifest.json
