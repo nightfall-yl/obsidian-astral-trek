@@ -4,7 +4,7 @@ Your personal workspace — quick capture, task & project management, writing st
 
 [![Version](https://img.shields.io/github/v/release/nightfall-yl/obsidian-astral-trek?label=version)](https://github.com/nightfall-yl/obsidian-astral-trek) | [![Obsidian](https://img.shields.io/badge/Obsidian-1.11.0%2B-purple)](https://obsidian.md) | [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-[简体中文](README_zh-CN.md) | English
+English | [简体中文](README_zh-CN.md)
 
 Astra is an Obsidian plugin that consolidates quick capture, task & project management, writing statistics, and a calendar into a single dashboard. All data is stored locally as plain Markdown files — no external service or account required.
 

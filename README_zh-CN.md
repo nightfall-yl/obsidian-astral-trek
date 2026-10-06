@@ -4,7 +4,7 @@
 
 [![Version](https://img.shields.io/github/v/release/nightfall-yl/obsidian-astral-trek?label=version)](https://github.com/nightfall-yl/obsidian-astral-trek) | [![Obsidian](https://img.shields.io/badge/Obsidian-1.11.0%2B-purple)](https://obsidian.md) | [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-简体中文 | [English](README.md)
+[English](README.md) | 简体中文
 
 Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管理 / 笔记统计 / 日历」收进一个页面，数据全部存在本地 Markdown 文件里，不依赖任何外部服务或账号。
 
