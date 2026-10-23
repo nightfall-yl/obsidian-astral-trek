@@ -155,7 +155,27 @@ export interface AstraSettings {
   homeModuleOrder: string[];
   /** 移动端隐藏的模块 id 列表（桌面端不受影响） */
   mobileHiddenModules: string[];
+  /** 全文搜索（迁移自 omnisearch User Interface 组，剔除嵌入引用项） */
+  search: SearchSettings;
 }
+
+export interface SearchSettings {
+  /** 是否显示 ribbon 搜索按钮 */
+  ribbonIcon: boolean;
+  /** 结果中显示命中摘录 */
+  showExcerpt: boolean;
+  /** 摘录中渲染换行 */
+  renderLineReturnInExcerpts: boolean;
+  /** 高亮结果中的匹配词 */
+  highlight: boolean;
+}
+
+export const DEFAULT_SEARCH_SETTINGS: SearchSettings = {
+  ribbonIcon: true,
+  showExcerpt: true,
+  renderLineReturnInExcerpts: false,
+  highlight: true
+};
 
 export interface ActivityEntry {
   addedWords: number;
@@ -326,6 +346,7 @@ export const DEFAULT_SETTINGS: AstraSettings = {
   moduleSizes: {},
   homeModuleOrder: ["qc", "dailyPhrase", "todo", "weekly", "projects", "countdown"],
   mobileHiddenModules: ["todo", "weekly", "projects", "countdown"],
+  search: DEFAULT_SEARCH_SETTINGS
 };
 
 export const DEFAULT_DATA: AstraPluginData = {

@@ -907,5 +907,26 @@ export default {
   "dv.te.skipToday": "Skip today",
   "dv.te.todayNotes": "Today's notes ({date})"
 ,
-  "dv.t.defaultTag": "task"
+  "dv.t.defaultTag": "task",
+  "dv.query.taskStale": "Task has changed, refresh the query",
+  "dv.query.taskAmbiguous": "Multiple matching tasks, not written",
+  "dv.query.taskWriteFailed": "Failed to write task",
+  "search.group": "Search",
+  "search.commandName": "Open full-text search",
+  "search.ribbonTip": "Astra full-text search",
+  "search.placeholder": "Search notes…",
+  "search.noResults": "No matching results",
+  "search.noActiveEditor": "No active editor",
+  "search.hintOpen": "Open",
+  "search.hintNewLeaf": "Open in new tab",
+  "search.hintInsert": "Insert link",
+  "search.hintHistory": "Search history",
+  "search.set.ribbon.name": "Show ribbon button",
+  "search.set.ribbon.desc": "Add a full-text search button to the sidebar.",
+  "search.set.excerpt.name": "Show excerpts",
+  "search.set.excerpt.desc": "Shows the contextual part of the note that matches the search. Disable this to only show filenames in results.",
+  "search.set.lineReturn.name": "Render line return in excerpts",
+  "search.set.lineReturn.desc": "Activate this option to render line returns in result excerpts.",
+  "search.set.highlight.name": "Highlight matching words in results",
+  "search.set.highlight.desc": "Will highlight matching results when enabled."
 };

@@ -1,4 +1,4 @@
-import { initI18n } from "./i18n";
+import { initI18n, t as $t } from "./i18n";
 import type { App, PluginManifest} from "obsidian";
 import { Plugin, TFile } from "obsidian";
 import {
@@ -26,6 +26,10 @@ import { calendarSettings } from "./calendar/ui/stores";
 import { defaultCalendarSettings } from "./calendar/settings";
 import { MinimalManager } from "./minimal/manager";
 import { LinterManager } from "./linter/manager";
+import { QueryManager } from "./query/manager";
+import { SearchService } from "./search/search-service";
+import { AstraSearchModal } from "./search/search-modal";
+import { DEFAULT_SEARCH_SETTINGS } from "./models";
 import { StaticStore } from "./static-store";
 import type { IWeekStartOption } from "obsidian-calendar-ui";
 
@@ -36,6 +40,9 @@ export default class AstraDashboardPlugin extends Plugin {
   cursorPositionManager!: CursorPositionManager;
   minimalManager!: MinimalManager;
   linterManager!: LinterManager;
+  queryManager!: QueryManager;
+  searchService!: SearchService;
+  private searchRibbonEl: HTMLElement | null = null;
   /** Section2「Markdown+」三功能（视图模式/Minimal/Linter）的统一设置存储。 */
   section2Store: StaticStore;
   private saveTimer: number | null = null;
@@ -91,6 +98,27 @@ export default class AstraDashboardPlugin extends Plugin {
       // LinterManager 初始化失败不影响其余功能
     }
 
+    this.queryManager = new QueryManager(this.app, this);
+    await this.queryManager.onload();
+
+    // 全文搜索（ribbon 入口，懒建索引）
+    if (!this.data.settings.search) {
+      this.data.settings.search = { ...DEFAULT_SEARCH_SETTINGS };
+    }
+    this.searchService = new SearchService(this.app, this);
+    if (this.data.settings.search.ribbonIcon) {
+      this.addSearchRibbon();
+    }
+    this.addCommand({
+      id: "open-search",
+      name: $t("search.commandName"),
+      // Mod = macOS Cmd / Win Ctrl，叠加 Shift；默认热键为用户明确要求的 Shift+Cmd+F
+      hotkeys: [{ modifiers: ["Mod", "Shift"], key: "f" }],
+      callback: () => {
+        new AstraSearchModal(this, this.searchService).open();
+      },
+    });
+
     this.app.workspace.onLayoutReady(() => {
       this.registerVaultEvents();
       if (this.data.settings.openOnStartup) {
@@ -106,12 +134,28 @@ export default class AstraDashboardPlugin extends Plugin {
     this.cursorPositionManager?.onunload();
     this.minimalManager?.onunload();
     this.linterManager?.onunload();
-    
+    this.queryManager?.onunload();
+    this.removeSearchRibbon();
+
     if (this.saveTimer !== null) {
       window.clearTimeout(this.saveTimer);
       this.saveTimer = null;
       void this.saveData(this.data);
     }
+  }
+
+  /** ribbon 搜索按钮（设置开关动态增删） */
+  addSearchRibbon(): void {
+    if (this.searchRibbonEl) return;
+    // 立即打开弹窗；首次建索引由弹窗内部显示进度（对齐 omnisearch，避免点击无反馈）
+    this.searchRibbonEl = this.addRibbonIcon("search", $t("search.ribbonTip"), () => {
+      new AstraSearchModal(this, this.searchService).open();
+    });
+  }
+
+  removeSearchRibbon(): void {
+    this.searchRibbonEl?.remove();
+    this.searchRibbonEl = null;
   }
 
   async openDashboard(

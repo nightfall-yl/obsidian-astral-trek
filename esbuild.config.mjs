@@ -27,7 +27,6 @@ const context = await esbuild.context({
   bundle: true,
   external: [
     "obsidian",
-    "obsidian-dataview",
     "electron",
     "@codemirror/autocomplete",
     "@codemirror/collab",

@@ -4,7 +4,45 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
-## [26.2.1] - 2026-09-29
+## [26.2.2] - 2026-10-23
+
+### 新增
+
+- **全文搜索**：ribbon 搜索按钮 + 命令「打开全文搜索」（默认热键 `Cmd/Ctrl+Shift+F`），打开全库搜索弹窗（交互与视觉复刻 omnisearch；其源码为 GPL-3，仅复刻体验、未搬运代码）
+  - 引擎：minisearch（MIT）+ 浏览器原生 `Intl.Segmenter` 中文分词（ICU 词级切分，零外部依赖）；字段权重对齐 omnisearch 默认（文件名 10 / H1 6 / H2 5 / H3 4），fuzzy 0.2 + prefix
+  - 索引：懒启动（首次使用才构建）、20 文件分批构建、frontmatter 剔除、`metadataCache` 事件增量更新（changed 500ms 防抖 + delete/rename 同步）
+  - 弹窗交互：↑↓/Tab 选择、`Enter` 打开、`Mod+Enter` 新标签、`Alt+Enter` 插入链接、`Alt+↑↓` 搜索历史（持久化）、`Mod+G` 临时切换摘录；IME 组合中 Enter 不触发；结果含文件名 + 摘录 `<mark>` 高亮，悬停预览
+  - 弹窗 UI：融入式输入行（聚焦/失焦/悬停均无框线，特异性 0-3-0/0-4-0 压过原生 `input[type=text]` 样式）、分隔线伪元素绘制且左右各内缩 16px、空态紧凑（无输入不渲染占位）、不显示建索引进度文字
+  - 设置：「搜索」组位于 Astra tab 日历组之后，4 项（Ribbon 按钮 / 显示摘录 / 摘录渲染换行 / 高亮匹配词），默认中文
+  - 实现：新增 `src/search/`（tokenizer / search-service / search-modal，纯函数层 vitest 15 例覆盖分词与排序摘录）
+
+## [26.2.1] - 2026-10-23
+
+### 新增
+
+- **通用查询代码块 ```astra**：在笔记中写 DQL 查询，三种查询头共享子句管线，执行顺序固定 FROM → WHERE → SORT → LIMIT（与 Dataview 一致）
+  - TABLE：`TABLE [WITHOUT ID] 字段 [AS "别名"] ...`，渲染为 Dataview 风格表格；支持 `file.name/path/folder/link` 内置字段 + 任意 frontmatter 字段，表头文件列自带结果计数 (N)
+  - LIST：`LIST [WITHOUT ID] [字段]`，渲染为文件链接列表，语义对齐 Dataview（无字段 = 文件链接；有字段 = "链接: 值"；WITHOUT ID = 仅值），不支持 AS 别名
+  - TASK：`TASK [WHERE !completed]`，渲染为任务列表（复用 Obsidian 原生 task-list-item 样式，悬停显示"来源路径:行号"），checkbox 可勾选并写回源文件；任务位置取官方 `metadataCache.listItems`、章节名取 `cache.headings`，不支持 WITHOUT ID / 字段定义
+  - 勾选写回：新增 `src/query/taskWriteback.ts` 纯函数（vitest 11 例）——`vault.process` 原子读改写，只替换 checkbox 单字符（保留缩进/列表标记/EOL 风格）；乐观锁两级定位（快照行文本命中 → 漂移时 ±5 行窗口按文本唯一匹配），stale / ambiguous 均零写入并在 checkbox 旁 inline 提示（5 秒自动消失）；已处于目标状态时幂等；成功后原地更新 UI，不订阅全局事件
+  - 子句：`FROM` 支持 `"路径"` 与 `#tag`（正文内联标签 + frontmatter 标签，含子标签命中、大小写不敏感）；`WHERE` 支持 `=`/`!=` 与布尔形式（`WHERE 字段` / `WHERE !字段`）；`LIMIT N`（非负整数）
+  - 实现：`src/query/parser.ts` 纯解析器（无 Obsidian 依赖）重构为判别联合（TableQuery / ListQuery / TaskQuery + CommonClauses），`src/query/manager.ts` 泛型子句管线 `applyClauses`；测试 10 → 33 例（全项目 39 例通过）
+
+### 修复
+
+- **与思维导图插件（simple-mind-map）冲突**：其全局 markdown post-processor 会清空 markdown-embed 预览容器、替换为「该文件中没有可预览图片」占位。根因：`renderLink` 经 `MarkdownRenderer.render` 渲染 `[[链接]]`，嵌套触发了该处理器（Dataview 因直接构造 DOM 而幸免）。修复：`renderLink` 改为直接构造 `<a class="internal-link" data-href>`，点击/悬停预览由 Obsidian 全局委托处理，不再触发任何第三方 post-processor，渲染也更快
+- **描述列末尾多余空行**：两处根因——① YAML 多行块标量（`description: |`）值内含换行：统一 `replace(/\s+/g, " ").trim()` 归一化；② `MarkdownRenderer` 给链接包裹的 `<p>` 上下 margin 撑高行：`renderLink` 渲染后剥离 `<p>`，CSS 补 `td > p { margin: 0 }` 兜底
+- **表格样式对齐 Dataview 原生**：去竖线/斑马纹/表头底色，表头 3px 粗线；文件列 `nowrap + max-width 12em` 省略号截断
+- **frontmatter 对象字段显示 `[object Object]`**：新增 `stringifyValue`（对象转 JSON、null/undefined 转空串），WHERE 比较、SORT 排序、单元格渲染统一走它；顺带清零 4 个 `no-base-to-string` lint error
+- **裸 `FROM` / `LIMIT` 行被静默吞掉**：子句值为空串时因 falsy 判断被当作"未提供"（裸 `FROM` 静默变整库查询），改为 `!== null` 判断 + 显式 `QueryParseError`（含空标签 `#`、空路径 `""`）
+
+### 移除
+
+- **devDependencies 中未使用的 obsidian-dataview**：源码零引用，esbuild external 同步清理。
+
+---
+
+## [26.1.9] - 2026-09-30
 
 ### 交互优化
 

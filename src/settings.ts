@@ -18,7 +18,8 @@ import {
   DEFAULT_QUICK_CAPTURE_SETTINGS,
   DEFAULT_DIARY_SETTINGS,
   DEFAULT_COUNTDOWN_SETTINGS,
-  DEFAULT_DAILY_PHRASE_SETTINGS
+  DEFAULT_DAILY_PHRASE_SETTINGS,
+  DEFAULT_SEARCH_SETTINGS
 } from "./models";
 import { lightSchemeOptions, darkSchemeOptions } from "./minimal/schemes";
 
@@ -186,6 +187,9 @@ function renderSettings(
   }
   if (!plugin.data.settings.countdown) {
     plugin.data.settings.countdown = { ...DEFAULT_COUNTDOWN_SETTINGS };
+  }
+  if (!plugin.data.settings.search) {
+    plugin.data.settings.search = { ...DEFAULT_SEARCH_SETTINGS };
   }
   if (!plugin.data.settings.dailyPhrase) {
     plugin.data.settings.dailyPhrase = { ...DEFAULT_DAILY_PHRASE_SETTINGS };
@@ -559,6 +563,70 @@ function renderSettings(
               await plugin.saveSettings();
             })();
           })
+      );
+  });
+
+  /* ---- 全文搜索 ---- */
+
+  const searchGroup = new SettingGroup(dashboardEl).setHeading($t("search.group"));
+
+  searchGroup.addSetting((setting) => {
+    setting
+      .setName($t("search.set.ribbon.name"))
+      .setDesc($t("search.set.ribbon.desc"))
+      .addToggle((toggle) =>
+        toggle.setValue(plugin.data.settings.search.ribbonIcon).onChange((value) => {
+          void (async () => {
+            plugin.data.settings.search.ribbonIcon = value;
+            await plugin.saveSettings();
+            if (value) plugin.addSearchRibbon();
+            else plugin.removeSearchRibbon();
+          })();
+        })
+      );
+  });
+
+  searchGroup.addSetting((setting) => {
+    setting
+      .setName($t("search.set.excerpt.name"))
+      .setDesc($t("search.set.excerpt.desc"))
+      .addToggle((toggle) =>
+        toggle.setValue(plugin.data.settings.search.showExcerpt).onChange((value) => {
+          void (async () => {
+            plugin.data.settings.search.showExcerpt = value;
+            await plugin.saveSettings();
+          })();
+        })
+      );
+  });
+
+  searchGroup.addSetting((setting) => {
+    setting
+      .setName($t("search.set.lineReturn.name"))
+      .setDesc($t("search.set.lineReturn.desc"))
+      .addToggle((toggle) =>
+        toggle
+          .setValue(plugin.data.settings.search.renderLineReturnInExcerpts)
+          .onChange((value) => {
+            void (async () => {
+              plugin.data.settings.search.renderLineReturnInExcerpts = value;
+              await plugin.saveSettings();
+            })();
+          })
+      );
+  });
+
+  searchGroup.addSetting((setting) => {
+    setting
+      .setName($t("search.set.highlight.name"))
+      .setDesc($t("search.set.highlight.desc"))
+      .addToggle((toggle) =>
+        toggle.setValue(plugin.data.settings.search.highlight).onChange((value) => {
+          void (async () => {
+            plugin.data.settings.search.highlight = value;
+            await plugin.saveSettings();
+          })();
+        })
       );
   });
 

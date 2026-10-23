@@ -60,6 +60,14 @@ export default tseslint.config(
     }
   },
   {
+    // 全文搜索命令按用户要求内置 Shift+Cmd+F 默认热键（Mod+Shift+F）；
+    // 若与用户已有热键冲突，Obsidian 会在热键设置中标出，可自行调整。
+    files: ["src/main.ts"],
+    rules: {
+      "obsidianmd/commands/no-default-hotkeys": "off"
+    }
+  },
+  {
     // Vitest 测试文件跑在 Node.js 上，允许使用 Node.js 内置模块。
     files: ["src/**/*.test.ts"],
     rules: {

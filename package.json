@@ -1,6 +1,6 @@
 {
   "name": "astral-trek",
-  "version": "26.1.9",
+  "version": "26.2.2",
   "description": "An interactive home dashboard for tasks, knowledge graph, plugins, vault health, and writing activity.",
   "main": "main.js",
   "type": "module",
@@ -43,14 +43,13 @@
     "eslint-plugin-obsidianmd": "^0.4.2",
     "globals": "^17.6.0",
     "obsidian": "latest",
-    "obsidian-dataview": "^0.5.64",
+    "obsidian-calendar-ui": "^0.3.12",
+    "obsidian-daily-notes-interface": "^0.9.5",
+    "svelte": "^3.59.2",
     "svelte-preprocess": "^4.10.7",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.59.1",
-    "vitest": "^3.2.4",
-    "obsidian-calendar-ui": "^0.3.12",
-    "svelte": "^3.59.2",
-    "obsidian-daily-notes-interface": "^0.9.5"
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "async-lock": "^1.4.1",
@@ -67,6 +66,7 @@
     "micromark-extension-gfm-task-list-item": "^2.1.0",
     "micromark-extension-math": "^3.1.0",
     "micromark-util-combine-extensions": "^2.0.1",
+    "minisearch": "^7.2.0",
     "moment-parseformat": "^4.0.0",
     "quick-lru": "^7.3.0",
     "ts-dedent": "^2.3.0",

@@ -908,5 +908,26 @@ export default {
   "dv.te.skipToday": "今日不做",
   "dv.te.todayNotes": "今日备注（{date}）"
 ,
-  "dv.t.defaultTag": "任务"
+  "dv.t.defaultTag": "任务",
+  "dv.query.taskStale": "任务已变更，请刷新查询",
+  "dv.query.taskAmbiguous": "匹配到多个同名任务，未写入",
+  "dv.query.taskWriteFailed": "任务写入失败",
+  "search.group": "搜索",
+  "search.commandName": "打开全文搜索",
+  "search.ribbonTip": "Astra 全文搜索",
+  "search.placeholder": "搜索笔记…",
+  "search.noResults": "没有匹配的结果",
+  "search.noActiveEditor": "没有活动的编辑器",
+  "search.hintOpen": "打开",
+  "search.hintNewLeaf": "新标签打开",
+  "search.hintInsert": "插入链接",
+  "search.hintHistory": "搜索历史",
+  "search.set.ribbon.name": "显示 ribbon 搜索按钮",
+  "search.set.ribbon.desc": "在左侧边栏添加全文搜索按钮。",
+  "search.set.excerpt.name": "显示摘录",
+  "search.set.excerpt.desc": "在结果中显示笔记里命中的上下文片段。关闭后仅显示文件名。",
+  "search.set.lineReturn.name": "摘录渲染换行",
+  "search.set.lineReturn.desc": "开启后摘录中的换行将按原文渲染。",
+  "search.set.highlight.name": "高亮匹配词",
+  "search.set.highlight.desc": "在搜索结果中高亮命中的关键词。"
 };

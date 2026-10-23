@@ -4614,5 +4614,191 @@ body.theme-light .ad-task-modal .ad-node-cell.is-skip-overdue { border-color: #9
   cursor: pointer;
 }
 
+/* ==================== Astra 通用查询（```astra 代码块）==================== */
+.astra-query {
+  margin: 0.5em 0;
+  overflow-x: auto;
+}
+
+.astra-query-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-ui-small);
+}
+
+.astra-query-table th,
+.astra-query-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: break-word;
+}
+
+.astra-query-table th {
+  color: var(--text-normal);
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 3px solid var(--text-normal);
+}
+
+/* 文件链接列：单行显示，列宽收窄，超长用省略号截断 */
+.astra-query-table td.astra-query-file-cell {
+  max-width: 12em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 兜底：消除单元格内 Markdown 渲染产生的段落上下 margin，避免撑高行 */
+.astra-query-table td > p {
+  margin: 0;
+}
+
+/* LIST 查询结果：沿用 Obsidian 原生 ul 样式，仅微调行距与容器间距 */
+.astra-query-list {
+  margin: 0;
+}
+
+.astra-query-list li {
+  margin-block: 2px;
+}
+
+/* TASK 查询：复用 Obsidian 原生 task-list-item 样式，仅去除列表符号 */
+.astra-query-tasks li.task-list-item {
+  list-style: none;
+}
+
+/* TASK 勾选写回失败提示：checkbox 旁 inline 小字，5 秒自动消失 */
+.astra-query-task-hint {
+  margin-left: 8px;
+  font-size: 0.85em;
+  color: var(--text-error);
+}
+
+/* ================= 全文搜索弹窗（复刻 omnisearch prompt 风格） ================= */
+/* 高度与宽度不设固定值，完全跟随内容自适应——与 omnisearch 一致
+   （其 .omnisearch-modal 为空规则，靠 Obsidian 原生 prompt 类接管）。 */
+
+.astra-search-modal {
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+/* 分隔线用伪元素绘制，左右各留 16px 不填满 */
+.astra-search-input-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.astra-search-input-row::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 1px;
+  background: var(--background-modifier-border);
+}
+
+/* 0-3-0：压过 Obsidian 原生 input[type='text'] 常态边框，任何状态都无框线 */
+.astra-search-modal.prompt .astra-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  font-size: 1.15em;
+  padding: 4px 0;
+}
+
+/* 特异性 0-4-0：压过 Obsidian 原生 .prompt input[type='text']:focus 样式 */
+.astra-search-modal.prompt .astra-search-input:hover,
+.astra-search-modal.prompt .astra-search-input:focus,
+.astra-search-modal.prompt .astra-search-input:focus-visible {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+.astra-search-results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 8px;
+}
+
+/* 隐藏滚动条但保留滚动（与插件弹窗内滚动条偏好一致） */
+.astra-search-results::-webkit-scrollbar {
+  display: none;
+}
+
+.astra-search-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.astra-search-result {
+  padding: 8px 10px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.astra-search-result.is-selected {
+  background: var(--background-modifier-hover);
+}
+
+.astra-search-result-title {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-search-result-excerpt {
+  margin-top: 3px;
+  font-size: 0.88em;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-search-excerpt-linewrap {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.astra-search-result-excerpt mark {
+  background: var(--text-highlight-bg);
+  color: inherit;
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+.astra-search-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 8px 14px;
+  font-size: 0.8em;
+  color: var(--text-muted);
+}
+
+.astra-query-error {
+  padding: 8px 10px;
+  border: 1px solid var(--background-modifier-error);
+  border-radius: 6px;
+  color: var(--text-error);
+  background: var(--background-modifier-error-hover);
+  font-size: var(--font-ui-small);
+}
+
 
 /* ============================================================ */
