@@ -112,8 +112,7 @@ export default class AstraDashboardPlugin extends Plugin {
     this.addCommand({
       id: "open-search",
       name: $t("search.commandName"),
-      // Mod = macOS Cmd / Win Ctrl，叠加 Shift；默认热键为用户明确要求的 Shift+Cmd+F
-      hotkeys: [{ modifiers: ["Mod", "Shift"], key: "f" }],
+      // 社区审核要求不设默认热键（避免与用户已有绑定冲突）；请在「设置 → 热键」自行绑定
       callback: () => {
         new AstraSearchModal(this, this.searchService).open();
       },

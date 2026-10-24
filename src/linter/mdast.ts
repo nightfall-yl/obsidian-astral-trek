@@ -10,7 +10,7 @@ import { gfmTaskListItem } from "micromark-extension-gfm-task-list-item";
 import { frontmatter } from "micromark-extension-frontmatter";
 import { frontmatterFromMarkdown } from "mdast-util-frontmatter";
 import { combineExtensions } from "micromark-util-combine-extensions";
-import { math } from "micromark-extension-math";
+import { math } from "./micromark-math";
 import { mathFromMarkdown } from "mdast-util-math";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFootnoteFromMarkdown } from "mdast-util-gfm-footnote";

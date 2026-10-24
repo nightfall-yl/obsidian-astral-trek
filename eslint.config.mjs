@@ -39,54 +39,10 @@ export default tseslint.config(
     }
   },
   {
-    files: ["src/heatmap/**/*.ts"],
-    rules: {
-      "@typescript-eslint/ban-ts-comment": "off",
-      "@typescript-eslint/no-unsafe-return": "off",
-      "@typescript-eslint/no-unsafe-call": "off",
-      "@typescript-eslint/no-unsafe-member-access": "off",
-      "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-base-to-string": "off",
-      "@typescript-eslint/require-await": "off",
-      "@typescript-eslint/consistent-type-imports": "off",
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/no-redundant-type-constituents": "off",
-      "@typescript-eslint/no-floating-promises": "off",
-      "@typescript-eslint/no-misused-promises": "off",
-      "no-console": "off"
-    }
-  },
-  {
-    // 全文搜索命令按用户要求内置 Shift+Cmd+F 默认热键（Mod+Shift+F）；
-    // 若与用户已有热键冲突，Obsidian 会在热键设置中标出，可自行调整。
-    files: ["src/main.ts"],
-    rules: {
-      "obsidianmd/commands/no-default-hotkeys": "off"
-    }
-  },
-  {
     // Vitest 测试文件跑在 Node.js 上，允许使用 Node.js 内置模块。
     files: ["src/**/*.test.ts"],
     rules: {
       "obsidianmd/no-nodejs-modules": "off"
-    }
-  },
-  {
-    // i18n/index.ts uses Platform.isDesktop + require() for Node-only modules.
-    files: ["src/i18n/index.ts"],
-    rules: {
-      "obsidianmd/no-nodejs-modules": "off",
-      "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-unsafe-call": "off",
-      "@typescript-eslint/no-unsafe-member-access": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/no-explicit-any": "off",
-      "no-undef": "off",
-      "no-console": "off"
     }
   }
 );

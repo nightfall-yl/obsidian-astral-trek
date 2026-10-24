@@ -4,11 +4,23 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
+## [26.2.3] - 2026-10-24
+
+### 社区审核整改
+
+社区插件审核报告的 4 条 Warning 代码侧全部清零，用户可见行为不变：
+
+- **Direct Filesystem Access**：i18n 语言探测原先经 Node.js `fs` 读库外全局配置 `obsidian.json`（vault API 够不到该文件，属审核器标记的「库外文件访问能力」），改为 `moment.locale()`——Obsidian 启动时会把应用语言同步给 Moment，桌面/移动端一致，词典选择行为不变；bundle 中 `require("fs")` 清零
+- **默认热键**：全文搜索命令移除内置 `Mod+Shift+F` 默认热键（审核 guideline 要求不替用户预设热键），命令与 ribbon 按钮保留，可在「设置 → 热键」自行绑定
+- **CSS multicolumn 误报**：审核器把热力图的 `column-gap` 归入「多栏布局」特性（实际作用于 `display: grid`，是列间距，所有 Obsidian 版本完整支持，属粗粒度误报）；改用通用 `gap` 简写一行合并行列间距——注意 `gap` 语法为「行 列」顺序，与原两行语义严格等价
+- **依赖漏洞公告（katex，GHSA-238p-pmpm-9mq7）**：上游 micromark-extension-math 把 katex 声明为运行时依赖（实际只使用其类型声明，katex 代码从未被打包），导致 lockfile 携带公告覆盖的版本。处理：按 MIT 将其语法层 vendor 为 `src/linter/micromark-math.ts`（约 420 行 TS 化，含 `TokenTypeMap` 显式扩充，html 渲染层未随行），卸载整个依赖并把实际引用的三个 micromark util 包提升为显式依赖——katex / @types/katex 从依赖树连根消失（`npm ls` 为空、lockfile 零匹配）；新增 2 例冒烟测试守护 vendor 代码（行内/块级切分 + 未闭合 `$` 不误判），全项目测试 54 → 56 例
+- 顺带清理 eslint.config.mjs 三块失效豁免（默认热键 / i18n 的 `require` / 早已删除的 heatmap 目录）
+
 ## [26.2.2] - 2026-10-23
 
 ### 新增
 
-- **全文搜索**：ribbon 搜索按钮 + 命令「打开全文搜索」（默认热键 `Cmd/Ctrl+Shift+F`），打开全库搜索弹窗（交互与视觉复刻 omnisearch；其源码为 GPL-3，仅复刻体验、未搬运代码）
+- **全文搜索**：ribbon 搜索按钮 + 命令「打开全文搜索」（按社区审核要求不设默认热键，可在「设置 → 热键」自行绑定），打开全库搜索弹窗（交互与视觉复刻 omnisearch；其源码为 GPL-3，仅复刻体验、未搬运代码）
   - 引擎：minisearch（MIT）+ 浏览器原生 `Intl.Segmenter` 中文分词（ICU 词级切分，零外部依赖）；字段权重对齐 omnisearch 默认（文件名 10 / H1 6 / H2 5 / H3 4），fuzzy 0.2 + prefix
   - 索引：懒启动（首次使用才构建）、20 文件分批构建、frontmatter 剔除、`metadataCache` 事件增量更新（changed 500ms 防抖 + delete/rename 同步）
   - 弹窗交互：↑↓/Tab 选择、`Enter` 打开、`Mod+Enter` 新标签、`Alt+Enter` 插入链接、`Alt+↑↓` 搜索历史（持久化）、`Mod+G` 临时切换摘录；IME 组合中 Enter 不触发；结果含文件名 + 摘录 `<mark>` 高亮，悬停预览

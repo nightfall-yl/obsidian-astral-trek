@@ -1,5 +1,4 @@
-import { Platform } from "obsidian";
-import type { App } from "obsidian";
+import { moment, type App } from "obsidian";
 import zh from "./zh";
 import en from "./en";
 
@@ -8,48 +7,12 @@ type Dict = Record<string, string>;
 const dicts: Record<string, Dict> = { zh, en };
 let _cachedLang: string = "";
 
-/** Read Obsidian's global language setting from obsidian.json.
- *  Obsidian does NOT expose app.language — it lives in the global config file.
- *  On mobile (Platform.isDesktop === false) Node.js fs is unavailable; falls back to "en". */
-function _detectLanguage(app: App): string {
-  if (!Platform.isDesktop) {
-    // Mobile (iOS/Android): no Node.js fs available — use browser language as best guess.
-    // Obsidian on mobile runs in a WebView where navigator.language reflects the app locale.
-    const lang = (typeof navigator !== "undefined" && navigator.language) || "en";
-    return lang.toLowerCase().startsWith("zh") ? "zh" : "en";
-  }
-  try {
-    const fs = require("fs");
-    const os = require("os");
-    const path = require("path");
-
-    const home = os.homedir();
-    const candidates: string[] = [];
-
-    if (process.platform === "darwin") {
-      candidates.push(path.join(home, "Library/Application Support/obsidian/obsidian.json"));
-    } else if (process.platform === "win32") {
-      const appdata = process.env.APPDATA;
-      if (appdata) candidates.push(path.join(appdata, "obsidian/obsidian.json"));
-      candidates.push(path.join(home, "AppData/Roaming/obsidian/obsidian.json"));
-      candidates.push(path.join(home, app.vault.configDir, "obsidian.json"));
-    } else {
-      candidates.push(path.join(home, ".config/obsidian/obsidian.json"));
-    }
-
-    for (const configPath of candidates) {
-      if (fs.existsSync(configPath)) {
-        const raw = JSON.parse(fs.readFileSync(configPath, "utf-8")) as {
-          language?: unknown;
-        };
-        const language = typeof raw.language === "string" ? raw.language : "en";
-        return language.toLowerCase();
-      }
-    }
-    return "en";
-  } catch {
-    return "en";
-  }
+/** Detect Obsidian's app language via `moment.locale()`.
+ *  Obsidian syncs its language setting to Moment at startup (e.g. "zh-cn"),
+ *  on both desktop and mobile — no filesystem access required. */
+function detectLanguage(): string {
+  const lang = moment.locale();
+  return lang.toLowerCase().startsWith("zh") ? "zh" : "en";
 }
 
 /** Synchronous accessor. Returns cached language (set by initI18n) or "en" as fallback. */
@@ -57,9 +20,9 @@ function readObsidianLanguage(): string {
   return _cachedLang || "en";
 }
 
-export function initI18n(app: App): void {
-  // Always re-read obsidian.json to pick up language changes after plugin reload.
-  _cachedLang = _detectLanguage(app);
+export function initI18n(_app?: App): void {
+  // Always re-detect to pick up language changes after plugin reload.
+  _cachedLang = detectLanguage();
 }
 
 export function getDictKey(_app?: App | null): keyof typeof dicts {

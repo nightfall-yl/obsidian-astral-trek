@@ -595,8 +595,7 @@
   display: grid;
   grid-auto-flow: column;
   grid-template-rows: repeat(7, var(--hm-cell, 15px));
-  column-gap: var(--hm-cgap, 5px);
-  row-gap: var(--hm-rgap, 5px);
+  gap: var(--hm-rgap, 5px) var(--hm-cgap, 5px);
   width: max-content;
 }
 .astra-heatmap-wrapper .ad-ns__cell {
