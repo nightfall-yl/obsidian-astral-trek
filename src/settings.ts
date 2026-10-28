@@ -9,7 +9,7 @@ import {
   normalizePath,
   setIcon,
 } from "obsidian";
-import type { App, SettingDefinitionItem } from "obsidian";
+import type { App, Setting, SettingDefinitionItem } from "obsidian";
 import type AstraDashboardPlugin from "./main";
 import type { StartupMode } from "./models";
 import {
@@ -713,6 +713,67 @@ function renderSettings(
     "obsidianEditingMode: source",
   ];
 
+  /**
+   * 增量渲染一条视图模式规则行（文件夹/文件规则共用）。
+   * 添加/删除只操作单行 DOM，不做整页重渲染，避免滚动位置跳回设置页顶部。
+   */
+  const addRuleRow = <T extends { viewMode: string }>(params: {
+    rules: T[];
+    rule: T;
+    placeholder: string;
+    getPattern: () => string;
+    setPattern: (value: string) => void;
+    /** 新行插到该元素之前（文件夹规则行插到「文件规则」标题前），缺省追加到分组末尾 */
+    before?: HTMLElement;
+  }): void => {
+    let rowSetting: Setting | undefined;
+    forceViewGroup.addSetting((setting) => {
+      rowSetting = setting;
+      const rule = params.rule;
+      setting
+        .addText((text) => {
+          text
+            .setPlaceholder(params.placeholder)
+            .setValue(params.getPattern())
+            .onChange((value) => {
+              void (async () => {
+                params.setPattern(value);
+                await store.save();
+              })();
+            });
+        })
+        .addDropdown((dd) => {
+          forceViewModes.forEach((mode) => {
+            dd.addOption(mode, mode);
+          });
+          dd.setValue(rule.viewMode || "default").onChange((value) => {
+            void (async () => {
+              rule.viewMode = value;
+              await store.save();
+            })();
+          });
+        })
+        .addExtraButton((btn) =>
+          btn
+            .setIcon("cross")
+            .setTooltip($t("set.remaining.758"))
+            .onClick(() => {
+              void (async () => {
+                const index = params.rules.indexOf(rule);
+                if (index !== -1) {
+                  params.rules.splice(index, 1);
+                  await store.save();
+                }
+                rowSetting?.settingEl.remove();
+              })();
+            })
+        );
+    });
+    if (params.before && rowSetting) {
+      params.before.before(rowSetting.settingEl);
+    }
+  };
+
   // 文件夹规则
   forceViewGroup.addSetting((setting) => {
     setting
@@ -725,56 +786,40 @@ function renderSettings(
           .setTooltip($t("p4.10114"))
           .onClick(() => {
             void (async () => {
-              fv.folders.push({ folder: "", viewMode: "" });
+              const rule = { folder: "", viewMode: "" };
+              fv.folders.push(rule);
               await store.save();
-              renderSettings(container, plugin);
+              addRuleRow({
+                rules: fv.folders,
+                rule,
+                placeholder: $t("p4.10115"),
+                getPattern: () => rule.folder,
+                setPattern: (value) => {
+                  rule.folder = value;
+                },
+                before: fileRulesHeaderEl,
+              });
             })();
           })
       );
   });
 
-  fv.folders.forEach((folderMode, index) => {
-    forceViewGroup.addSetting((setting) => {
-      setting
-        .addText((text) => {
-          text
-            .setPlaceholder($t("p4.10115"))
-            .setValue(folderMode.folder)
-            .onChange((newFolder) => {
-              void (async () => {
-                folderMode.folder = newFolder;
-                await store.save();
-              })();
-            });
-        })
-        .addDropdown((dd) => {
-          forceViewModes.forEach((mode) => {
-          dd.addOption(mode, mode);
-        });
-          dd.setValue(folderMode.viewMode || "default").onChange((value) => {
-            void (async () => {
-              folderMode.viewMode = value;
-              await store.save();
-            })();
-          });
-        })
-        .addExtraButton((btn) =>
-          btn
-            .setIcon("cross")
-            .setTooltip($t("set.remaining.758"))
-            .onClick(() => {
-              void (async () => {
-                fv.folders.splice(index, 1);
-                await store.save();
-                renderSettings(container, plugin);
-              })();
-            })
-        );
+  fv.folders.forEach((rule) => {
+    addRuleRow({
+      rules: fv.folders,
+      rule,
+      placeholder: $t("p4.10115"),
+      getPattern: () => rule.folder,
+      setPattern: (value) => {
+        rule.folder = value;
+      },
     });
   });
 
   // 文件规则
+  let fileRulesHeaderEl: HTMLElement | undefined;
   forceViewGroup.addSetting((setting) => {
+    fileRulesHeaderEl = setting.settingEl;
     setting
       .setName($t("p4.10116"))
       .setDesc($t("set.fileRules.desc"))
@@ -785,51 +830,32 @@ function renderSettings(
           .setTooltip($t("p4.10118"))
           .onClick(() => {
             void (async () => {
-              fv.files.push({ filePattern: "", viewMode: "" });
+              const rule = { filePattern: "", viewMode: "" };
+              fv.files.push(rule);
               await store.save();
-              renderSettings(container, plugin);
+              addRuleRow({
+                rules: fv.files,
+                rule,
+                placeholder: $t("p4.10260"),
+                getPattern: () => rule.filePattern,
+                setPattern: (value) => {
+                  rule.filePattern = value;
+                },
+              });
             })();
           })
       );
   });
 
-  fv.files.forEach((fileMode, index) => {
-    forceViewGroup.addSetting((setting) => {
-      setting
-        .addText((text) => {
-          text
-            .setPlaceholder($t("p4.10260"))
-            .setValue(fileMode.filePattern)
-            .onChange((value) => {
-              void (async () => {
-                fileMode.filePattern = value;
-                await store.save();
-              })();
-            });
-        })
-        .addDropdown((dd) => {
-          forceViewModes.forEach((mode) => {
-          dd.addOption(mode, mode);
-        });
-          dd.setValue(fileMode.viewMode || "default").onChange((value) => {
-            void (async () => {
-              fileMode.viewMode = value;
-              await store.save();
-            })();
-          });
-        })
-        .addExtraButton((btn) =>
-          btn
-            .setIcon("cross")
-            .setTooltip($t("set.remaining.758"))
-            .onClick(() => {
-              void (async () => {
-                fv.files.splice(index, 1);
-                await store.save();
-                renderSettings(container, plugin);
-              })();
-            })
-        );
+  fv.files.forEach((rule) => {
+    addRuleRow({
+      rules: fv.files,
+      rule,
+      placeholder: $t("p4.10260"),
+      getPattern: () => rule.filePattern,
+      setPattern: (value) => {
+        rule.filePattern = value;
+      },
     });
   });
 

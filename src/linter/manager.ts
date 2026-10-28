@@ -7,6 +7,7 @@
 import type { App, Plugin, TFile} from "obsidian";
 import { type Editor } from "obsidian";
 import { normalizePath } from "obsidian";
+import { diffRange } from "./diff-range";
 import { DEFAULT_SETTINGS, type LinterSettings } from "./settings";
 import { applyTwoSpaces } from "./two-spaces";
 import { applyYamlTimestamp, type YamlTimestampRuntime } from "./yaml-timestamp";
@@ -82,13 +83,16 @@ export class LinterManager {
   }
 
   /**
-   * 对给定文件内容执行启用中的两条规则。返回规则应用后的新文本。
-   * 由 editor-save 触发时 file.stat.mtime 已刷新，YAML 时间戳的 5s 守卫能正常通过。
+   * 对给定文件内容执行启用中的规则。返回规则应用后的新文本。
+   * 编辑触发路径（includeYaml=false）不执行 YAML 时间戳：时间戳属于「文件完成态」
+   * 维护，在打字间隙刷新既语义错误，又会因非幂等（时间持续前进）造成持续 churn；
+   * 仅保存触发（includeYaml=true，此时 file.stat.mtime 已刷新，时间戳的 5s 守卫
+   * 能正常通过）时维护时间戳。
    */
-  lintText(text: string, file: TFile): string {
+  lintText(text: string, file: TFile, includeYaml = true): string {
     let modified = false;
     const twoSpacesEnabled = this.settings.twoSpaces.enabled;
-    const yamlEnabled = this.settings.yamlTimestamp.enabled;
+    const yamlEnabled = includeYaml && this.settings.yamlTimestamp.enabled;
 
     let result = text;
 
@@ -176,18 +180,23 @@ export class LinterManager {
             | null;
           const activeEditor = activeInfo?.editor ?? null;
           if (activeEditor) {
-            void this.runLinterEditor(activeEditor, currentFile);
+            // 编辑触发路径不维护 YAML 时间戳（见 lintText 注释）
+            void this.runLinterEditor(activeEditor, currentFile, false);
           }
         }, 800);
       })
     );
   }
 
-  private async runLinterEditor(editor: Editor, file: TFile): Promise<void> {
+  private async runLinterEditor(
+    editor: Editor,
+    file: TFile,
+    includeYaml = true
+  ): Promise<void> {
     const markdown = editor.getValue();
     if (!markdown) return;
 
-    const linted = this.lintText(markdown, file);
+    const linted = this.lintText(markdown, file, includeYaml);
     if (linted === markdown) {
       return;
     }
@@ -195,11 +204,11 @@ export class LinterManager {
     // 防止替换内容触发 change → 再次进入 lint（死循环）。
     this.isApplyingLint = true;
     try {
-      // 直接整文替换，避免逐段 diff dispatch 的位置映射错位。
-      // 原项目 obsidian-linter 也是用 editor.replaceRange 做整体替换。
-      const lastLine = editor.lineCount() - 1;
-      const endPos = { line: lastLine, ch: editor.getLine(lastLine).length };
-      editor.replaceRange(linted, { line: 0, ch: 0 }, endPos);
+      // 只替换新旧文本的差异区间，而不是整文替换：光标/滚动位于公共前后缀内时
+      // 由 CodeMirror 原生位置映射保持不动。整文替换会把位于替换区域内的光标
+      // 映射回文档顶部（社区反馈：打字时光标反复跳顶）。
+      const { from, to, insert } = diffRange(markdown, linted);
+      editor.replaceRange(insert, from, to);
       this.lastLintedContent.set(file.path, linted);
     } finally {
       // 下一帧解除，确保 CodeMirror 的 change 事件已派发完毕。
