@@ -1,6 +1,6 @@
 {
   "name": "astra",
-  "version": "26.3.0-preview",
+  "version": "26.3.0",
   "description": "An interactive home dashboard for tasks, knowledge graph, plugins, vault health, and writing activity.",
   "main": "main.js",
   "type": "module",

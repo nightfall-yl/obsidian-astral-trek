@@ -4,7 +4,7 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
-## [26.3.0-preview] - 2026-10-31
+## [26.3.0] - 2026-10-31
 
 ### 新增
 - **Vault Sync**（OneDrive 同步）：引擎自上游 obsidian-third-party-sync 移植并裁剪为 OneDrive 专用（新增 `src/sync/` 约 6000 行）
