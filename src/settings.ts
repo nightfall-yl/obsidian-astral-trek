@@ -1,17 +1,24 @@
 import { t as $t } from "./i18n";
+import { unixTimeToStr } from "./sync/misc";
 import {
   AbstractInputSuggest,
   Modal,
   PluginSettingTab,
+  Setting,
   SettingGroup,
   TFolder,
   TFile,
   normalizePath,
   setIcon,
 } from "obsidian";
-import type { App, Setting, SettingDefinitionItem } from "obsidian";
+import type { App, SettingDefinitionItem } from "obsidian";
+import type {
+  SyncDirectionType,
+  ConflictActionType,
+  DeleteToWhereType,
+} from "./sync/baseTypes";
 import type AstraDashboardPlugin from "./main";
-import type { StartupMode } from "./models";
+import type { StartupMode, SearchSettings } from "./models";
 import {
   DEFAULT_CALENDAR_SETTINGS,
   DEFAULT_CURSOR_POSITION_SETTINGS,
@@ -50,24 +57,6 @@ export class AstraSettingTab extends PluginSettingTab {
   }
 
   setControlValue(_key: string, _value: unknown): void | Promise<void> {}
-}
-
-export class AstraSettingsModal extends Modal {
-  constructor(
-    app: App,
-    private readonly astraPlugin: AstraDashboardPlugin
-  ) {
-    super(app);
-  }
-
-  onOpen(): void {
-    this.modalEl.addClass("astra-settings-modal");
-    renderSettings(this.contentEl, this.astraPlugin);
-  }
-
-  onClose(): void {
-    this.contentEl.empty();
-  }
 }
 
 /**
@@ -238,8 +227,18 @@ function renderSettings(
     },
     {
       id: "markdown",
-      label: "Markdown +",
+      label: "Markdown+",
       icon: "file-text",
+    },
+    {
+      id: "search",
+      label: "Vault Search",
+      icon: "search",
+    },
+    {
+      id: "sync",
+      label: "Vault Sync",
+      icon: "cloud",
     },
   ];
 
@@ -249,6 +248,9 @@ function renderSettings(
   const navButtons = new Map<string, HTMLButtonElement>();
 
   const setActiveSection = (sectionId: string) => {
+    // 记录到模块级：renderSettings 重建 DOM（如同步页 rerender）后恢复所在 tab，
+    // 否则会回落到第一个 tab
+    settingsActiveSectionId = sectionId;
     sectionEls.forEach((sectionEl, id) => {
       sectionEl.toggleClass("is-active", id === sectionId);
     });
@@ -257,7 +259,7 @@ function renderSettings(
     });
   };
 
-  sections.forEach((section, index) => {
+  sections.forEach((section) => {
     const button = navEl.createEl("button", {
       cls: "astra-settings-nav-btn",
       attr: { type: "button" },
@@ -270,11 +272,14 @@ function renderSettings(
 
     const sectionEl = contentEl.createDiv({ cls: "astra-settings-section" });
     sectionEls.set(section.id, sectionEl);
-    if (index === 0) {
-      sectionEl.addClass("is-active");
-      button.addClass("is-active");
-    }
   });
+
+  // 恢复上次的激活 tab（首次打开默认第一个）
+  setActiveSection(
+    sections.some((section) => section.id === settingsActiveSectionId)
+      ? settingsActiveSectionId
+      : (sections[0]?.id ?? "dashboard")
+  );
 
   // ===================== Dashboard =====================
   const dashboardEl = sectionEls.get("dashboard")!;
@@ -492,6 +497,42 @@ function renderSettings(
       });
   });
 
+  // ── 日历 ──
+  const calendarGroup = new SettingGroup(dashboardEl).setHeading($t("set.remaining.757"));
+
+  calendarGroup.addSetting((setting) => {
+    setting
+      .setName($t("p4.10097"))
+      .setDesc($t("p4.10098"))
+      .addDropdown((dd) => {
+        dd.addOption("left", $t("p4.10099"));
+        dd.addOption("right", $t("p4.10100"));
+        dd.setValue(plugin.data.settings.calendar.position);
+        dd.onChange((value) => {
+          void (async () => {
+            plugin.data.settings.calendar.position = value as "left" | "right";
+            await plugin.saveSettings();
+          })();
+        });
+      });
+  });
+
+  calendarGroup.addSetting((setting) => {
+    setting
+      .setName($t("p4.10101"))
+      .setDesc($t("p4.10102"))
+      .addToggle((toggle) =>
+        toggle
+          .setValue(plugin.data.settings.calendar.shouldConfirmBeforeCreate)
+          .onChange((value) => {
+            void (async () => {
+              plugin.data.settings.calendar.shouldConfirmBeforeCreate = value;
+              await plugin.saveSettings();
+            })();
+          })
+      );
+  });
+
   // ── 移动端模块显隐 ──
   const mobileGroup = new SettingGroup(dashboardEl).setHeading($t("p4.10095"));
   mobileGroup.addSetting((setting) => {
@@ -530,111 +571,11 @@ function renderSettings(
     });
   }
 
-  // ── 日历 ──
-  const calendarGroup = new SettingGroup(dashboardEl).setHeading($t("set.remaining.757"));
-
-  calendarGroup.addSetting((setting) => {
-    setting
-      .setName($t("p4.10097"))
-      .setDesc($t("p4.10098"))
-      .addDropdown((dd) => {
-        dd.addOption("left", $t("p4.10099"));
-        dd.addOption("right", $t("p4.10100"));
-        dd.setValue(plugin.data.settings.calendar.position);
-        dd.onChange((value) => {
-          void (async () => {
-            plugin.data.settings.calendar.position = value as "left" | "right";
-            await plugin.saveSettings();
-          })();
-        });
-      });
-  });
-
-  calendarGroup.addSetting((setting) => {
-    setting
-      .setName($t("p4.10101"))
-      .setDesc($t("p4.10102"))
-      .addToggle((toggle) =>
-        toggle
-          .setValue(plugin.data.settings.calendar.shouldConfirmBeforeCreate)
-          .onChange((value) => {
-            void (async () => {
-              plugin.data.settings.calendar.shouldConfirmBeforeCreate = value;
-              await plugin.saveSettings();
-            })();
-          })
-      );
-  });
-
-  /* ---- 全文搜索 ---- */
-
-  const searchGroup = new SettingGroup(dashboardEl).setHeading($t("search.group"));
-
-  searchGroup.addSetting((setting) => {
-    setting
-      .setName($t("search.set.ribbon.name"))
-      .setDesc($t("search.set.ribbon.desc"))
-      .addToggle((toggle) =>
-        toggle.setValue(plugin.data.settings.search.ribbonIcon).onChange((value) => {
-          void (async () => {
-            plugin.data.settings.search.ribbonIcon = value;
-            await plugin.saveSettings();
-            if (value) plugin.addSearchRibbon();
-            else plugin.removeSearchRibbon();
-          })();
-        })
-      );
-  });
-
-  searchGroup.addSetting((setting) => {
-    setting
-      .setName($t("search.set.excerpt.name"))
-      .setDesc($t("search.set.excerpt.desc"))
-      .addToggle((toggle) =>
-        toggle.setValue(plugin.data.settings.search.showExcerpt).onChange((value) => {
-          void (async () => {
-            plugin.data.settings.search.showExcerpt = value;
-            await plugin.saveSettings();
-          })();
-        })
-      );
-  });
-
-  searchGroup.addSetting((setting) => {
-    setting
-      .setName($t("search.set.lineReturn.name"))
-      .setDesc($t("search.set.lineReturn.desc"))
-      .addToggle((toggle) =>
-        toggle
-          .setValue(plugin.data.settings.search.renderLineReturnInExcerpts)
-          .onChange((value) => {
-            void (async () => {
-              plugin.data.settings.search.renderLineReturnInExcerpts = value;
-              await plugin.saveSettings();
-            })();
-          })
-      );
-  });
-
-  searchGroup.addSetting((setting) => {
-    setting
-      .setName($t("search.set.highlight.name"))
-      .setDesc($t("search.set.highlight.desc"))
-      .addToggle((toggle) =>
-        toggle.setValue(plugin.data.settings.search.highlight).onChange((value) => {
-          void (async () => {
-            plugin.data.settings.search.highlight = value;
-            await plugin.saveSettings();
-          })();
-        })
-      );
-  });
-
-  // ===================== Markdown + =====================
-  const markdownEl = sectionEls.get("markdown")!;
-
   // ── Minimal 主题（移植自 obsidian-minimal-settings，独立 JSON 存储） ──
-  renderMinimalSettings(markdownEl, plugin);
+  renderMinimalSettings(dashboardEl, plugin);
+
+  // ===================== Markdown+ =====================
+  const markdownEl = sectionEls.get("markdown")!;
 
   // ── 视图模式（存储于 Section2 的 static-data.json，经 StaticStore） ──
   const store = plugin.section2Store;
@@ -862,6 +803,98 @@ function renderSettings(
   // ── Linter（移植自 obsidian-linter，独立 JSON 存储） ──
   renderLinterSettings(markdownEl, plugin);
 
+  // ===================== Vault Search =====================
+  const searchEl = sectionEls.get("search")!;
+  renderSearchSettings(searchEl, plugin);
+
+  // ===================== OneDrive Sync =====================
+  const syncEl = sectionEls.get("sync")!;
+  renderSyncSettings(syncEl, plugin, () => renderSettings(container, plugin));
+
+}
+
+/* ======================= Vault Search（omnisearch 精简版：仅保留常用项，冷门项固定默认值） ======================= */
+
+/** 需要全量重建索引的设置（分词/索引范围类）；权重与查询行为实时生效 */
+const needsRebuild = (key: string): boolean =>
+  [
+    "tokenizeUrls",
+    "ignoreDiacritics",
+    "indexedFileTypes",
+    "indexFilesWithoutExtension",
+    "unsupportedFilesIndexing",
+    "displayTitle",
+    "hideExcluded"
+  ].includes(key);
+
+function renderSearchSettings(searchEl: HTMLElement, plugin: AstraDashboardPlugin): void {
+  const s = plugin.data.settings.search;
+
+  /** 更新设置；索引范围/分词类变更触发全量重建 */
+  const update = async (key: keyof SearchSettings, value: unknown): Promise<void> => {
+    Object.assign(s, { [key]: value });
+    await plugin.saveSettings();
+    if (needsRebuild(key)) await plugin.searchService.rebuild();
+  };
+
+  const toggleSetter =
+    (key: keyof SearchSettings) =>
+    (value: boolean): void => {
+      void update(key, value);
+    };
+
+  const group = new SettingGroup(searchEl);
+  group.addSetting((setting) => {
+    setting
+      .setName($t("search.set.hideExcluded.name"))
+      .setDesc($t("search.set.hideExcluded.desc"))
+      .addToggle((toggle) => toggle.setValue(s.hideExcluded).onChange(toggleSetter("hideExcluded")));
+  });
+  group.addSetting((setting) => {
+    setting
+      .setName($t("search.set.simple.name"))
+      .setDesc($t("search.set.simple.desc"))
+      .addToggle((toggle) => toggle.setValue(s.simpleSearch).onChange(toggleSetter("simpleSearch")));
+  });
+  group.addSetting((setting) => {
+    setting
+      .setName($t("search.set.excerpt.name"))
+      .setDesc($t("search.set.excerpt.desc"))
+      .addToggle((toggle) => toggle.setValue(s.showExcerpt).onChange(toggleSetter("showExcerpt")));
+  });
+  group.addSetting((setting) => {
+    setting
+      .setName($t("search.set.highlight.name"))
+      .setDesc($t("search.set.highlight.desc"))
+      .addToggle((toggle) => toggle.setValue(s.highlight).onChange(toggleSetter("highlight")));
+  });
+  group.addSetting((setting) => {
+    setting
+      .setName($t("search.set.prevQuery.name"))
+      .setDesc($t("search.set.prevQuery.desc"))
+      .addToggle((toggle) => toggle.setValue(s.showPreviousQueryResults).onChange(toggleSetter("showPreviousQueryResults")));
+  });
+  group.addSetting((setting) => {
+    setting
+      .setName($t("search.set.scrollToMatch.name"))
+      .setDesc($t("search.set.scrollToMatch.desc"))
+      .addToggle((toggle) => toggle.setValue(s.scrollToMatch).onChange(toggleSetter("scrollToMatch")));
+  });
+  group.addSetting((setting) => {
+    setting
+      .setName($t("search.set.fuzziness.name"))
+      .setDesc($t("search.set.fuzziness.desc"))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOptions({
+            "0": $t("search.opt.exact"),
+            "1": $t("search.opt.notTooFuzzy"),
+            "2": $t("search.opt.fuzzyEnough")
+          })
+          .setValue(s.fuzziness)
+          .onChange((v) => void update("fuzziness", v))
+      );
+  });
 }
 
 function parseExcludedFolders(value: string): string[] {
@@ -869,6 +902,510 @@ function parseExcludedFolders(value: string): string[] {
     .split(/\r?\n/u)
     .map((path) => normalizePath(path.trim()))
     .filter(Boolean);
+}
+
+/* ============================ OneDrive Sync ============================ */
+
+/** 设置页当前激活 tab（renderSettings 重建 DOM 后恢复，避免跳回第一个 tab） */
+let settingsActiveSectionId = "dashboard";
+
+/** 多行描述：按 \n 拆分为带换行的 DocumentFragment（上游用 createFragment 分行） */
+const syncMultilineDesc = (text: string): DocumentFragment => {
+  const frag = createFragment();
+  const lines = text.split("\n");
+  lines.forEach((part, i) => {
+    if (i > 0) {
+      frag.appendChild(createEl("br"));
+    }
+    frag.appendText(part);
+  });
+  return frag;
+};
+
+/** 修改密码确认（复刻上游 PasswordModal：修改会使既有加密文件失效的多点警示） */
+class SyncPasswordModal extends Modal {
+  constructor(
+    app: App,
+    private readonly onConfirm: () => Promise<void>
+  ) {
+    super(app);
+  }
+
+  onOpen(): void {
+    const { contentEl } = this;
+    contentEl.createEl("h3", { text: $t("modal_password_title") });
+    for (const key of [
+      "modal_password_shortdesc",
+      "modal_password_attn1",
+      "modal_password_attn2",
+      "modal_password_attn3",
+      "modal_password_attn4",
+      "modal_password_attn5",
+    ]) {
+      contentEl.createEl("p", { text: $t(key) });
+    }
+    new Setting(contentEl)
+      .addButton((b) =>
+        b.setButtonText($t("settings_cancel")).onClick(() => this.close())
+      )
+      .addButton((b) =>
+        b
+          .setButtonText($t("settings_confirm"))
+          .setCta()
+          .onClick(() => {
+            void (async () => {
+              await this.onConfirm();
+              this.close();
+            })();
+          })
+      );
+  }
+
+  onClose(): void {
+    this.contentEl.empty();
+  }
+}
+
+/** 同步 .obsidian 配置文件夹的二次确认（复刻上游 SyncConfigDirModal） */
+class SyncConfigDirConfirmModal extends Modal {
+  constructor(
+    app: App,
+    private readonly onConfirm: () => Promise<void>
+  ) {
+    super(app);
+  }
+
+  onOpen(): void {
+    const { contentEl } = this;
+    contentEl.createEl("h3", {
+      text: $t("settings_configdir"),
+    });
+    for (const key of ["modal_syncconfig_attn", "modal_syncconfig_secondconfirm"]) {
+      contentEl.createEl("p", { text: $t(key) });
+    }
+    new Setting(contentEl)
+      .addButton((b) =>
+        b
+          .setButtonText($t("modal_syncconfig_notice"))
+          .setWarning()
+          .onClick(() => {
+            void (async () => {
+              await this.onConfirm();
+              this.close();
+            })();
+          })
+      )
+      .addButton((b) =>
+        b.setButtonText($t("settings_cancel")).onClick(() => this.close())
+      );
+  }
+
+  onClose(): void {
+    this.contentEl.empty();
+  }
+}
+
+function renderSyncSettings(
+  syncEl: HTMLElement,
+  plugin: AstraDashboardPlugin,
+  rerender: () => void
+): void {
+  const s = plugin.data.settings.sync;
+  const syncManager = plugin.syncManager;
+
+  // ── 服务与状态（上游「OneDrive（个人版）（App Folder）设置」）──
+  const statusGroup = new SettingGroup(syncEl).setHeading(
+    $t("settings_onedrive")
+  );
+
+  // 鉴权 / 撤回鉴权（上游按连接状态互斥显示）
+  if (syncManager.isAuthorized) {
+    statusGroup.addSetting((setting) => {
+      setting
+        .setName($t("settings_onedrive_revoke"))
+        .setDesc(
+          $t("settings_onedrive_revoke_desc", {
+            username: s.onedriveConfig.username,
+          })
+        );
+      setting.addButton((btn) =>
+        btn
+          .setButtonText($t("settings_onedrive_revoke_button"))
+          .setWarning()
+          .onClick(() => {
+            void (async () => {
+              await syncManager.revokeAuth();
+              rerender();
+            })();
+          })
+      );
+    });
+  } else {
+    statusGroup.addSetting((setting) => {
+      setting
+        .setName($t("settings_onedrive_auth"))
+        .setDesc($t("settings_onedrive_auth_desc"));
+      setting.addButton((btn) =>
+        btn
+          .setButtonText($t("settings_onedrive_auth_button"))
+          .setCta()
+          .onClick(() => void syncManager.startAuth())
+      );
+    });
+  }
+
+  // 检查可否连接（上游 settings_checkonnectivity）
+  statusGroup.addSetting((setting) => {
+    setting
+      .setName($t("sync.action.checkConn"))
+      .setDesc($t("sync.action.checkConnDesc"));
+    setting.addButton((btn) =>
+      btn
+        .setButtonText($t("sync.action.checkConnButton"))
+        .onClick(() => void syncManager.checkConnection())
+    );
+  });
+
+  // 当前状态（移植自上游 settings_status_summary）
+  statusGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_status_summary"))
+      .setDesc(
+        $t("settings_status_summary_desc", {
+          service: "OneDrive",
+          direction: $t(`syncdirection_short_${s.syncDirection}`),
+          encryption: s.password
+            ? $t("settings_status_encrypted")
+            : $t("settings_status_notencrypted"),
+          lastsynced:
+            s.lastSynced > 0
+              ? (unixTimeToStr(s.lastSynced, "YYYY-MM-DD HH:mm:ss") ?? "—")
+              : $t("settings_status_neversynced"),
+        })
+      );
+  });
+
+  // ── 基本设置 ──
+  const basicGroup = new SettingGroup(syncEl).setHeading($t("settings_basic"));
+
+  // 密码（上游语义：空 = 不加密；确认修改走 PasswordModal）
+  let newPassword = `${s.password}`;
+  basicGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_password"))
+      .setDesc($t("settings_password_desc"))
+      .addText((text) => {
+        text.inputEl.type = "password";
+        text.setValue(newPassword).onChange((value) => {
+          newPassword = value.trim();
+        });
+      })
+      .addButton((button) =>
+        button.setButtonText($t("settings_confirm")).onClick(() => {
+          if (newPassword === s.password) {
+            return;
+          }
+          new SyncPasswordModal(plugin.app, async () => {
+            s.password = newPassword;
+            await plugin.saveSettings();
+          }).open();
+        })
+      );
+  });
+
+  // 同步方向（3 种；控件移到描述之后）
+  let directionSetting: Setting | null = null;
+  basicGroup.addSetting((setting) => {
+    directionSetting = setting;
+    setting
+      .setName($t("setting_syncdirection"))
+      .setDesc(syncMultilineDesc($t("setting_syncdirection_desc")))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption(
+            "bidirectional",
+            $t("setting_syncdirection_bidirectional_desc")
+          )
+          .addOption(
+            "incremental_push_and_delete_only",
+            $t("setting_syncdirection_incremental_push_and_delete_only_desc")
+          )
+          .addOption(
+            "incremental_pull_and_delete_only",
+            $t("setting_syncdirection_incremental_pull_and_delete_only_desc")
+          )
+          .setValue(s.syncDirection)
+          .onChange((value) => {
+            void (async () => {
+              s.syncDirection = value as SyncDirectionType;
+              await plugin.saveSettings();
+            })();
+          })
+      );
+  });
+  if (directionSetting !== null) {
+    const dse = directionSetting as Setting;
+    dse.settingEl.appendChild(dse.controlEl);
+  }
+
+  // 保存后同步延迟
+  basicGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_saverun"))
+      .setDesc($t("settings_saverun_desc"))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("-1", $t("settings_saverun_notset"))
+          .addOption("0", $t("settings_saverun_instant"))
+          .addOption("5000", $t("settings_saverun_5sec"))
+          .addOption("10000", $t("settings_saverun_10sec"))
+          .addOption("30000", $t("settings_saverun_30sec"))
+          .addOption("60000", $t("settings_saverun_1min"))
+          .setValue(`${s.syncOnSaveAfterMilliseconds}`)
+          .onChange((value) => {
+            void (async () => {
+              s.syncOnSaveAfterMilliseconds = parseInt(value);
+              await plugin.saveSettings();
+              syncManager.applyEnabled();
+            })();
+          })
+      );
+  });
+
+  // 自动运行
+  basicGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_autorun"))
+      .setDesc($t("settings_autorun_desc"))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("-1", $t("settings_autorun_notset"))
+          .addOption("5000", $t("settings_autorun_second", { time: 5 }))
+          .addOption("60000", $t("settings_autorun_1min"))
+          .addOption("300000", $t("settings_autorun_5min"))
+          .addOption("600000", $t("settings_autorun_10min"))
+          .addOption("1800000", $t("settings_autorun_30min"))
+          .setValue(`${s.autoRunEveryMilliseconds}`)
+          .onChange((value) => {
+            void (async () => {
+              s.autoRunEveryMilliseconds = parseInt(value);
+              await plugin.saveSettings();
+              syncManager.applyEnabled();
+            })();
+          })
+      );
+  });
+
+  // 检测远端变更后同步延迟
+  basicGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_remoterun"))
+      .setDesc($t("settings_remoterun_desc"))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("-1", $t("settings_remoterun_notset"))
+          .addOption("1000", $t("settings_remoterun_1sec"))
+          .addOption("5000", $t("settings_remoterun_5sec"))
+          .addOption("10000", $t("settings_remoterun_10sec"))
+          .addOption("60000", $t("settings_remoterun_1min"))
+          .setValue(`${s.syncOnRemoteChangesAfterMilliseconds}`)
+          .onChange((value) => {
+            void (async () => {
+              s.syncOnRemoteChangesAfterMilliseconds = parseInt(value);
+              await plugin.saveSettings();
+              syncManager.applyEnabled();
+            })();
+          })
+      );
+  });
+
+  // 启动后自动运行一次
+  basicGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_runoncestartup"))
+      .setDesc($t("settings_runoncestartup_desc"))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("-1", $t("settings_runoncestartup_notset"))
+          .addOption("1000", $t("settings_runoncestartup_1sec"))
+          .addOption("10000", $t("settings_runoncestartup_10sec"))
+          .addOption("30000", $t("settings_runoncestartup_30sec"))
+          .setValue(`${s.initRunAfterMilliseconds}`)
+          .onChange((value) => {
+            void (async () => {
+              s.initRunAfterMilliseconds = parseInt(value);
+              await plugin.saveSettings();
+              syncManager.applyEnabled();
+            })();
+          })
+      );
+  });
+
+  // ── 同步内容 ──
+  const whatGroup = new SettingGroup(syncEl).setHeading(
+    $t("settings_basic_what")
+  );
+
+  // 同步 .trash
+  whatGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_sync_trash"))
+      .setDesc($t("settings_sync_trash_desc"))
+      .addToggle((toggle) =>
+        toggle.setValue(s.syncTrash).onChange((value) => {
+          void (async () => {
+            s.syncTrash = value;
+            await plugin.saveSettings();
+          })();
+        })
+      );
+  });
+
+  // 同步书签
+  whatGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_sync_bookmarks"))
+      .setDesc($t("settings_sync_bookmarks_desc"))
+      .addToggle((toggle) =>
+        toggle.setValue(s.syncBookmarks).onChange((value) => {
+          void (async () => {
+            s.syncBookmarks = value;
+            await plugin.saveSettings();
+          })();
+        })
+      );
+  });
+
+  // 同步 _ 开头文件
+  whatGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_syncunderscore"))
+      .setDesc($t("settings_syncunderscore_desc"))
+      .addToggle((toggle) =>
+        toggle.setValue(s.syncUnderscoreItems).onChange((value) => {
+          void (async () => {
+            s.syncUnderscoreItems = value;
+            await plugin.saveSettings();
+          })();
+        })
+      );
+  });
+
+  // 同步配置文件夹（开 → 二次确认）
+  whatGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_configdir"))
+      .setDesc(
+        $t("settings_configdir_desc", {
+          configDir: plugin.app.vault.configDir,
+        })
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(s.syncConfigDir).onChange((value) => {
+          if (value && !s.syncConfigDir) {
+            toggle.setValue(false);
+            new SyncConfigDirConfirmModal(plugin.app, async () => {
+              s.syncConfigDir = true;
+              await plugin.saveSettings();
+              toggle.setValue(true);
+            }).open();
+            return;
+          }
+          void (async () => {
+            s.syncConfigDir = false;
+            await plugin.saveSettings();
+          })();
+        })
+      );
+  });
+
+  // ── 进阶设置 ──
+  const advGroup = new SettingGroup(syncEl).setHeading($t("settings_adv"));
+
+  // 跳过大文件
+  advGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_skiplargefiles"))
+      .setDesc($t("settings_skiplargefiles_desc"))
+      .addDropdown((dropdown) => {
+        const options: [string, string][] = [
+          ["-1", $t("settings_skiplargefiles_notset")],
+          ["1000000", "1MB"],
+          ["2000000", "2MB"],
+          ["5000000", "5MB"],
+          ["10000000", "10MB"],
+          ["50000000", "50MB"],
+          ["100000000", "100MB"],
+          ["500000000", "500MB"],
+          ["1000000000", "1000MB"],
+        ];
+        for (const [value, label] of options) {
+          dropdown.addOption(value, label);
+        }
+        dropdown
+          .setValue(`${s.skipSizeLargerThan}`)
+          .onChange((value) => {
+            void (async () => {
+              s.skipSizeLargerThan = parseInt(value);
+              await plugin.saveSettings();
+            })();
+          });
+      });
+  });
+
+  // 删除文件到哪里
+  advGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_deletetowhere"))
+      .setDesc($t("settings_deletetowhere_desc"))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("system_trash", $t("settings_deletetowhere_system_trash"))
+          .addOption(
+            "obsidian_trash",
+            $t("settings_deletetowhere_obsidian_trash")
+          )
+          .setValue(s.deleteToWhere)
+          .onChange((value) => {
+            void (async () => {
+              s.deleteToWhere = value as DeleteToWhereType;
+              await plugin.saveSettings();
+            })();
+          })
+      );
+  });
+
+  // 处理冲突
+  advGroup.addSetting((setting) => {
+    setting
+      .setName($t("settings_conflictaction"))
+      .setDesc($t("settings_conflictaction_desc"))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("keep_newer", $t("settings_conflictaction_keep_newer"))
+          .addOption("keep_larger", $t("settings_conflictaction_keep_larger"))
+          .setValue(s.conflictAction)
+          .onChange((value) => {
+            void (async () => {
+              s.conflictAction = value as ConflictActionType;
+              await plugin.saveSettings();
+            })();
+          })
+      );
+  });
+
+  // 清空本地同步状态（astra 附加）
+  advGroup.addSetting((setting) => {
+    setting
+      .setName($t("sync.action.clearLocal"))
+      .setDesc($t("sync.action.clearLocalDesc"))
+      .addButton((btn) =>
+        btn
+          .setButtonText($t("sync.action.clearLocalButton"))
+          .setWarning()
+          .onClick(() => void syncManager.clearLocalSyncData())
+      );
+  });
 }
 
 /* ============================ Minimal 主题 ============================ */
@@ -909,8 +1446,34 @@ function renderMinimalSettings(
     await manager.saveSettings();
   };
 
+  // 「显示设置项」开关：借鉴 third-party-sync 调试模式的收起机制——
+  // 开关常显，组内其余设置项默认隐藏，打开后才显示。
+  const minimalSettingEls: HTMLElement[] = [];
+  const applyMinimalVisibility = (): void => {
+    const show = manager.settings.showSettings === true;
+    for (const el of minimalSettingEls) {
+      el.style.display = show ? "" : "none";
+    }
+  };
+
   // ── Color scheme ──
   const colorGroup = new SettingGroup(container).setHeading($t("p4.10119"));
+  colorGroup.addSetting((setting) => {
+    setting
+      .setName($t("p4.10261"))
+      .setDesc($t("p4.10262"))
+      .addToggle((toggle) =>
+        toggle
+          .setValue(manager.settings.showSettings)
+          .onChange((value) => {
+            void (async () => {
+              manager.settings.showSettings = value;
+              await save();
+              applyMinimalVisibility();
+            })();
+          })
+      );
+  });
   colorGroup.addSetting((setting) => {
     setting
       .setName($t("p4.10120"))
@@ -928,6 +1491,7 @@ function renderMinimalSettings(
           })();
         });
       });
+    minimalSettingEls.push(setting.settingEl);
   });
   colorGroup.addSetting((setting) => {
     setting
@@ -946,6 +1510,7 @@ function renderMinimalSettings(
           })();
         });
       });
+    minimalSettingEls.push(setting.settingEl);
   });
 
   colorGroup.addSetting((setting) => {
@@ -963,6 +1528,7 @@ function renderMinimalSettings(
             })();
           })
       );
+    minimalSettingEls.push(setting.settingEl);
   });
   colorGroup.addSetting((setting) => {
     setting
@@ -979,6 +1545,7 @@ function renderMinimalSettings(
             })();
           })
       );
+    minimalSettingEls.push(setting.settingEl);
   });
   colorGroup.addSetting((setting) => {
     setting
@@ -995,7 +1562,9 @@ function renderMinimalSettings(
             })();
           })
       );
+    minimalSettingEls.push(setting.settingEl);
   });
+  applyMinimalVisibility();
 }
 
 /* ============================ Linter ============================ */

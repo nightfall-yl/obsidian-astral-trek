@@ -4,6 +4,46 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
+## [26.3.0-preview] - 2026-10-31
+
+### 新增
+- **Vault Sync**（OneDrive 同步）：引擎自上游 obsidian-third-party-sync 移植并裁剪为 OneDrive 专用（新增 `src/sync/` 约 6000 行）
+  - 授权：OAuth2 PKCE 登录（`obsidian://astra-onedrive` 回调），可随时撤回授权
+  - 同步方向：双向（互为镜像）/ 仅上传（本库为基准的备份）/ 仅下载（从云端拉取），均含删除操作；冲突按保留较新或保留较大处理；删除可送系统回收站或 Obsidian `.trash`
+  - 同步范围：`.obsidian` 配置目录（默认关）、书签 `bookmarks.json` 可单独同步、`.trash`（默认关）、下划线开头隐藏文件（默认关）、单文件大小上限
+  - 安全防护：保护阈值（待修改/删除文件占比超限时中止本次同步）；可选密码端到端加密
+  - 触发方式：ribbon 按钮与命令手动同步、定时自动、启动后首次延迟、保存笔记防抖、远端变更检测，均可独立配置或关闭
+  - 界面：设置页 4 组（状态 / 基本 / 同步内容 / 高级）；状态栏显示上次同步相对时间（刚刚 / N 分钟前…，30 秒自动刷新）与同步中实时步骤；ribbon「Astra同步」按钮同步中图标切换
+- **Vault Search**：全文搜索升级为独立功能 tab（自 Astra tab 内的设置组迁出，名称固定 `Vault Search`，图标 search）
+  - 设置：单组 7 项、无组名——尊重 Obsidian 的「排除的文件」/ 简单搜索 / 显示摘录 / 高亮匹配词 / 显示上一次的查询 / 定位到命中文本（6 个开关）+ 模糊度（下拉，垫底）；索引范围与结果权重固定为内置默认值
+  - 入口：ribbon「Astra搜索」常驻 + 命令「打开全文搜索」（可在「设置 → 热键」自行绑定）；
+  - 索引持久化：索引落盘至插件目录 `search-index.json`（含格式版本 + 设置指纹 + 文件 mtime 表），重启后跳过全量重建、毫秒级恢复可用；启动时后台按 mtime 对账，自动修复 Obsidian 关闭期间因同步等外部改动增删改的文件；增量编辑 5 秒防抖写盘（串行队列防交错），插件卸载时立即 flush；缓存损坏或写失败静默降级为全量重建；修复 `rebuild()` 会重复注册事件监听的问题（新增 `computeFingerprint` / `planReconcile` 纯函数，vitest +4 例）
+- **数据版本清退机制**：主数据新增 `dataVersion` 字段，一次性迁移收口为 `DATA_MIGRATIONS` 注册表（每条带 `to` 目标版本与 `introducedIn` 引入版本标注）；低于 `RETIRED_BELOW_DATA_VERSION` 清退线的历史数据放弃迁移、直接回默认值——`data.json` 只存配置与统计，用户内容全在 Markdown 文件里，重置代价可控。今后删除旧迁移 = 删注册表条目 + 抬清退线 + 删对应测试
+  - 快速捕获旧字段（storagePath/namingPattern/templateFile → filePath）收编为注册表首条目（v1→v2）
+  - 热力图空值归一化、sync 方向回退 / clientID 回填 / 已移除设置项钳制等防御性逻辑归并为永驻 `normalizeHeatmapSettings` / `normalizeSyncSettings`（不占版本号）
+  - `loadPluginData` 由 ~160 行散装迁移缩为 ~72 行骨架；Section2 forceViewMode 迁移补 `introducedIn` 与自清退说明
+
+### 调整
+- **插件 ID `astral-trek` → `astra`**（与显示名对齐）：首次加载自动把旧目录的 `data.json` / `static-data.json` / `search-index.json` 迁移到新目录；OAuth 回调同步改为 `obsidian://astra-onedrive`（需在 Azure 应用注册中添加该重定向 URI，已授权令牌不受影响）；旧 `astral-trek` 条目需停用卸载后手动删除目录
+- **设置页四 tab 架构**（同步整合前置，Phase 1）：固定名称 `Astra / Markdown+ / Vault Search / Vault Sync`，图标 layout-dashboard / file-text / search / cloud
+  - Minimal 主题设置自 Markdown+ 迁入 Astra（工作台 + 日历 + 主题）
+  - tab 栏移动端适配：窄面板下横向滑动（隐藏滚动条），桌面端无变化；修复移动端暗色模式下设置组背景框
+- **Ribbon 按钮 i18n 化命名**：Astra主页 / Astra日历 / Astra搜索 / Astra同步
+- **Minimal 组新增「显示设置项」开关**（默认收起 5 项）
+
+### 性能
+- **光标位置记忆**：固定 100ms 常驻轮询改为快慢自适应——状态有变化保持 100ms 快采，连续静默约 1 秒后回退 1s 慢采，切换文件或状态变化立即恢复快采；活跃编辑时采样精度与原版一致，空闲轮询频率降 90%（滚动/光标无官方事件，保留轮询仅降频）
+- **写作统计**：`recordFileChange` 复用 metricCache 的 mtime+size 指纹，stat 未变化跳过全文 `cachedRead + countWords`（lint 回写、防抖连击等同内容多次 modify 场景由 O(全文) 降为 O(1)），重算后回写最新词数供后续 modify 与全库扫描复用
+
+### CSS 质量
+- **主页模块拖到垃圾桶的「即将删除」视觉从未生效**：卡片 DOM 基类为 `.astra-surface`，CSS 选择器更正为 `.astra-surface.astra-card--doomed`，半透明 + 红虚线反馈恢复
+- **死规则审计**：478 个类选择器全量反查 `src/` 语料，删除 8 组零引用规则（约 60 行）；保留 3 个 Obsidian 原生类（`.mod-root` 等）与 8 个有意预留的 `--ad-*` 调色板 token；
+
+### 测试
+- **lint 回写应用层集成测试**（+5 例）：真实 `LinterManager` + 最小 Editor 替身，锁死差异区间回写（防整文替换退化与跳光标回归）、跨行区间、无变化零回写、`lastLintedContent` 防重复 lint 记录、`isApplyingLint` 防重入门禁时序
+- **数据迁移与 normalization 测试**（+9 例）：heatmap / sync 归一化、quickCapture 迁移两分支、注册表不变量（`to` 单调递增且 ≤ 当前数据版本）
+- 全项目 12 文件 125 例通过
+
 ## [26.2.4] - 2026-10-28
 
 ### 修复

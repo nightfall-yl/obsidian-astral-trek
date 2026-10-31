@@ -11,4 +11,39 @@
 export const Platform = {
   isDesktop: true,
   isMobile: false,
+  isMobileApp: false,
+  isDesktopApp: true,
+  isAndroidApp: false,
+  isIosApp: false,
+};
+
+export const requireApiVersion = (_ver: string): boolean => true;
+
+export const normalizePath = (path: string): string => path;
+
+export const moment = (x?: number | string | Date) => {
+  const d = x === undefined ? new Date() : new Date(x);
+  return {
+    format: (_fmt?: string): string => d.toISOString(),
+  };
+};
+moment.locale = (): string => "en";
+
+export class TAbstractFile {
+  path = "";
+  name = "";
+  vault: Vault = new Vault();
+}
+
+export class TFile extends TAbstractFile {
+  stat = { ctime: 0, mtime: 0, size: 0 };
+  extension = "md";
+}
+
+export class TFolder extends TAbstractFile {}
+
+export class Vault {}
+
+export const requestUrl = (): Promise<never> => {
+  return Promise.reject(new Error("requestUrl is not available in tests"));
 };

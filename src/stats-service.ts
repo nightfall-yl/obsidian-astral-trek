@@ -56,8 +56,7 @@ export class StatsService {
   async recordFileChange(file: TFile, isCreate = false): Promise<void> {
     if (!this.isIncluded(file)) return;
 
-    const content = await this.app.vault.cachedRead(file);
-    const newWordCount = countWords(content);
+    const newWordCount = await this.currentWordCount(file);
     const previousWordCount = this.store.data.fileWordCounts[file.path];
     const addedWords =
       previousWordCount === undefined
@@ -79,8 +78,29 @@ export class StatsService {
     }
     this.store.data.activity[today] = entry;
     this.store.data.fileWordCounts[file.path] = newWordCount;
-    this.invalidate(file.path);
+    // metricCache 已在 currentWordCount 中刷新为最新内容指纹，不再失效，
+    // 后续 modify 事件与 scan 均可直接复用，避免重复全文计数
     this.store.requestDataSave();
+  }
+
+  /** 当前词数：stat 指纹（mtime + size）命中缓存时直接复用，避免每次 modify 都全文重数。 */
+  private async currentWordCount(file: TFile): Promise<number> {
+    const cached = this.metricCache.get(file.path);
+    if (
+      cached &&
+      cached.mtime === file.stat.mtime &&
+      cached.size === file.stat.size
+    ) {
+      return cached.words;
+    }
+    const content = await this.app.vault.cachedRead(file);
+    const words = countWords(content);
+    this.metricCache.set(file.path, {
+      mtime: file.stat.mtime,
+      size: file.stat.size,
+      words
+    });
+    return words;
   }
 
   recordDelete(file: TFile): void {

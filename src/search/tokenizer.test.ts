@@ -1,41 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { tokenize } from "./tokenizer";
+import { makeTokenizer, DEFAULT_TOKENIZE_OPTIONS } from "./tokenizer";
 
-describe("tokenize（Intl.Segmenter 词级切分）", () => {
-  it("中文切出词元", () => {
-    const tokens = tokenize("今天天气不错");
-    expect(tokens).toContain("今天");
-    expect(tokens).toContain("天气");
-    expect(tokens.length).toBeGreaterThan(0);
+describe("tokenizer", () => {
+  it("默认行为：中英混合切词 + 小写归一", () => {
+    const tokenize = makeTokenizer(DEFAULT_TOKENIZE_OPTIONS);
+    expect(tokenize("读书笔记 Reading Notes")).toContain("读书");
+    expect(tokenize("读书笔记 Reading Notes")).toContain("reading");
   });
 
-  it("英文大小写归一", () => {
-    expect(tokenize("Hello World")).toEqual(["hello", "world"]);
+  it("ignoreDiacritics：brûlée → brulee", () => {
+    const on = makeTokenizer({ ...DEFAULT_TOKENIZE_OPTIONS, ignoreDiacritics: true });
+    const off = makeTokenizer({ ...DEFAULT_TOKENIZE_OPTIONS, ignoreDiacritics: false });
+    expect(on("brûlée café")).toContain("brulee");
+    expect(on("brûlée café")).not.toContain("brûlée");
+    expect(off("brûlée café")).toContain("brûlée");
   });
 
-  it("中英混排", () => {
-    const tokens = tokenize("使用 Obsidian 记笔记");
-    expect(tokens).toContain("obsidian");
-    expect(tokens).toContain("使用");
-    expect(tokens).toContain("记笔记");
+  it("tokenizeUrls：URL 整体成词且域名内部词可用", () => {
+    const on = makeTokenizer({ ...DEFAULT_TOKENIZE_OPTIONS, tokenizeUrls: true });
+    const tokens = on("详见 https://www.example.com/docs/page 说明");
+    expect(tokens).toContain("www.example.com/docs/page");
+    expect(tokens).toContain("example");
   });
 
   it("标点与空白被过滤", () => {
-    const tokens = tokenize("你好，世界！ hello, world!!!");
+    const tokenize = makeTokenizer(DEFAULT_TOKENIZE_OPTIONS);
+    const tokens = tokenize("你好，world！！  #tag-1 #阅读");
     expect(tokens).not.toContain("，");
-    expect(tokens).not.toContain("！");
-    expect(tokens).not.toContain(",");
-    expect(tokens).toContain("你好");
-    expect(tokens).toContain("世界");
-    expect(tokens).toContain("hello");
-  });
-
-  it("所有词元均合法（无标点/空白，长度上限 40）", () => {
-    const tokens = tokenize("Astra 的全文搜索 full-text search，2026 年！");
-    expect(tokens.length).toBeGreaterThan(0);
-    for (const t of tokens) {
-      expect(t).toMatch(/^[\p{L}\p{N}_]+$/u);
-      expect(t.length).toBeLessThanOrEqual(40);
-    }
+    expect(tokens).toContain("tag");
+    expect(tokens).toContain("1");
+    expect(tokens).toContain("阅读");
   });
 });

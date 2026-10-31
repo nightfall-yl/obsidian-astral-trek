@@ -33,6 +33,8 @@ export class CursorPositionManager {
   private lastLoadedFileName: string = "";
   private loadedLeafIdList: string[] = [];
   private loadingFile = false;
+  private pollTimer: number | null = null;
+  private pollIdleTicks = 0;
 
   constructor(plugin: Plugin, settings: CursorPositionSettings) {
     this.plugin = plugin;
@@ -55,9 +57,11 @@ export class CursorPositionManager {
     }
 
     this.plugin.registerEvent(
-      this.plugin.app.workspace.on("file-open", (file) =>
-        this.restoreEphemeralState(file || undefined)
-      )
+      this.plugin.app.workspace.on("file-open", (file) => {
+        // 切换文件后立即恢复快采节奏
+        this.pollIdleTicks = 0;
+        void this.restoreEphemeralState(file || undefined);
+      })
     );
 
     this.plugin.registerEvent(
@@ -76,9 +80,7 @@ export class CursorPositionManager {
       this.plugin.app.vault.on("delete", (file) => this.deleteFile(file))
     );
 
-    this.plugin.registerInterval(
-      window.setInterval(() => this.checkEphemeralStateChanged(), 100)
-    );
+    this.scheduleNextPoll();
 
     this.plugin.registerInterval(
       window.setInterval(() => {
@@ -90,7 +92,35 @@ export class CursorPositionManager {
   }
 
   onunload() {
+    if (this.pollTimer !== null) {
+      window.clearTimeout(this.pollTimer);
+      this.pollTimer = null;
+    }
     void this.writeDb(this.db);
+  }
+
+  /**
+   * 自调度轮询：状态有变化后保持 100ms 快采，连续静默后回退 1s 慢采。
+   * 原实现为固定 100ms 常驻 setInterval（每秒 10 次永不停止）；
+   * 滚动/光标位置无官方事件可订阅，故保留轮询但空闲降频——
+   * 活跃编辑时采样精度与原版一致，空闲时 CPU/电量占用降约 90%。
+   */
+  private scheduleNextPoll(
+    delayMs = CursorPositionManager.POLL_FAST_MS
+  ): void {
+    this.pollTimer = window.setTimeout(() => {
+      this.pollTimer = null;
+      if (this.checkEphemeralStateChanged()) {
+        this.pollIdleTicks = 0;
+      } else if (this.pollIdleTicks < CursorPositionManager.POLL_IDLE_AFTER_TICKS) {
+        this.pollIdleTicks += 1;
+      }
+      this.scheduleNextPoll(
+        this.pollIdleTicks >= CursorPositionManager.POLL_IDLE_AFTER_TICKS
+          ? CursorPositionManager.POLL_IDLE_MS
+          : CursorPositionManager.POLL_FAST_MS
+      );
+    }, delayMs);
   }
 
   private renameFile(file: TAbstractFile, oldPath: string) {
@@ -105,12 +135,17 @@ export class CursorPositionManager {
     delete this.db[fileName];
   }
 
-  private checkEphemeralStateChanged() {
-    if (!this.settings.enabled) return;
+  private static readonly POLL_FAST_MS = 100;
+  private static readonly POLL_IDLE_MS = 1000;
+  private static readonly POLL_IDLE_AFTER_TICKS = 10;
+
+  /** @returns 本次采样相对上次是否有变化（驱动快慢轮询回退）。 */
+  private checkEphemeralStateChanged(): boolean {
+    if (!this.settings.enabled) return false;
 
     const fileName = this.plugin.app.workspace.getActiveFile()?.path;
     if (!fileName || !this.lastLoadedFileName || fileName != this.lastLoadedFileName || this.loadingFile)
-      return;
+      return false;
 
     const st = this.getEphemeralState();
     if (!this.lastEphemeralState) this.lastEphemeralState = st;
@@ -118,7 +153,9 @@ export class CursorPositionManager {
     if (!isNaN(st.scroll!) && !this.isEphemeralStatesEquals(st, this.lastEphemeralState)) {
       void this.saveEphemeralState(st);
       this.lastEphemeralState = st;
+      return true;
     }
+    return false;
   }
 
   private isEphemeralStatesEquals(state1: EphemeralState, state2: EphemeralState): boolean {

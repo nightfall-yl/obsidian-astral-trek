@@ -1,16 +1,20 @@
 import { initI18n, t as $t } from "./i18n";
 import type { App, PluginManifest} from "obsidian";
-import { Plugin, TFile } from "obsidian";
+import { Notice, Plugin, TFile, normalizePath } from "obsidian";
 import {
   AstraDashboardView,
   VIEW_TYPE_ASTRA_DASHBOARD
 } from "./dashboard-view";
 import {
+  CURRENT_DATA_VERSION,
+  DATA_MIGRATIONS,
   DEFAULT_DATA,
-  DEFAULT_HEATMAP_SETTINGS,
   DEFAULT_SETTINGS,
   DEFAULT_CURSOR_POSITION_SETTINGS,
   DEFAULT_CALENDAR_SETTINGS,
+  RETIRED_BELOW_DATA_VERSION,
+  normalizeHeatmapSettings,
+  normalizeSyncSettings,
   type AstraPluginData,
   type AstraSettings,
   type ForceViewModeSettings,
@@ -30,6 +34,7 @@ import { QueryManager } from "./query/manager";
 import { SearchService } from "./search/search-service";
 import { AstraSearchModal } from "./search/search-modal";
 import { DEFAULT_SEARCH_SETTINGS } from "./models";
+import { SyncManager } from "./sync/sync-manager";
 import { StaticStore } from "./static-store";
 import type { IWeekStartOption } from "obsidian-calendar-ui";
 
@@ -42,7 +47,10 @@ export default class AstraDashboardPlugin extends Plugin {
   linterManager!: LinterManager;
   queryManager!: QueryManager;
   searchService!: SearchService;
+  /** Vault Sync（OneDrive 同步，Phase 2 移植，详见 src/sync/） */
+  syncManager!: SyncManager;
   private searchRibbonEl: HTMLElement | null = null;
+
   /** Section2「Markdown+」三功能（视图模式/Minimal/Linter）的统一设置存储。 */
   section2Store: StaticStore;
   private saveTimer: number | null = null;
@@ -63,7 +71,7 @@ export default class AstraDashboardPlugin extends Plugin {
       (leaf) => new AstraDashboardView(leaf, this)
     );
 
-    this.addRibbonIcon("home", "打开 Astra", () => {
+    this.addRibbonIcon("home", $t("ribbon.home"), () => {
       void this.openDashboard("new-tab");
     });
 
@@ -73,7 +81,7 @@ export default class AstraDashboardPlugin extends Plugin {
     this.registerView(VIEW_TYPE_CALENDAR, (leaf) => new CalendarView(leaf));
     this.updateCalendarStore();
     if (this.data.settings.calendar.enabled) {
-      this.addRibbonIcon("calendar-days", "打开日历", () => {
+      this.addRibbonIcon("calendar-days", $t("ribbon.calendar"), () => {
         void this.activateCalendarView();
       });
     }
@@ -101,20 +109,32 @@ export default class AstraDashboardPlugin extends Plugin {
     this.queryManager = new QueryManager(this.app, this);
     await this.queryManager.onload();
 
-    // 全文搜索（ribbon 入口，懒建索引）
-    if (!this.data.settings.search) {
-      this.data.settings.search = { ...DEFAULT_SEARCH_SETTINGS };
-    }
+    // 全文搜索（ribbon 入口，懒建索引；search 默认值已在 loadPluginData 字段级合并）
     this.searchService = new SearchService(this.app, this);
-    if (this.data.settings.search.ribbonIcon) {
-      this.addSearchRibbon();
-    }
+    this.addSearchRibbon();
     this.addCommand({
       id: "open-search",
       name: $t("search.commandName"),
       // 社区审核要求不设默认热键（避免与用户已有绑定冲突）；请在「设置 → 热键」自行绑定
       callback: () => {
         new AstraSearchModal(this, this.searchService).open();
+      },
+    });
+
+    // Vault Sync（OneDrive 同步引擎移植自 third-party-sync；OAuth 回调始终注册）
+    this.syncManager = new SyncManager(this);
+    await this.syncManager.onload();
+    // Vault Sync ribbon（移植自上游：点击立即同步，同步中图标切换为 refresh-ccw）
+    this.syncManager.syncRibbon = this.addRibbonIcon(
+      "rotate-ccw",
+      $t("sync.ribbon.tip"),
+      () => void this.syncManager.syncRun("manual")
+    );
+    this.addCommand({
+      id: "onedrive-sync",
+      name: $t("sync.command.name"),
+      callback: () => {
+        void this.syncManager.syncRun("manual");
       },
     });
 
@@ -134,6 +154,8 @@ export default class AstraDashboardPlugin extends Plugin {
     this.minimalManager?.onunload();
     this.linterManager?.onunload();
     this.queryManager?.onunload();
+    this.syncManager?.onunload();
+    void this.searchService?.flush(); // 搜索索引立即写盘（取消防抖）
     this.removeSearchRibbon();
 
     if (this.saveTimer !== null) {
@@ -143,7 +165,18 @@ export default class AstraDashboardPlugin extends Plugin {
     }
   }
 
-  /** ribbon 搜索按钮（设置开关动态增删） */
+  /** 主页齿轮直达：打开 Obsidian 原生设置页的本插件 tab（桌面/移动端通用） */
+  openSettingsTab(): void {
+    const setting = (
+      this.app as unknown as {
+        setting?: { open(): void; openTabById(id: string): void };
+      }
+    ).setting;
+    setting?.open();
+    setting?.openTabById(this.manifest.id);
+  }
+
+  /** ribbon 搜索按钮（常驻，点击立即打开弹窗；首次建索引由弹窗内部处理） */
   addSearchRibbon(): void {
     if (this.searchRibbonEl) return;
     // 立即打开弹窗；首次建索引由弹窗内部显示进度（对齐 omnisearch，避免点击无反馈）
@@ -285,67 +318,72 @@ export default class AstraDashboardPlugin extends Plugin {
     });
   }
 
-  private async loadPluginData(): Promise<void> {
-    const saved = (await this.loadData()) as Partial<AstraPluginData> | null;
+  /**
+   * 插件 ID 由 `astral-trek` 改为 `astra` 后，Obsidian 从新目录
+   * `.obsidian/plugins/astra/` 读取设置，旧目录下的设置与索引会「丢失」。
+   * 这里在加载数据前把旧目录的数据文件复制过来；新目录已有同名文件则不覆盖，
+   * 因此重复执行是安全的。旧目录本身不删除——其中的 main.js 可能仍被旧插件
+   * 实例加载，需用户停用/卸载旧条目后手动删除。
+   */
+  private async migrateLegacyPluginDir(): Promise<void> {
+    const adapter = this.app.vault.adapter;
+    const oldDir = normalizePath(
+      `${this.app.vault.configDir}/plugins/astral-trek`
+    );
+    const newDir = this.manifest.dir;
+    if (!newDir || newDir === oldDir) return;
 
-    // Migrate heatmap settings from malformed values produced by earlier
-    // reconciliation bugs.  Old code could persist quoted empty strings
-    // (e.g. `""`, `" "`) into data.json; those silently produce zero
-    // contributions when handed to `dv.pages(...)`, so the heatmap grid
-    // renders but every cell stays grey.  Normalise them here so upgraded
-    // users see colours without having to re-save settings manually.
-    const savedHeat = saved?.settings?.heatmap;
-    const migratedHeatmap = savedHeat
-      ? { ...savedHeat }
-      : undefined;
-    if (migratedHeatmap) {
-      const badEmpty = /^\s*"?\s*"?\s*$/; // matches "", " ", "  ", '""' (serialized quotes), whitespace-only
-      if (
-        typeof migratedHeatmap.dataSourceValue === "string" &&
-        badEmpty.test(migratedHeatmap.dataSourceValue)
-      ) {
-        migratedHeatmap.dataSourceValue =
-          DEFAULT_HEATMAP_SETTINGS.dataSourceValue;
+    const dataFiles = [
+      "data.json",
+      "static-data.json",
+      "search-index.json",
+      "minimal-settings.json",
+      "linter-settings.json",
+    ];
+    let migrated = false;
+    for (const fileName of dataFiles) {
+      const oldPath = normalizePath(`${oldDir}/${fileName}`);
+      const newPath = normalizePath(`${newDir}/${fileName}`);
+      try {
+        if (!(await adapter.exists(oldPath)) || (await adapter.exists(newPath))) {
+          continue;
+        }
+        if (!(await adapter.exists(newDir))) await adapter.mkdir(newDir);
+        await adapter.write(newPath, await adapter.read(oldPath));
+        migrated = true;
+      } catch {
+        // 单个文件失败不影响启动，其余文件继续迁移
       }
-      if (
-        typeof migratedHeatmap.dateFieldValue === "string" &&
-        badEmpty.test(migratedHeatmap.dateFieldValue)
-      ) {
-        migratedHeatmap.dateFieldValue =
-          DEFAULT_HEATMAP_SETTINGS.dateFieldValue;
-      }
-      if (
-        typeof migratedHeatmap.dateFormat === "string" &&
-        badEmpty.test(migratedHeatmap.dateFormat)
-      ) {
-        migratedHeatmap.dateFormat = DEFAULT_HEATMAP_SETTINGS.dateFormat;
-      }
-      if (
-        typeof migratedHeatmap.countFieldValue === "string" &&
-        badEmpty.test(migratedHeatmap.countFieldValue)
-      ) {
-        migratedHeatmap.countFieldValue =
-          DEFAULT_HEATMAP_SETTINGS.countFieldValue;
-      }
-      if (
-        typeof migratedHeatmap.excludeFolders === "string" &&
-        badEmpty.test(migratedHeatmap.excludeFolders)
-      ) {
-        migratedHeatmap.excludeFolders =
-          DEFAULT_HEATMAP_SETTINGS.excludeFolders;
+    }
+    if (migrated) new Notice($t("migration.pluginIdRenamed"), 10000);
+  }
+
+  private async loadPluginData(): Promise<void> {
+    await this.migrateLegacyPluginDir();
+    const saved = (await this.loadData()) as Partial<AstraPluginData> | null;
+    // 旧数据无 dataVersion 字段，视为 v1（进入迁移链）；全新安装（无存档）跳过迁移
+    const savedVersion =
+      typeof saved?.dataVersion === "number" ? saved.dataVersion : 1;
+
+    // 一次性迁移：注册表见 models.ts 的 DATA_MIGRATIONS（含 introducedIn 清退标注）。
+    // 低于清退线的历史数据放弃迁移、直接回默认值——data.json 只存配置与统计，
+    // 用户内容全在 Markdown 文件里，重置代价可控。
+    if (saved && savedVersion >= RETIRED_BELOW_DATA_VERSION) {
+      for (const migration of DATA_MIGRATIONS) {
+        if (savedVersion < migration.to) {
+          migration.run(saved);
+        }
       }
     }
 
     this.data = {
       ...structuredClone(DEFAULT_DATA),
       ...saved,
+      dataVersion: CURRENT_DATA_VERSION,
       settings: {
         ...DEFAULT_SETTINGS,
         ...(saved?.settings ?? {}),
-        heatmap: {
-          ...DEFAULT_HEATMAP_SETTINGS,
-          ...(migratedHeatmap ?? {})
-        },
+        heatmap: normalizeHeatmapSettings(saved?.settings?.heatmap),
         cursorPosition: {
           ...DEFAULT_CURSOR_POSITION_SETTINGS,
           ...(saved?.settings?.cursorPosition ?? {})
@@ -353,6 +391,14 @@ export default class AstraDashboardPlugin extends Plugin {
         calendar: {
           ...DEFAULT_CALENDAR_SETTINGS,
           ...(saved?.settings?.calendar ?? {})
+        },
+        sync: normalizeSyncSettings(saved?.settings?.sync),
+        // 全文搜索：字段级合并。旧数据只有 4 个 UI 字段，若整体覆盖会丢掉
+        // 权重/分词/索引范围等新字段（undefined 会中断设置页渲染并连带
+        // 其后的 OneDrive Sync 段不渲染）。
+        search: {
+          ...DEFAULT_SEARCH_SETTINGS,
+          ...(saved?.settings?.search ?? {})
         }
       },
       activity: saved?.activity ?? {},
@@ -362,8 +408,10 @@ export default class AstraDashboardPlugin extends Plugin {
       linkTrackingStartedAt: saved?.linkTrackingStartedAt ?? null
     };
 
-    // Section2「Markdown+」设置迁移：forceViewMode 旧版存于主 data.json，
-    // 现统一并入 static-data.json（与 Minimal/Linter 一起），并从主数据移除。
+    // Section2「Markdown+」设置迁移（一次性，introducedIn ≈26.1.x）：
+    // forceViewMode 旧版存于主 data.json，现统一并入 static-data.json（与 Minimal/Linter 一起）。
+    // 自清退：迁移完成后主数据不再写回该键，重复加载自动 no-op；
+    // 待 RETIRED_BELOW_DATA_VERSION 覆盖 26.2.5 之前版本时可整段删除。
     await this.section2Store.load();
     await this.section2Store.migrateFromLegacy();
     const legacyFV = (
@@ -382,23 +430,6 @@ export default class AstraDashboardPlugin extends Plugin {
     // 避免 saveData 把旧值写回。
     if ("forceViewMode" in (this.data.settings as unknown as Record<string, unknown>)) {
       delete (this.data.settings as unknown as Record<string, unknown>).forceViewMode;
-    }
-
-    // 迁移旧「快速捕捉」设置：旧版为 storagePath/namingPattern/templateFile（每日新建），
-    // 新版统一追加写入 filePath 指定的单个文件。路径由用户在设置里自行选择，这里只做兼容迁移。
-    const qc = this.data.settings.quickCapture as
-      | (typeof this.data.settings.quickCapture & {
-          storagePath?: string;
-          namingPattern?: string;
-          templateFile?: string;
-        })
-      | undefined;
-    if (!qc || typeof qc.filePath !== "string" || !qc.filePath.trim()) {
-      const dir = (qc?.storagePath ?? "").trim().replace(/\/+$/, "");
-      // 只从旧字段继承目录；没有则留空，由用户在设置里自行选择
-      this.data.settings.quickCapture = {
-        filePath: dir ? `${dir}/快速捕获.md` : ""
-      };
     }
   }
 

@@ -1,6 +1,6 @@
 {
-  "name": "astral-trek",
-  "version": "26.2.4",
+  "name": "astra",
+  "version": "26.3.0-preview",
   "description": "An interactive home dashboard for tasks, knowledge graph, plugins, vault health, and writing activity.",
   "main": "main.js",
   "type": "module",
@@ -25,11 +25,11 @@
   "author": "nightfall",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nightfall-yl/obsidian-astral-trek.git"
+    "url": "git+https://github.com/nightfall-yl/obsidian-astra.git"
   },
-  "homepage": "https://github.com/nightfall-yl/obsidian-astral-trek#readme",
+  "homepage": "https://github.com/nightfall-yl/obsidian-astra#readme",
   "bugs": {
-    "url": "https://github.com/nightfall-yl/obsidian-astral-trek/issues"
+    "url": "https://github.com/nightfall-yl/obsidian-astra/issues"
   },
   "license": "MIT",
   "devDependencies": {

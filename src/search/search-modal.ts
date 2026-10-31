@@ -4,15 +4,18 @@
 // - ↑↓ 选择，Enter 当前窗打开，Mod+Enter 新标签，Shift+Enter 新建笔记，
 //   Alt+Enter 插入链接，Alt+↑↓ 搜索历史，Mod+G 临时切换摘录
 // - 中文 IME 组合期间 Enter 不触发（isComposing 防护）
+// - omnisearch 同名行为：Show previous query results / Show "Create note" button /
+//   Set Vim like navigation keys / Scroll to the matched text
 // 点击/悬停预览复用 Obsidian 全局机制，不经过 MarkdownRenderer（免疫第三方 post-processor）。
 
-import { MarkdownView, Modal, Notice, Platform, TFile, debounce } from "obsidian";
+import { MarkdownView, Modal, Notice, Platform, TFile, debounce, normalizePath } from "obsidian";
 import type AstraDashboardPlugin from "../main";
 import type { SearchService } from "./search-service";
 import { buildExcerpt, type AstraSearchResult } from "./search-core";
 import { t as $t } from "../i18n";
 
 const HISTORY_KEY = "astra-search-history";
+const LAST_QUERY_KEY = "astra-search-last-query";
 const HISTORY_LIMIT = 20;
 const RESULT_LIMIT = 50;
 const EXCERPT_WINDOW = 120;
@@ -83,6 +86,19 @@ export class AstraSearchModal extends Modal {
 
     window.setTimeout(() => this.inputEl.focus());
 
+    // Show previous query results：打开弹窗时重新执行上一次查询
+    if (this.plugin.data.settings.search.showPreviousQueryResults) {
+      try {
+        const last = this.plugin.app.loadLocalStorage(LAST_QUERY_KEY) as string | null;
+        if (last && last.trim().length > 0 && !this.query) {
+          this.inputEl.value = last;
+          this.query = last;
+        }
+      } catch {
+        // localStorage 不可用时忽略
+      }
+    }
+
     // 首次打开时触发全量建索引（仅当搜索功能被实际使用）
     void (async () => {
       await this.service.ensureStarted();
@@ -114,7 +130,9 @@ export class AstraSearchModal extends Modal {
     } else if (e.key === "Enter") {
       e.preventDefault();
       const result = this.results[this.selected];
-      if (e.altKey && result) {
+      if (e.shiftKey) {
+        void this.createNote(); // Shift+Enter 新建笔记
+      } else if (e.altKey && result) {
         this.insertLink(result); // Alt+Enter 插入链接
       } else if (result) {
         this.openResult(result, mod); // Enter 当前窗 / Mod+Enter 新标签
@@ -221,7 +239,26 @@ export class AstraSearchModal extends Modal {
     if (!(file instanceof TFile)) return;
     this.pushHistory(this.query);
     void this.plugin.app.workspace.openLinkText(file.path, "", newLeaf);
+    if (this.plugin.data.settings.search.scrollToMatch) {
+      this.scrollToFirstMatch(result);
+    }
     if (!newLeaf) this.close();
+  }
+
+  /** Scroll to the matched text when opening a note：光标定位到首个命中 */
+  private scrollToFirstMatch(result: AstraSearchResult): void {
+    const term = result.terms[0];
+    if (!term) return;
+    window.setTimeout(() => {
+      const view = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
+      if (!view || view.file?.path !== result.id) return;
+      const editor = view.editor;
+      const idx = editor.getValue().toLowerCase().indexOf(term.toLowerCase());
+      if (idx === -1) return;
+      const pos = editor.offsetToPos(idx);
+      editor.setCursor(pos);
+      editor.scrollIntoView({ from: pos, to: pos }, true);
+    }, 150);
   }
 
   /** 在活动编辑器光标处插入 [[路径|标题]] */
@@ -234,6 +271,31 @@ export class AstraSearchModal extends Modal {
     }
     view.editor.replaceSelection(`[[${result.id}|${title}]]`);
     this.close();
+  }
+
+  /** Shift+Enter /「新建笔记」按钮：以当前查询为名新建笔记并打开 */
+  private async createNote(): Promise<void> {
+    const q = this.query.trim();
+    if (!q) return;
+    let path = normalizePath(`${q}.md`);
+    let n = 1;
+    while (this.plugin.app.vault.getAbstractFileByPath(path)) {
+      path = normalizePath(`${q} ${n}.md`);
+      n++;
+    }
+    try {
+      await this.plugin.app.vault.create(path, "");
+      this.pushHistory(q);
+      try {
+        this.plugin.app.saveLocalStorage(LAST_QUERY_KEY, q);
+      } catch {
+        // 忽略存储失败
+      }
+      void this.plugin.app.workspace.openLinkText(path, "", false);
+      this.close();
+    } catch {
+      new Notice($t("search.createFailed"));
+    }
   }
 
   /* ---- 历史 ---- */
@@ -254,6 +316,7 @@ export class AstraSearchModal extends Modal {
     this.history = [q, ...this.history.filter((h) => h !== q)].slice(0, HISTORY_LIMIT);
     try {
       this.plugin.app.saveLocalStorage(HISTORY_KEY, JSON.stringify(this.history));
+      this.plugin.app.saveLocalStorage(LAST_QUERY_KEY, q);
     } catch {
       // 存储满/不可用时静默忽略，搜索功能不受影响
     }
@@ -266,6 +329,7 @@ export class AstraSearchModal extends Modal {
     const footer = this.modalEl.createDiv("astra-search-footer");
     footer.createSpan({ text: "↵ " + $t("search.hintOpen") });
     footer.createSpan({ text: `${mod}↵ ` + $t("search.hintNewLeaf") });
+    footer.createSpan({ text: "⇧↵ " + $t("search.hintCreate") });
     footer.createSpan({ text: "⌥↵ " + $t("search.hintInsert") });
     footer.createSpan({ text: "⌥↑↓ " + $t("search.hintHistory") });
   }

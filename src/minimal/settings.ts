@@ -36,6 +36,8 @@ export interface MinimalSettings {
   folding: boolean;
   lineNumbers: boolean;
   readableLineLength: boolean;
+  /** 设置组「显示设置项」开关：控制 Minimal 组内各设置项的显隐（默认收起）。 */
+  showSettings: boolean;
 }
 
 export const DEFAULT_SETTINGS: MinimalSettings = {
@@ -69,4 +71,5 @@ export const DEFAULT_SETTINGS: MinimalSettings = {
   folding: true,
   lineNumbers: false,
   readableLineLength: false,
+  showSettings: false,
 };

@@ -1,18 +1,22 @@
 # Astra
 
-个人工作台插件 — 快速捕获 · 任务管理 · 项目管理 · 写作统计 · 日历，一页尽收。
+个人工作台插件 — 工作台 · 全文搜索 · OneDrive 同步 · Markdown 增强，一页尽收。
 
-[![Version](https://img.shields.io/github/v/release/nightfall-yl/obsidian-astral-trek?label=version)](https://github.com/nightfall-yl/obsidian-astral-trek) | [![Obsidian](https://img.shields.io/badge/Obsidian-1.11.0%2B-purple)](https://obsidian.md) | [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/nightfall-yl/obsidian-astra?label=version)](https://github.com/nightfall-yl/obsidian-astra) | [![Obsidian](https://img.shields.io/badge/Obsidian-1.11.0%2B-purple)](https://obsidian.md) | [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 [English](README.md) | 简体中文
 
-Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管理 / 笔记统计 / 日历」收进一个页面，数据全部存在本地 Markdown 文件里，不依赖任何外部服务或账号。
+Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管理 / 笔记统计 / 日历」收进一个页面，并附带全库全文搜索（Vault Search）、OneDrive 同步（Vault Sync）、Minimal 主题设置与 Markdown 增强（强制视图、轻量 Linter、`` ```astra `` 查询代码块）。
 
-插件 ID：`astral-trek`（安装目录为 `.obsidian/plugins/astral-trek/`）。
+数据全部存在本地 Markdown 文件里；除可选开启的 OneDrive 同步外，不依赖任何外部服务或账号。
+
+插件 ID：`astra`（安装目录为 `.obsidian/plugins/astra/`）。
 
 ## 功能
 
-### 主页
+### 工作台
+
+#### 主页
 
 常驻顶部栏包含：时段问候（可自定义姓名）、`仓库名 · N 篇笔记 · X 字数` 统计、日期 / 时间 / 农历（每 30 秒刷新）、返回主页与打开设置按钮。
 
@@ -21,6 +25,8 @@ Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管�
 - **写作活动热力图**：GitHub 绿配色的 52 周热力图，统计近 52 周写作活动；空格子与四级绿色分级，今天带边缘光晕，点击有笔记的色块可查看当日笔记明细
 
 - **快速捕获（闪念胶囊）**：输入框 + 发送按钮，`Cmd/Ctrl + Enter` 快捷提交，内容统一追加写入设置中指定的单个笔记文件
+
+- **每日口语**：从指定笔记中解析语录，按日轮换展示一条；左右箭头切换，骰子按钮随机换一条
 
 - **TODO**：每日任务，逾期置顶 + 优先级排序；右键菜单管理，支持单日延后、单日完成 / 不做；重复任务不切换状态、按规则推进下次提醒日期
 
@@ -34,7 +40,7 @@ Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管�
 
 主页模块支持**拖拽排序、拖到编辑条垃圾桶删除、缩放卡片宽高、从「＋添加卡片」菜单新增**，顺序 / 显隐 / 尺寸持久化到插件数据；移动端可通过设置单独隐藏指定模块（快捷链接与热力图始终显示）。
 
-### 快速捕获 / 全部便签
+#### 快速捕获 / 全部便签
 
 - 瀑布流时间线，按天分组展示
 
@@ -50,7 +56,7 @@ Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管�
 
 - 导出当前筛选结果为 Markdown / HTML / JSON，写入快速捕获文件同级目录下的 `exports/` 子目录，Markdown 结果自动打开预览
 
-### 全部项目
+#### 全部项目
 
 左侧项目侧栏（拖拽排序、右键删除、点击阶段快进），主面板四个标签页：
 
@@ -62,7 +68,7 @@ Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管�
 
 - **看板**：待办 / 进行中 / 已阻塞 / 已完成 / 已取消，跨列拖拽即改状态
 
-### 日历
+#### 日历
 
 侧边栏月视图（可在设置中指定左 / 右侧边栏）：
 
@@ -74,27 +80,99 @@ Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管�
 
 - 可高亮今日
 
-## 命令
+### Vault Search — 全文搜索
 
-本插件不注册任何命令。通过左侧边栏的 Ribbon 图标打开：
+全库搜索弹窗，交互与视觉复刻 omnisearch（仅复刻体验，未搬运其 GPL 代码）：
 
-- **打开 Astra**：打开 Astra 主页
+- **入口**：左侧 ribbon「Astra搜索」常驻按钮 + 命令「打开全文搜索」（不设默认热键，可在「设置 → 热键」自行绑定）
 
-- **打开日历**：在侧边栏打开日历视图
+- **中文友好**：minisearch 引擎 + 浏览器原生 `Intl.Segmenter` 中文分词（ICU 词级切分，零外部依赖）；字段权重对齐 omnisearch 默认（文件名 / H1 / H2 / H3），支持模糊匹配与前缀匹配
+
+- **弹窗交互**：`↑↓` / `Tab` 选择、`Enter` 打开、`Mod+Enter` 新标签打开、`Alt+Enter` 插入链接、`Alt+↑↓` 翻搜索历史（持久化）、`Mod+G` 临时切换摘录；输入法组合中 `Enter` 不误触发；结果含文件名 + 摘录 `<mark>` 高亮，悬停预览
+
+- **索引持久化**：索引落盘至插件目录 `search-index.json`，重启后跳过全量重建、毫秒级恢复可用；启动时后台按 mtime 对账，自动修复关闭期间因同步等外部改动增删改的文件
+
+- **尊重 Obsidian 设置**：遵循「排除的文件」「简单搜索」等 Obsidian 原生搜索设置
+
+### Vault Sync — OneDrive 同步
+
+将整个 Vault 与 OneDrive 保持同步，引擎移植自上游同步方案并裁剪为 OneDrive 专用：
+
+- **授权**：OAuth2 PKCE 登录，可随时在设置里撤回授权
+
+- **同步方向**：双向（互为镜像）/ 仅上传（以本库为基准的备份）/ 仅下载（从云端拉取），均含删除操作；冲突按保留较新或保留较大处理；删除可送系统回收站或 Obsidian `.trash`
+
+- **同步范围**：`.obsidian` 配置目录（默认关）、书签 `bookmarks.json` 可单独同步、`.trash`（默认关）、下划线开头隐藏文件（默认关）、单文件大小上限
+
+- **安全防护**：保护阈值——待修改 / 删除文件占比超限时自动中止本次同步；可选密码端到端加密
+
+- **触发方式**：ribbon 按钮与命令手动同步、定时自动、启动后首次延迟、保存笔记防抖、远端变更检测，均可独立配置或关闭
+
+- **状态反馈**：状态栏显示上次同步相对时间（30 秒自动刷新）与同步中实时步骤；ribbon「Astra同步」按钮同步中图标切换
+
+> **数据安全**：所有数据仍以 Vault 内的 Markdown 文件为唯一事实来源，Vault Sync 为可选功能；支持端到端加密与保护阈值，OAuth 授权可随时撤回。
+
+### Markdown+
+
+- **强制视图**：按文件夹 / 文件规则自动设置视图模式（阅读 / 编辑，`obsidianUIMode` / `obsidianEditingMode`），可忽略已打开文件或未指定 frontmatter 的文件
+
+- **Linter Lite**：保存时自动格式化，内置两条规则——「YAML 时间戳」（维护 `date created` / `date modified`）与「内容行之间的换行」（段落 / 引用块 / 列表项的行末换行标记）；支持文件夹忽略；采用差异区间替换，编辑时光标与滚动位置不被打乱
+
+### Minimal 主题设置
+
+为 Minimal 主题提供图形化外观设置（移植自 obsidian-minimal-settings）：配色方案、字体大小、连续图片多列、侧边栏明暗等；默认仅显示一个「显示设置项」开关，打开后展开全部设置项。入口位于「设置 → Astra」标签页。
+
+### ```astra 查询代码块
+
+在任意笔记中写 DQL 查询，渲染为表格 / 列表 / 任务列表，执行顺序与 Dataview 一致（FROM → WHERE → SORT → LIMIT）：
+
+````markdown
+```astra
+TABLE 状态, 截止日期
+FROM "Projects"
+WHERE 状态 != "已完成"
+SORT 截止日期 ASC
+LIMIT 10
+```
+````
+
+- **TABLE**：Dataview 风格表格，支持 `file.name/path/folder/link` 内置字段 + 任意 frontmatter 字段，`AS` 别名
+
+- **LIST**：文件链接列表，语义对齐 Dataview（无字段 = 文件链接；有字段 = 「链接： 值」；`WITHOUT ID` = 仅值）
+
+- **TASK**：任务列表，checkbox 可勾选并**写回源文件**（原子写入 + 乐观锁，定位失败零写入并提示）；悬停显示来源路径与行号
+
+- **FROM**：支持 `"路径"` 与 `#tag`（含子标签，大小写不敏感）；**WHERE**：支持 `=` / `!=` 与布尔形式；**LIMIT N**
+
+## 命令与入口
+
+左侧边栏 ribbon 按钮：
+
+| Ribbon | 说明 |
+| --- | --- |
+| **Astra主页** | 打开 Astra 工作台 |
+| **Astra日历** | 在侧边栏打开日历视图（可在设置中关闭） |
+| **Astra搜索** | 打开全文搜索弹窗 |
+| **Astra同步** | 立即进行 Vault Sync（同步中图标切换） |
+
+命令面板命令：
+
+| 命令 | 说明 |
+| --- | --- |
+| **打开全文搜索** | 打开全库搜索弹窗（不设默认热键，可在「设置 → 热键」自行绑定） |
+| **立即进行 Vault Sync** | 手动触发一次 OneDrive 同步 |
 
 ## 设置
 
-设置同时以「插件设置页」和首页右上角「设置」弹窗两种方式提供，内容一致：
+设置同时以「插件设置页」和首页右上角「设置」弹窗两种方式提供，内容一致，分四个标签页：
 
-- **基础**：问候名称、启动时打开首页、启动方式（替换当前标签 / 新标签）、空白或极短阈值、排除文件夹、启用光标位置（记住每个文件的光标位置和滚动状态）
+- **Astra** — 基础（问候名称、启动时打开首页、启动方式、空白或极短阈值、排除文件夹、启用光标位置）、主页模块（项目文件夹、TODO 扫描文件夹、阶段命名、项目进度筛选阶段、快速捕获文件、每日口语文件）、日历（侧边栏位置、字数点阵、周起始、创建日记前是否确认）、移动端模块显隐、Minimal 主题设置
 
-- **主页模块**：项目文件夹、TODO 扫描文件夹（留空 = 整个仓库）、阶段命名、项目进度筛选阶段、快速捕获文件（统一追加写入的笔记文件，输入联想选择，不存在会自动创建）
+- **Markdown+** — 强制视图规则、Linter Lite（YAML 时间戳、内容行之间的换行、文件夹忽略）
 
-- **移动端模块显隐**：分别开关快速捕获 / TODO / 本周待办 / 项目情况 / 倒计时 / 最近笔记在移动端是否显示
+- **Vault Search** — 单组 7 项：摘录显示、高亮匹配词、模糊度、定位到命中文本等（索引范围与结果权重固定为内置默认值）
 
-- **日历**：侧边栏位置、创建日记前是否确认
-
-- **强制视图**：按文件夹 / 文件规则自动设置视图模式（`obsidianUIMode` / `obsidianEditingMode`），可忽略已打开文件或未指定 frontmatter 的文件
+- **Vault Sync** — 4 组：状态（授权与上次同步）、基本（方向与触发方式）、同步内容（同步范围）、高级（安全防护与加密）
 
 ## 数据格式
 
@@ -137,14 +215,6 @@ tags: [配置]
 ---
 ```
 
-## 开发
-
-```bash
-npm install      # 安装依赖
-npm run dev      # 监听编译，产物输出到仓库根目录 main.js / styles.css
-npm run build    # 类型检查 + 生产构建，并把 main.js / manifest.json / styles.css 同步到 dist/
-```
-
 ## 安装
 
-将构建产物（`main.js`、`manifest.json`、`styles.css`，可直接使用 `dist/` 内的副本）放入 `<你的库>/.obsidian/plugins/astral-trek/` 目录，然后在 Obsidian 命令面板执行 **Reload app without saving**（或重启 Obsidian）即可。
+将构建产物（`main.js`、`manifest.json`、`styles.css`，可直接使用 `dist/` 内的副本）放入 `<你的库>/.obsidian/plugins/astra/` 目录，然后在 Obsidian 命令面板执行 **Reload app without saving**（或重启 Obsidian）即可。

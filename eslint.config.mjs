@@ -39,10 +39,12 @@ export default tseslint.config(
     }
   },
   {
-    // Vitest 测试文件跑在 Node.js 上，允许使用 Node.js 内置模块。
+    // Vitest 测试文件跑在 Node.js 上，允许使用 Node.js 内置模块；
+    // Node 环境没有 window，计时器规则不适用。
     files: ["src/**/*.test.ts"],
     rules: {
-      "obsidianmd/no-nodejs-modules": "off"
+      "obsidianmd/no-nodejs-modules": "off",
+      "obsidianmd/prefer-window-timers": "off"
     }
   }
 );

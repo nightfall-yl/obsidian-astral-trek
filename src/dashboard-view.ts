@@ -14,7 +14,6 @@ import type {
   QuickLink
 } from "./models";
 import { QuickLinkModal, quickLinkInitial } from "./quick-link-modal";
-import { AstraSettingsModal } from "./settings";
 import { HeatmapSettingsModal } from "./heatmap-settings-modal";
 import { ProjectBoardPanel } from "./project-board-view";
 import { FlomoBoardPanel } from "./flomo/panel";
@@ -302,7 +301,8 @@ export class AstraDashboardView extends ItemView {
       this.registerDomEvent(homeBtn, "click", () => this.navigateHome());
       const settingsBtn = this.createIconButton(buttons, "settings", $t("dv.header.openSettings"));
       this.registerDomEvent(settingsBtn, "click", () => {
-        new AstraSettingsModal(this.app, this.plugin).open();
+        // 直接跳转 Obsidian 原生设置页的本插件 tab（不再弹自建设置弹窗）
+        this.plugin.openSettingsTab();
       });
       // 实时刷新日期时间/星期/农历
       const updateClock = (): void => {
