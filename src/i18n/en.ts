@@ -970,7 +970,7 @@ export default {
   "sync.auth.reauthorize": "Re-authorize",
   "sync.auth.revoke": "Revoke authorization",
   "sync.auth.needClientId": "Enter the Azure app ID (client ID) first",
-  "sync.auth.waitingHint": "Waiting for authorization in the browser… this dialog closes automatically afterwards. If the browser does not return to Obsidian, check that the Azure app redirect URI is obsidian://astra-onedrive",
+  "sync.auth.waitingHint": "Waiting for authorization in the browser… this dialog closes automatically afterwards. If the browser does not return to Obsidian, check that the Azure app redirect URI is obsidian://astral-trek-onedrive",
   "sync.auth.callbackNoVerifier": "No authorization flow in progress. Start it again from settings",
   "sync.auth.success": "OneDrive authorization succeeded",
   "sync.auth.failed": "OneDrive authorization failed: {msg}",
@@ -1119,6 +1119,5 @@ export default {
   "sync.error.passwordNotMatched": "Encryption password check failed ({reason}). Ensure all devices use the same password; if it was just changed, follow the settings hint to reset and re-sync",
   "sync.error.sizesGoWrong": "{count} file(s) exceed the size limit (e.g. {first}); skipped this run",
   "sync.error.protectModifyPercentage": "Sync aborted: too many files would be modified: {msg}",
-  "sync.error.syncFailed": "Sync failed: {msg}",
-  "migration.pluginIdRenamed": "The plugin ID changed to astra and your previous settings were migrated. Disable and uninstall the old astral-trek entry under Settings → Community plugins, then delete the plugins/astral-trek folder inside your vault's config directory."
+  "sync.error.syncFailed": "Sync failed: {msg}"
 };

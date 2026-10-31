@@ -6,7 +6,7 @@
  * - @microsoft/microsoft-graph-client's `AuthenticationProvider` interface and
  *   @microsoft/microsoft-graph-types (`DriveItem`, `UploadSession`, `User`)
  *   are replaced by the minimal local Graph types below;
- * - the OAuth redirect URI is `obsidian://astra-onedrive` (this plugin's
+ * - the OAuth redirect URI is `obsidian://astral-trek-onedrive` (this plugin's
  *   own protocol handler), so a custom Azure app registration with that
  *   redirect URI is required (clientID is configurable in settings).
  */
@@ -61,7 +61,7 @@ export const DEFAULT_ONEDRIVE_CONFIG: OnedriveConfig = {
   accessToken: "",
   // Author-owned PKCE app: this project's own Azure app registration (also
   // used by the author's upstream third-party-sync). Its registration includes
-  // the redirect URI obsidian://astra-onedrive, so this works out of the box.
+  // the redirect URI obsidian://astral-trek-onedrive, so this works out of the box.
   clientID: "ad95e28f-d89a-43db-8ce6-0e64ef1283aa",
   authority: "https://login.microsoftonline.com/consumers/",
   refreshToken: "",

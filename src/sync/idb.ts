@@ -10,7 +10,7 @@
  * and zero npm dependencies.
  */
 
-const DB_NAME = "astra-sync-db";
+const DB_NAME = "astral-trek-sync-db";
 const STORE_NAME = "kv";
 
 let dbPromise: Promise<IDBDatabase> | null = null;

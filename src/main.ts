@@ -1,6 +1,6 @@
 import { initI18n, t as $t } from "./i18n";
 import type { App, PluginManifest} from "obsidian";
-import { Notice, Plugin, TFile, normalizePath } from "obsidian";
+import { Plugin, TFile } from "obsidian";
 import {
   AstraDashboardView,
   VIEW_TYPE_ASTRA_DASHBOARD
@@ -318,48 +318,7 @@ export default class AstraDashboardPlugin extends Plugin {
     });
   }
 
-  /**
-   * 插件 ID 由 `astral-trek` 改为 `astra` 后，Obsidian 从新目录
-   * `.obsidian/plugins/astra/` 读取设置，旧目录下的设置与索引会「丢失」。
-   * 这里在加载数据前把旧目录的数据文件复制过来；新目录已有同名文件则不覆盖，
-   * 因此重复执行是安全的。旧目录本身不删除——其中的 main.js 可能仍被旧插件
-   * 实例加载，需用户停用/卸载旧条目后手动删除。
-   */
-  private async migrateLegacyPluginDir(): Promise<void> {
-    const adapter = this.app.vault.adapter;
-    const oldDir = normalizePath(
-      `${this.app.vault.configDir}/plugins/astral-trek`
-    );
-    const newDir = this.manifest.dir;
-    if (!newDir || newDir === oldDir) return;
-
-    const dataFiles = [
-      "data.json",
-      "static-data.json",
-      "search-index.json",
-      "minimal-settings.json",
-      "linter-settings.json",
-    ];
-    let migrated = false;
-    for (const fileName of dataFiles) {
-      const oldPath = normalizePath(`${oldDir}/${fileName}`);
-      const newPath = normalizePath(`${newDir}/${fileName}`);
-      try {
-        if (!(await adapter.exists(oldPath)) || (await adapter.exists(newPath))) {
-          continue;
-        }
-        if (!(await adapter.exists(newDir))) await adapter.mkdir(newDir);
-        await adapter.write(newPath, await adapter.read(oldPath));
-        migrated = true;
-      } catch {
-        // 单个文件失败不影响启动，其余文件继续迁移
-      }
-    }
-    if (migrated) new Notice($t("migration.pluginIdRenamed"), 10000);
-  }
-
   private async loadPluginData(): Promise<void> {
-    await this.migrateLegacyPluginDir();
     const saved = (await this.loadData()) as Partial<AstraPluginData> | null;
     // 旧数据无 dataVersion 字段，视为 v1（进入迁移链）；全新安装（无存档）跳过迁移
     const savedVersion =

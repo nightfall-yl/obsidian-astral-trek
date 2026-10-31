@@ -42,6 +42,12 @@ export class AstraSettingTab extends PluginSettingTab {
     renderSettings(this.containerEl, this.astraPlugin);
   }
 
+  hide(): void {
+    super.hide();
+    // 解除同步页的重渲染钩子，避免设置页关闭后 syncManager 仍持有已脱离 DOM 的回调
+    this.astraPlugin.syncManager.registerSettingsRerender(null);
+  }
+
   /**
    * 声明式设置 API（Obsidian 1.13+）：
    * 本插件设置页为命令式构建（见下方 renderSettings），返回空数组以保持
@@ -1012,6 +1018,10 @@ function renderSyncSettings(
 ): void {
   const s = plugin.data.settings.sync;
   const syncManager = plugin.syncManager;
+
+  // 授权状态变化（OAuth 回调成功 / 撤回）时由 syncManager 通知本页整页重渲染；
+  // 设置页关闭时在 AstraSettingTab.hide() 中解除注册
+  syncManager.registerSettingsRerender(rerender);
 
   // ── 服务与状态（上游「OneDrive（个人版）（App Folder）设置」）──
   const statusGroup = new SettingGroup(syncEl).setHeading(

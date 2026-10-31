@@ -971,7 +971,7 @@ export default {
   "sync.auth.reauthorize": "重新授权",
   "sync.auth.revoke": "取消授权",
   "sync.auth.needClientId": "请先填写 Azure 应用 ID（client ID）",
-  "sync.auth.waitingHint": "正在等待浏览器中的授权结果…完成授权后本窗口会自动关闭。若浏览器未自动跳回 Obsidian，请确认 Azure 应用的重定向 URI 已配置为 obsidian://astra-onedrive",
+  "sync.auth.waitingHint": "正在等待浏览器中的授权结果…完成授权后本窗口会自动关闭。若浏览器未自动跳回 Obsidian，请确认 Azure 应用的重定向 URI 已配置为 obsidian://astral-trek-onedrive",
   "sync.auth.callbackNoVerifier": "没有进行中的授权流程，请从设置页重新发起授权",
   "sync.auth.success": "OneDrive 授权成功",
   "sync.auth.failed": "OneDrive 授权失败：{msg}",
@@ -1122,6 +1122,5 @@ export default {
   "sync.error.passwordNotMatched": "加密口令校验未通过（{reason}）。请确认所有设备口令一致；若刚修改过口令，请按设置页提示重置后重新同步",
   "sync.error.sizesGoWrong": "有 {count} 个文件超过大小限制（如 {first}），本次已跳过同步",
   "sync.error.protectModifyPercentage": "本次同步将修改过多文件，已中止保护：{msg}",
-  "sync.error.syncFailed": "同步失败：{msg}",
-  "migration.pluginIdRenamed": "插件 ID 已改为 astra，原有设置已自动迁移。请在「设置 → 第三方插件」中停用并卸载旧的 astral-trek 条目，再删除配置目录下 plugins/astral-trek 文件夹。"
+  "sync.error.syncFailed": "同步失败：{msg}"
 };

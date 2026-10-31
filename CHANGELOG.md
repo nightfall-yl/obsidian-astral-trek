@@ -4,11 +4,16 @@
 
 > 说明：本更新日志自 `26.1.1` 起维护。
 
+## [26.3.1-preview] - 2026-10-31
+
+### 修复
+- **OneDrive 授权成功后设置页不刷新**：浏览器完成 OAuth 回调后只弹出成功通知，设置页仍显示「授权」按钮，需切到别的插件设置再回来才变成「撤回鉴权」。根因：授权状态其实早已写入 data.json，但 sync-manager 的 `notifySettingsRefresh()` 是从未实现的空壳，通知链路断了。修复：SyncManager 新增设置页重渲染钩子（设置页打开时注册、关闭时解除），授权成功 / 撤回鉴权后立即整页重渲染（保留当前所在 tab）
+
 ## [26.3.0] - 2026-10-31
 
 ### 新增
 - **Vault Sync**（OneDrive 同步）：引擎自上游 obsidian-third-party-sync 移植并裁剪为 OneDrive 专用（新增 `src/sync/` 约 6000 行）
-  - 授权：OAuth2 PKCE 登录（`obsidian://astra-onedrive` 回调），可随时撤回授权
+  - 授权：OAuth2 PKCE 登录（`obsidian://astral-trek-onedrive` 回调），可随时撤回授权
   - 同步方向：双向（互为镜像）/ 仅上传（本库为基准的备份）/ 仅下载（从云端拉取），均含删除操作；冲突按保留较新或保留较大处理；删除可送系统回收站或 Obsidian `.trash`
   - 同步范围：`.obsidian` 配置目录（默认关）、书签 `bookmarks.json` 可单独同步、`.trash`（默认关）、下划线开头隐藏文件（默认关）、单文件大小上限
   - 安全防护：保护阈值（待修改/删除文件占比超限时中止本次同步）；可选密码端到端加密
@@ -24,7 +29,6 @@
   - `loadPluginData` 由 ~160 行散装迁移缩为 ~72 行骨架；Section2 forceViewMode 迁移补 `introducedIn` 与自清退说明
 
 ### 调整
-- **插件 ID `astral-trek` → `astra`**（与显示名对齐）：首次加载自动把旧目录的 `data.json` / `static-data.json` / `search-index.json` 迁移到新目录；OAuth 回调同步改为 `obsidian://astra-onedrive`（需在 Azure 应用注册中添加该重定向 URI，已授权令牌不受影响）；旧 `astral-trek` 条目需停用卸载后手动删除目录
 - **设置页四 tab 架构**（同步整合前置，Phase 1）：固定名称 `Astra / Markdown+ / Vault Search / Vault Sync`，图标 layout-dashboard / file-text / search / cloud
   - Minimal 主题设置自 Markdown+ 迁入 Astra（工作台 + 日历 + 主题）
   - tab 栏移动端适配：窄面板下横向滑动（隐藏滚动条），桌面端无变化；修复移动端暗色模式下设置组背景框

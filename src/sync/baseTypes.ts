@@ -28,7 +28,7 @@ export interface RemoteItem {
   etag?: string;
 }
 
-export const COMMAND_CALLBACK_ONEDRIVE = "astra-onedrive";
+export const COMMAND_CALLBACK_ONEDRIVE = "astral-trek-onedrive";
 
 // 80 days
 export const OAUTH2_FORCE_EXPIRE_MILLISECONDS = 1000 * 60 * 60 * 24 * 80;

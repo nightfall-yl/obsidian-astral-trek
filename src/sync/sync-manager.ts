@@ -520,8 +520,17 @@ export class SyncManager {
     new Notice($t("sync.action.clearedLocal"));
   }
 
+  /** 设置页整页重渲染钩子：设置页打开时由 renderSyncSettings 注册、关闭时（hide）置空。
+   *  授权状态变化（OAuth 回调成功 / 撤回鉴权）后用它通知设置页即时刷新，
+   *  否则「撤回鉴权」按钮要等用户切走再切回设置页才出现。 */
+  private settingsRerenderCb: (() => void) | null = null;
+
+  registerSettingsRerender(cb: (() => void) | null): void {
+    this.settingsRerenderCb = cb;
+  }
+
   private notifySettingsRefresh(): void {
-    // 设置页展示由 display() 重渲染；这里仅用于将来可能的响应式刷新
+    this.settingsRerenderCb?.();
   }
 
   // ─────────────────────────── sync run ───────────────────────────

@@ -380,7 +380,7 @@ const isSkipItem = (
     // persist last sync time
     if (
       key ==
-      configDir + "/plugins/astra/" + FILE_NAME_FOR_DATA_JSON
+      configDir + "/plugins/astral-trek/" + FILE_NAME_FOR_DATA_JSON
     ) {
       return true;
     }

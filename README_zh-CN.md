@@ -10,7 +10,7 @@ Astra 是一个 Obsidian 插件：把「快速捕获 / 任务管理 / 项目管�
 
 数据全部存在本地 Markdown 文件里；除可选开启的 OneDrive 同步外，不依赖任何外部服务或账号。
 
-插件 ID：`astra`（安装目录为 `.obsidian/plugins/astra/`）。
+插件 ID：`astral-trek`（安装目录为 `.obsidian/plugins/astral-trek/`）。
 
 ## 功能
 
@@ -217,4 +217,4 @@ tags: [配置]
 
 ## 安装
 
-将构建产物（`main.js`、`manifest.json`、`styles.css`，可直接使用 `dist/` 内的副本）放入 `<你的库>/.obsidian/plugins/astra/` 目录，然后在 Obsidian 命令面板执行 **Reload app without saving**（或重启 Obsidian）即可。
+将构建产物（`main.js`、`manifest.json`、`styles.css`，可直接使用 `dist/` 内的副本）放入 `<你的库>/.obsidian/plugins/astral-trek/` 目录，然后在 Obsidian 命令面板执行 **Reload app without saving**（或重启 Obsidian）即可。

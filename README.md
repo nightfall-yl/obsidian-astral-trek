@@ -10,7 +10,7 @@ Astra is an Obsidian plugin that consolidates quick capture, task & project mana
 
 All data is stored locally as plain Markdown files. Except for the optional OneDrive sync, no external service or account is required.
 
-Plugin ID: `astra` (install directory: `.obsidian/plugins/astra/`).
+Plugin ID: `astral-trek` (install directory: `.obsidian/plugins/astral-trek/`).
 
 ## Features
 
@@ -217,7 +217,7 @@ tags: [配置]
 
 ## Installation
 
-Place the build artifacts (`main.js`, `manifest.json`, `styles.css`, or the copies inside `dist/`) into `<your-vault>/.obsidian/plugins/astra/`, then run **Reload app without saving** from the Obsidian command palette (or restart Obsidian).
+Place the build artifacts (`main.js`, `manifest.json`, `styles.css`, or the copies inside `dist/`) into `<your-vault>/.obsidian/plugins/astral-trek/`, then run **Reload app without saving** from the Obsidian command palette (or restart Obsidian).
 
 ## License
 
