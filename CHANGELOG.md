@@ -7,7 +7,9 @@
 ## [26.3.1-preview] - 2026-10-31
 
 ### 修复
-- **OneDrive 授权成功后设置页不刷新**：浏览器完成 OAuth 回调后只弹出成功通知，设置页仍显示「授权」按钮，需切到别的插件设置再回来才变成「撤回鉴权」。根因：授权状态其实早已写入 data.json，但 sync-manager 的 `notifySettingsRefresh()` 是从未实现的空壳，通知链路断了。修复：SyncManager 新增设置页重渲染钩子（设置页打开时注册、关闭时解除），授权成功 / 撤回鉴权后立即整页重渲染（保留当前所在 tab）
+- **OneDrive 授权成功后设置页不刷新**：根因是 `notifySettingsRefresh()` 为从未实现的空壳，授权状态已写入但设置页收不到通知；新增重渲染钩子（打开注册、关闭解除），授权成功 / 撤回后立即刷新且不跳走当前 tab
+- **同步删除的「系统回收站」选项从未生效**：删除回调误用 `vault.trash(f, false)`（实际进 Obsidian `.trash`），与「Obsidian .trash」选项行为相同；改用 `adapter.trashSystem()`（移动端不支持时自动回退 `.trash`），该选项首次真正生效，顺带清零 `prefer-file-manager-trash-file` lint 警告
+- **同步引擎硬编码配置文件夹 `.obsidian`**：`doActualSyncV3` 的 `configDir` 默认参数写死 `".obsidian"`，而 Obsidian 允许用户自定义配置文件夹名；改为默认引用 `vault.configDir`（唯一调用方本就显式传入真实值，运行时行为不变，默认值对未来的调用方自洽）
 
 ## [26.3.0] - 2026-10-31
 

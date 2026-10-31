@@ -1193,7 +1193,7 @@ export const doActualSyncV3 = async (
   callbackSyncProcess?: (index: number, total: number) => Promise<void>,
   protectModifyPercentage?: number,
   callbackProtectModifyPercentage?: (errorMsg: string) => void,
-  configDir: string = ".obsidian",
+  configDir: string = vault.configDir,
   syncDirection: SyncDirectionType = "bidirectional"
 ) => {
   if (sizesGoWrong.length > 0) {

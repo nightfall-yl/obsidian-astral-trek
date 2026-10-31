@@ -700,12 +700,14 @@ export class SyncManager {
         plan.sizesGoWrong,
         async (key: string) => {
           const p = normalizePath(key);
-          if (s.deleteToWhere === "system_trash") {
-            const f = this.plugin.app.vault.getAbstractFileByPath(p);
-            if (f !== null) {
-              await this.plugin.app.vault.trash(f, false);
-              return;
-            }
+          // 插件级「删除到哪里」设置须优先于 Obsidian 全局偏好（FileManager.trashFile
+          // 跟随全局设置，无法保证送系统回收站）；移动端不支持系统回收站时
+          // trashSystem 返回 false，回退 Obsidian .trash
+          if (
+            s.deleteToWhere === "system_trash" &&
+            (await this.plugin.app.vault.adapter.trashSystem(p))
+          ) {
+            return;
           }
           await this.plugin.app.vault.adapter.trashLocal(p);
         },
